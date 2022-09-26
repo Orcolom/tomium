@@ -1,0 +1,20 @@
+{
+    "name": "Wrench.Builder",
+    "rootNamespace": "Wrench.Builder",
+    "references": [
+        "GUID:76acb78479c2219438fb4d7a893fc6b0"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "LinuxStandalone64",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
