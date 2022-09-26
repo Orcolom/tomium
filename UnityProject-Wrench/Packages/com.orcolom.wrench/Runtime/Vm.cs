@@ -314,7 +314,7 @@ namespace Wrench
 		{
 			if (vm.IsValid) return false;
 			
-			Expect.ThrowException(new ObjectDisposedException(nameof(Vm), "Vm is already disposed"));
+			Expected.ThrowException(new ObjectDisposedException(nameof(Vm), "Vm is already disposed"));
 			return true;
 		}
 
@@ -345,7 +345,7 @@ namespace Wrench
 
 			if (sameVm) return false;
 			
-			Expect.ThrowException(new ArgumentOutOfRangeException(nameof(sameVm), "Not all elements are from the same Vm"));
+			Expected.ThrowException(new ArgumentOutOfRangeException(nameof(sameVm), "Not all elements are from the same Vm"));
 			return true;
 		}
 

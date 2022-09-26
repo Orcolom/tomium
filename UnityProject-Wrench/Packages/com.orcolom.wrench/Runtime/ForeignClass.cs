@@ -46,6 +46,12 @@ namespace Wrench
 		{
 			return new ForeignClass((in Vm vm) => vm.Slot0.SetNewForeign<T>(vm.Slot0));
 		}
+
+		public static ForeignClass DefaultManagedAlloc<T>()
+		{
+			return new ForeignClass((in Vm vm) => vm.Slot0.SetNewManagedForeign<T>(vm.Slot0));
+		}
+
 		
 		internal static ForeignClass FromAllocPtr(IntPtr ptr)
 		{

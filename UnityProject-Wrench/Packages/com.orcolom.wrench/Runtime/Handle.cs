@@ -58,7 +58,7 @@ namespace Wrench
 		{
 			if (handle.IsValid) return false;
 			
-			Expect.ThrowException(new ObjectDisposedException("Handle is already disposed"));
+			Expected.ThrowException(new ObjectDisposedException("Handle is already disposed"));
 			return true;
 		}
 

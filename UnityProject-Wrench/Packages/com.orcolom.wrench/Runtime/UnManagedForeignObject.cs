@@ -6,8 +6,8 @@ namespace Wrench
 {
 	public interface IForeignObject
 	{
-		public bool IsValueOfType<T>() where T : unmanaged;
-		ForeignObject<T> As<T>() where T : unmanaged;
+		public bool IsValueOfUnManagedType<T>() where T : unmanaged;
+		UnManagedForeignObject<T> AsUnManaged<T>() where T : unmanaged;
 	}
 	
 	public struct ForeignObject : IForeignObject
@@ -19,10 +19,10 @@ namespace Wrench
 			_ptr = ptr;
 		}
 
-		public bool IsValueOfType<T>()
+		public bool IsValueOfUnManagedType<T>()
 			where T : unmanaged
 		{
-			return ForeignObject<T>.ForeignObjects.Data.Map.ContainsKey(_ptr);
+			return UnManagedForeignObject<T>.ForeignObjects.Data.Map.ContainsKey(_ptr);
 		}
 
 		public bool IsValueOfManagedType<T>()
@@ -30,10 +30,10 @@ namespace Wrench
 			return Managed.ForeignObjects.ContainsKey(_ptr);
 		}
 
-		public ForeignObject<T> As<T>()
+		public UnManagedForeignObject<T> AsUnManaged<T>()
 			where T : unmanaged
 		{
-			return ForeignObject<T>.FromPtr(_ptr);
+			return UnManagedForeignObject<T>.FromPtr(_ptr);
 		}
 
 		public ManagedForeignObject<T> AsManaged<T>()
@@ -41,38 +41,35 @@ namespace Wrench
 			return ManagedForeignObject<T>.FromPtr(_ptr);
 		}
 
-		public static ForeignObject<T> New<T>(IntPtr vmPtr, in Slot storeSlot, in Slot classSlot, T value = default)
+		public static UnManagedForeignObject<T> NewUnManaged<T>(IntPtr vmPtr, in Slot storeSlot, in Slot classSlot, T value = default)
 			where T : unmanaged
 		{
-			if (Vm.IfInvalid(vmPtr)) return new ForeignObject<T>();
+			if (Vm.IfInvalid(vmPtr)) return new UnManagedForeignObject<T>();
 
 			var ptr = Interop.wrenSetSlotNewForeign(vmPtr, storeSlot.Index, classSlot.Index, new IntPtr(IntPtr.Size));
 
-			var obj = new ForeignObject<T>(ptr);
-			ForeignObject<T>.ForeignObjects.Data.Map.TryAdd(ptr, value);
+			var obj = new UnManagedForeignObject<T>(ptr);
+			UnManagedForeignObject<T>.ForeignObjects.Data.Map.TryAdd(ptr, value);
 
 			return obj;
 		}
 		
 		public static ManagedForeignObject<T> NewManaged<T>(IntPtr vmPtr, in Slot storeSlot, in Slot classSlot, T value = default)
-			where T : unmanaged
 		{
 			if (Vm.IfInvalid(vmPtr)) return new ManagedForeignObject<T>();
 
 			var ptr = Interop.wrenSetSlotNewForeign(vmPtr, storeSlot.Index, classSlot.Index, new IntPtr(IntPtr.Size));
 
-			var obj = new ManagedForeignObject<T>(ptr);
-			ForeignObject<T>.ForeignObjects.Data.Map.TryAdd(ptr, value);
-
-			return obj;
+			return new ManagedForeignObject<T>(ptr);
 		}
 	}
 
-	public readonly struct ForeignObject<T> : IForeignObject
+	public readonly struct UnManagedForeignObject<T> : IForeignObject
 		where T : unmanaged
 	{
-		internal static readonly SharedStatic<StaticMap<T>> ForeignObjects = SharedStatic<StaticMap<T>>.GetOrCreate<ForeignObject<T>>();
-		static ForeignObject()
+		internal static readonly SharedStatic<StaticMap<T>> ForeignObjects = SharedStatic<StaticMap<T>>.GetOrCreate<UnManagedForeignObject<T>>();
+		
+		static UnManagedForeignObject()
 		{
 			ForeignObjects.Data.Init(16);
 		}
@@ -95,35 +92,35 @@ namespace Wrench
 			}
 		}
 
-		public bool IsValueOfType<TOther>()
+		public bool IsValueOfUnManagedType<TOther>()
 			where TOther : unmanaged
 		{
 			return ForeignObjects.Data.Map.ContainsKey(_ptr);
 		}
 		
-		public ForeignObject<TOther> As<TOther>()
+		public UnManagedForeignObject<TOther> AsUnManaged<TOther>()
 			where TOther : unmanaged
 		{
-			return ForeignObject<TOther>.FromPtr(_ptr);
+			return UnManagedForeignObject<TOther>.FromPtr(_ptr);
 		}
 		
-		internal ForeignObject(IntPtr ptr)
+		internal UnManagedForeignObject(IntPtr ptr)
 		{
 			_ptr = ptr;
 		}
 
-		public static ForeignObject<T> FromPtr(IntPtr ptr)
+		public static UnManagedForeignObject<T> FromPtr(IntPtr ptr)
 		{
-			var foreignObject = new ForeignObject<T>(ptr);
+			var foreignObject = new UnManagedForeignObject<T>(ptr);
 			IfInvalid(foreignObject);
 			return foreignObject;
 		}
 
-		internal static bool IfInvalid(in ForeignObject<T> foreignObject)
+		internal static bool IfInvalid(in UnManagedForeignObject<T> unManagedForeignObject)
 		{
-			if (foreignObject.IsValid) return false;
+			if (unManagedForeignObject.IsValid) return false;
 
-			Expect.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
+			Expected.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
 			return true;
 		}
 	}
@@ -164,7 +161,7 @@ namespace Wrench
 		{
 			if (foreignObject.IsValid) return false;
 			
-			Expect.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
+			Expected.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
 			return true;
 		}
 	}

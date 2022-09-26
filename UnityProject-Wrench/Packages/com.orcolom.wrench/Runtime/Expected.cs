@@ -4,7 +4,7 @@ using Debug = UnityEngine.Debug;
 
 namespace Wrench
 {
-	public class Expect
+	public class Expected
 	{
 		// static BooleanSwitch dataSwitch = new BooleanSwitch("Data", "DataAccess module");
 
@@ -58,7 +58,7 @@ namespace Wrench
 		public static bool Int(in Vm vm, in Slot slot, out int value)
 		{
 			value = 0;
-			if (Expect.Type(vm, slot, ValueType.Number)) return false;
+			if (Expected.Type(vm, slot, ValueType.Number)) return false;
 
 			value = slot.GetInt();
 			return true;
@@ -67,7 +67,7 @@ namespace Wrench
 		public static bool Double(in Vm vm, in Slot slot, out double value)
 		{
 			value = 0;
-			if (Expect.Type(vm, slot, ValueType.Number)) return false;
+			if (Expected.Type(vm, slot, ValueType.Number)) return false;
 
 			value = slot.GetDouble();
 			return true;
@@ -76,7 +76,7 @@ namespace Wrench
 		public static bool Float(in Vm vm, in Slot slot, out float value)
 		{
 			value = 0;
-			if (Expect.Type(vm, slot, ValueType.Number)) return false;
+			if (Expected.Type(vm, slot, ValueType.Number)) return false;
 
 			value = slot.GetFloat();
 			return true;
@@ -85,7 +85,7 @@ namespace Wrench
 		public static bool String(in Vm vm, in Slot slot, out string value)
 		{
 			value = null;
-			if (Expect.Type(vm, slot, ValueType.String)) return false;
+			if (Expected.Type(vm, slot, ValueType.String)) return false;
 
 			value = slot.GetString();
 			return true;
@@ -99,15 +99,31 @@ namespace Wrench
 			return true;
 		}
 
-		public static bool ForeignType<TType>(in Vm vm, in Slot foreignSlot, out ForeignObject<TType> foreign) 
+		public static bool UnManagedForeignType<TType>(in Vm vm, in Slot foreignSlot, out UnManagedForeignObject<TType> unManagedForeign) 
 			where TType : unmanaged
 		{
-			foreign = default;
+			unManagedForeign = default;
 			
 			var iForeign = foreignSlot.GetForeign();
-			if (iForeign.IsValueOfType<TType>())
+			if (iForeign.IsValueOfUnManagedType<TType>())
 			{
-				foreign = iForeign.As<TType>();
+				unManagedForeign = iForeign.AsUnManaged<TType>();
+				return false;
+			}
+			
+			AbortException(vm, "invalid-foreign-type");
+			return true;
+		}
+		
+		
+		public static bool ManagedForeignType<TType>(in Vm vm, in Slot foreignSlot, out ManagedForeignObject<TType> managedForeign) 
+		{
+			managedForeign = default;
+			
+			var iForeign = foreignSlot.GetForeign();
+			if (iForeign.IsValueOfManagedType<TType>())
+			{
+				managedForeign = iForeign.AsManaged<TType>();
 				return false;
 			}
 			

@@ -371,11 +371,11 @@ namespace Wrench
 		/// </para>
 		/// 
 		/// </summary>
-		public ForeignObject<T> SetNewForeign<T>(in Slot @class, T data = default)
+		public UnManagedForeignObject<T> SetNewForeign<T>(in Slot @class, T data = default)
 			where T : unmanaged
 		{
-			if (IfInvalidType(this, ValueType.Foreign)) return new ForeignObject<T>();
-			return ForeignObject.New(_vmPtr, this, @class, data);
+			if (IfInvalidType(this, ValueType.Foreign)) return new UnManagedForeignObject<T>();
+			return ForeignObject.NewUnManaged(_vmPtr, this, @class, data);
 		}
 
 		/// <summary>
@@ -390,22 +390,20 @@ namespace Wrench
 		/// 
 		/// </summary>
 		public ManagedForeignObject<T> SetNewManagedForeign<T>(in Slot @class, T data = default)
-			where T : unmanaged
 		{
 			if (IfInvalidType(this, ValueType.Foreign)) return new ManagedForeignObject<T>();
 			return ForeignObject.NewManaged(_vmPtr, this, @class, data);
 		}
 
-		public ForeignObject<T> GetForeign<T>()
+		public UnManagedForeignObject<T> GetForeign<T>()
 			where T : unmanaged
 		{
-			if (IfInvalidType(this, ValueType.Foreign)) return new ForeignObject<T>();
+			if (IfInvalidType(this, ValueType.Foreign)) return new UnManagedForeignObject<T>();
 			var ptr = Interop.wrenGetSlotForeign(_vmPtr, _index);
-			return ForeignObject<T>.FromPtr(ptr);
+			return UnManagedForeignObject<T>.FromPtr(ptr);
 		}
 
 		public ManagedForeignObject<T> GetManagedForeign<T>()
-			where T : unmanaged
 		{
 			if (IfInvalidType(this, ValueType.Foreign)) return new ManagedForeignObject<T>();
 			var ptr = Interop.wrenGetSlotForeign(_vmPtr, _index);
@@ -435,7 +433,7 @@ namespace Wrench
 			int count = Interop.wrenGetSlotCount(slot._vmPtr);
 			if (slot._index < count) return false;
 
-			Expect.ThrowException(new ArgumentOutOfRangeException(nameof(slot),
+			Expected.ThrowException(new ArgumentOutOfRangeException(nameof(slot),
 				$"Slot {slot._index} outside of ensured size {count}"));
 			return true;
 		}
@@ -447,7 +445,7 @@ namespace Wrench
 			var actualType = Interop.wrenGetSlotType(slot._vmPtr, slot._index);
 			if (actualType == typeA || actualType == typeB) return false;
 			
-			Expect.ThrowException(
+			Expected.ThrowException(
 				new TypeAccessException($"slot {slot._index} is of type {actualType} not of types [{typeA}, {typeB}]"));
 			return true;
 		}
