@@ -8,22 +8,19 @@ namespace Tests
 {
 	public class TestsVmJobs
 	{
-		private struct InvokeJob : IJobParallelFor
+		private struct InvokeJob : IJobFor
 		{
-			public Vm Vm;
+			public UnmanagedVm Vm;
 			public Handle Handle;
-			public NativeQueue<int>.ParallelWriter State;
+			public NativeQueue<int> State;
 
 			public void Execute(int index)
 			{
-				Vm.AtomicAccess(ref this, (ref InvokeJob job, in Vm vm) =>
-				{
-					vm.EnsureSlots(1);
-					vm.Slot0.GetVariable("m", "fn");
-					vm.Call(job.Handle);
-					var value = vm.Slot0.GetInt();
-					job.State.Enqueue(value);
-				});
+				Vm.EnsureSlots(1);
+				Vm.Slot0.GetVariable("m", "fn");
+				Vm.Call(Handle);
+				var value = Vm.Slot0.GetInt();
+				State.Enqueue(value);
 			}
 		}
 		
@@ -43,15 +40,14 @@ var fn = Fn.new {
 }");
 
 			NativeQueue<int> list = new NativeQueue<int>(AllocatorManager.Persistent);
-			var writer = list.AsParallelWriter();
 
 			var job = new InvokeJob
 			{
-				Vm = vm,
+				Vm = new UnmanagedVm(vm),
 				Handle = handle,
-				State = writer,
+				State = list,
 			};
-			var jobHandle = job.Schedule(64, 32);
+			var jobHandle = job.Schedule(64, new JobHandle());
 			// job = new InvokeJob {Vm = vm, State = writer};
 			// handle = job.Schedule(handle);
 			// job = new InvokeJob {Vm = vm, State = writer};

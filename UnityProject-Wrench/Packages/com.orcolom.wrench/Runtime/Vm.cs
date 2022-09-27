@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
@@ -7,31 +8,80 @@ using Wrench.Native;
 
 namespace Wrench
 {
-	internal interface IVmElement
+	public interface IVmElement
 	{
 		internal IntPtr VmPtr { get; }
 	}
 
-	public delegate void AtomicAction(in Vm vm);
-
-	public delegate InterpretResult AtomicInterpretAction(in Vm vm);
-
-	public delegate void AtomicAction<TStruct>(ref TStruct data, in Vm vm) where TStruct : struct;
-	
-	public struct Vm : IDisposable, IEquatable<Vm>
+	public readonly struct UnmanagedVm : IVmUnmanaged, IEquatable<IVmUnmanaged>
 	{
-		internal static readonly SharedStatic<StaticMap<Vm>> Vms = SharedStatic<StaticMap<Vm>>.GetOrCreate<Vm>();
+		[NativeDisableUnsafePtrRestriction]
+		private readonly IntPtr _ptr;
 
-		private static readonly ProfilerMarker _prefInterpret = PrefHelper.Create($"{nameof(Vm)}.{nameof(Interpret)}");
-		private static readonly ProfilerMarker _prefCall = PrefHelper.Create($"{nameof(Vm)}.{nameof(Call)}");
-		
-		static Vm()
+		IntPtr IVmUnmanaged.Ptr => _ptr;
+
+		public readonly UnmanagedSlot Slot0;
+		public readonly UnmanagedSlot Slot1;
+		public readonly UnmanagedSlot Slot2;
+		public readonly UnmanagedSlot Slot3;
+		public readonly UnmanagedSlot Slot4;
+		public readonly UnmanagedSlot Slot5;
+		public readonly UnmanagedSlot Slot6;
+		public readonly UnmanagedSlot Slot7;
+		public readonly UnmanagedSlot Slot8;
+		public readonly UnmanagedSlot Slot9;
+		public readonly UnmanagedSlot Slot10;
+		public readonly UnmanagedSlot Slot11;
+		public readonly UnmanagedSlot Slot12;
+		public readonly UnmanagedSlot Slot13;
+		public readonly UnmanagedSlot Slot14;
+		public readonly UnmanagedSlot Slot15;
+		public readonly UnmanagedSlot Slot16;
+
+		public UnmanagedVm(Vm vm) : this(((IVmUnmanaged) vm).Ptr) { }
+
+		internal UnmanagedVm(IntPtr vmPtr)
 		{
-			Vms.Data.Init(16);
+			_ptr = vmPtr;
+
+			Slot0 = new UnmanagedSlot(_ptr, 0);
+			Slot1 = new UnmanagedSlot(_ptr, 1);
+			Slot2 = new UnmanagedSlot(_ptr, 2);
+			Slot3 = new UnmanagedSlot(_ptr, 3);
+			Slot4 = new UnmanagedSlot(_ptr, 4);
+			Slot5 = new UnmanagedSlot(_ptr, 5);
+			Slot6 = new UnmanagedSlot(_ptr, 6);
+			Slot7 = new UnmanagedSlot(_ptr, 7);
+			Slot8 = new UnmanagedSlot(_ptr, 8);
+			Slot9 = new UnmanagedSlot(_ptr, 9);
+			Slot10 = new UnmanagedSlot(_ptr, 10);
+			Slot11 = new UnmanagedSlot(_ptr, 11);
+			Slot12 = new UnmanagedSlot(_ptr, 12);
+			Slot13 = new UnmanagedSlot(_ptr, 13);
+			Slot14 = new UnmanagedSlot(_ptr, 14);
+			Slot15 = new UnmanagedSlot(_ptr, 15);
+			Slot16 = new UnmanagedSlot(_ptr, 16);
 		}
 
-		[NativeDisableUnsafePtrRestriction]
+		public override int GetHashCode() => VmUtils.Vm_GetHashCode(this);
+		public override bool Equals(object obj) => VmUtils.Vm_Equals(this, obj);
+
+		public bool Equals(IVmUnmanaged other) => VmUtils.Vm_Equals(this, other);
+
+		public static bool operator ==(UnmanagedVm left, UnmanagedVm right) => VmUtils.Vm_EqualsOp(left, right);
+		public static bool operator !=(UnmanagedVm left, UnmanagedVm right) => VmUtils.Vm_NotEqualOp(left, right);
+
+		public static bool operator ==(Vm left, UnmanagedVm right) => VmUtils.Vm_EqualsOp(left, right);
+		public static bool operator !=(Vm left, UnmanagedVm right) => VmUtils.Vm_EqualsOp(left, right);
+
+		public static bool operator ==(UnmanagedVm left, Vm right) => VmUtils.Vm_NotEqualOp(left, right);
+		public static bool operator !=(UnmanagedVm left, Vm right) => VmUtils.Vm_NotEqualOp(left, right);
+	}
+
+	public struct Vm : IVmManaged, IEquatable<IVmUnmanaged>, IDisposable
+	{
 		private IntPtr _ptr;
+		IntPtr IVmUnmanaged.Ptr => _ptr;
 
 		public readonly Slot Slot0;
 		public readonly Slot Slot1;
@@ -51,46 +101,10 @@ namespace Wrench
 		public readonly Slot Slot15;
 		public readonly Slot Slot16;
 
-		public bool IsValid => FromPtr(_ptr)._ptr != IntPtr.Zero;
-		internal IntPtr Ptr => _ptr;
-
-		#region Lifetime
-
-		public static Vm New(Config? config = null)
-		{
-			// set config
-			var configuration = Config.ToInterop(config ?? Config.Default);
-			configuration.NativeWrite = global::Wrench.Wrench.WriteCallback;
-			configuration.NativeError = global::Wrench.Wrench.ErrorCallback;
-			configuration.NativeResolveModule = global::Wrench.Wrench.ResolveCallback;
-			configuration.NativeLoadModule = global::Wrench.Wrench.LoadCallback;
-			configuration.NativeBindForeignMethod = global::Wrench.Wrench.BindForeignMethodCallback;
-
-			// get vm ptr
-			IntPtr ptr = Interop.wrenNewVM(configuration);
-			Vm vm = new Vm(ptr);
-
-			// store data
-			Vms.Data.Map.Add(ptr, vm);
-			Managed.ManagedClasses.Add(ptr, new Managed()); // store *managed* events separately 
-
-			return vm;
-		}
-
-		internal static Vm FromPtr(IntPtr ptr)
-		{
-			return Vms.Data.Map.TryGetValue(ptr, out var vm) ? vm : new Vm();
-		}
-
-		internal static void GetData(IntPtr ptr, out Vm vm, out Managed managed)
-		{
-			vm = Vm.FromPtr(ptr);
-			managed = Managed.ManagedClasses[ptr];
-		}
-
-		private Vm(IntPtr ptr)
+		internal Vm(IntPtr ptr)
 		{
 			_ptr = ptr;
+
 			Slot0 = new Slot(_ptr, 0);
 			Slot1 = new Slot(_ptr, 1);
 			Slot2 = new Slot(_ptr, 2);
@@ -112,153 +126,164 @@ namespace Wrench
 
 		public void Dispose()
 		{
-			if (IsValid == false) return;
+			if (this.IsValid() == false) return;
 
 			Interop.wrenFreeVM(_ptr);
 			Managed.ManagedClasses.Remove(_ptr);
-			Vms.Data.Map.Remove(_ptr);
+			VmUtils.Vms.Data.Map.Remove(_ptr);
 			_ptr = IntPtr.Zero;
 		}
 
-		#endregion
-
-		#region Atomic Access
-
-		public void AtomicAccess<TStruct>(ref TStruct data, AtomicAction<TStruct> action)
-			where TStruct : struct
+		public static Vm New(Config? config = null)
 		{
-			if (IfInvalid(this)) return;
+			// set config
+			var configuration = Config.ToInterop(config ?? Config.Default);
+			configuration.NativeWrite = Wrench.WriteCallback;
+			configuration.NativeError = Wrench.ErrorCallback;
+			configuration.NativeResolveModule = Wrench.ResolveCallback;
+			configuration.NativeLoadModule = Wrench.LoadCallback;
+			configuration.NativeBindForeignMethod = Wrench.BindForeignMethodCallback;
 
-			lock (Managed.ManagedClasses[_ptr])
-			{
-				action.Invoke(ref data, this);
-			}
+			// get vm ptr
+			IntPtr ptr = Interop.wrenNewVM(configuration);
+			Vm vm = new Vm(ptr);
+
+			// store data
+			VmUtils.Vms.Data.Map.Add(ptr, vm);
+			Managed.ManagedClasses.Add(ptr, new Managed()); // store *managed* events separately 
+
+			return vm;
 		}
 
-		public void AtomicAccess(AtomicAction action)
-		{
-			if (IfInvalid(this)) return;
+		public override int GetHashCode() => VmUtils.Vm_GetHashCode(this);
+		public override bool Equals(object obj) => VmUtils.Vm_Equals(this, obj);
 
-			lock (Managed.ManagedClasses[_ptr])
-			{
-				action.Invoke(this);
-			}
+		public bool Equals(IVmUnmanaged other) => VmUtils.Vm_Equals(this, other);
+
+		public static bool operator ==(Vm left, Vm right) => VmUtils.Vm_EqualsOp(left, right);
+		public static bool operator !=(Vm left, Vm right) => VmUtils.Vm_NotEqualOp(left, right);
+
+		public static bool operator ==(Vm left, UnmanagedVm right) => VmUtils.Vm_EqualsOp(left, right);
+		public static bool operator !=(Vm left, UnmanagedVm right) => VmUtils.Vm_EqualsOp(left, right);
+
+		public static bool operator ==(UnmanagedVm left, Vm right) => VmUtils.Vm_NotEqualOp(left, right);
+		public static bool operator !=(UnmanagedVm left, Vm right) => VmUtils.Vm_NotEqualOp(left, right);
+	}
+
+	public interface IVmUnmanaged
+	{
+		internal IntPtr Ptr { get; }
+	}
+
+	public interface IVmManaged : IVmUnmanaged { }
+
+	public static class VmUtils
+	{
+		private static readonly ProfilerMarker PrefInterpret = PrefHelper.Create($"{nameof(Vm)}.{nameof(Interpret)}");
+		private static readonly ProfilerMarker PrefCall = PrefHelper.Create($"{nameof(Vm)}.{nameof(Call)}");
+
+		internal static readonly SharedStatic<StaticMap<Vm>> Vms = SharedStatic<StaticMap<Vm>>.GetOrCreate<Vm>();
+
+		static VmUtils()
+		{
+			Vms.Data.Init(16);
 		}
 
-		public InterpretResult AtomicAccess(AtomicInterpretAction action)
+		#region Expected
+
+		public static bool IsValid(this IVmUnmanaged vm) => IsValid(vm.Ptr);
+
+		public static bool IsValid(IntPtr vmPtr)
 		{
-			if (IfInvalid(this)) return InterpretResult.CompileError;
-			
-			lock (Managed.ManagedClasses[_ptr])
-			{
-				return action.Invoke(this);
-			}
+			IVmUnmanaged vm = FromPtr(vmPtr);
+			return vm.Ptr != IntPtr.Zero;
 		}
 
-		#endregion
-		
-		#region Managed
+		public static bool ExpectedValid(this IVmUnmanaged vm) => ExpectedValid(vm.Ptr);
 
-		public readonly void SetWriteListener(WriteDelegate @delegate)
+		public static bool ExpectedValid(IntPtr vmPtr)
 		{
-			if (IfInvalid(this)) return;
-			Managed.ManagedClasses[_ptr].WriteEvent = @delegate;
+			if (IsValid(vmPtr)) return false;
+
+			Expected.ThrowException(new ObjectDisposedException(nameof(Vm), "Vm is already disposed"));
+			return true;
 		}
 
-		public readonly void SetErrorListener(ErrorDelegate @delegate)
+		internal static bool ExpectedSameVm(this IVmUnmanaged vm, in IVmElement element) => ExpectedSameVm(vm.Ptr, element);
+		internal static bool ExpectedSameVm(this IVmElement self, in IVmElement other) => ExpectedSameVm(self.VmPtr, other);
+
+		internal static bool ExpectedSameVm(IntPtr vmPtr, in IVmElement element)
 		{
-			if (IfInvalid(this)) return;
-			Managed.ManagedClasses[_ptr].ErrorEvent = @delegate;
+			if (vmPtr == element.VmPtr) return false;
+
+			Expected.ThrowException(new ArgumentOutOfRangeException(nameof(element),
+				"Not all elements are from the same Vm"));
+			return true;
 		}
 
-		public readonly void SetResolveModuleListener(ResolveModuleDelegate @delegate)
+		internal static Vm FromPtr(IntPtr ptr)
 		{
-			if (IfInvalid(this)) return;
-			Managed.ManagedClasses[_ptr].ResolveModuleEvent = @delegate;
+			return Vms.Data.Map.TryGetValue(ptr, out var vm) ? vm : new Vm();
 		}
 
-		public readonly void SetLoadModuleListener(LoadModuleDelegate @delegate)
+		internal static void GetData(IntPtr ptr, out Vm vm, out Managed managed)
 		{
-			if (IfInvalid(this)) return;
-			Managed.ManagedClasses[_ptr].LoadModuleEvent = @delegate;
-		}
-
-		public void SetBindForeignMethodListener(BindForeignMethodDelegate @delegate)
-		{
-			if (IfInvalid(this)) return;
-			Managed.ManagedClasses[_ptr].BindForeignMethodEvent = @delegate;
-		}
-		
-		public void SetBindForeignClassListener(BindForeignClassDelegate @delegate)
-		{
-			if (IfInvalid(this)) return;
-			Managed.ManagedClasses[_ptr].BindForeignClassEvent = @delegate;
-		}
-
-		public void SetUserData<T>(T obj)
-		{
-			if (IfInvalid(this)) return;
-			Managed.ManagedClasses[_ptr].UserData = obj;
-		}
-
-		public T GetUserData<T>()
-		{
-			if (IfInvalid(this)) return default;
-			return (T) Managed.ManagedClasses[_ptr].UserData;
+			vm = FromPtr(ptr);
+			managed = Managed.ManagedClasses[ptr];
 		}
 
 		#endregion
 
 		#region Methods
 
-		public readonly InterpretResult Interpret([DisallowNull] string module, string source)
+		public static InterpretResult Interpret(this IVmUnmanaged vm, [DisallowNull] string module, string source)
 		{
-			_prefInterpret.Begin();
-			
-			if (IfInvalid(this)) return InterpretResult.CompileError;
+			PrefInterpret.Begin();
+
+			if (ExpectedValid(vm)) return InterpretResult.CompileError;
 			if (string.IsNullOrEmpty(module)) throw new ArgumentNullException();
-			var result = Interop.wrenInterpret(_ptr, module, source);
-			
-			_prefInterpret.End();
-			
+			var result = Interop.wrenInterpret(vm.Ptr, module, source);
+
+			PrefInterpret.End();
+
 			return result;
 		}
 
-		public readonly InterpretResult Call(Handle handle)
+		public static InterpretResult Call(this IVmUnmanaged vm, Handle handle)
 		{
-			_prefCall.Begin();
-			
-			if (IfInvalid(this)) return InterpretResult.CompileError;
+			PrefCall.Begin();
+
+			if (ExpectedValid(vm)) return InterpretResult.CompileError;
 			if (Handle.IfInvalid(handle)) return InterpretResult.CompileError;
-			if (IfNotSameVm(this, handle)) return InterpretResult.CompileError;
-			var result = Interop.wrenCall(_ptr, handle.Ptr);
+			if (ExpectedSameVm(vm, handle)) return InterpretResult.CompileError;
+			var result = Interop.wrenCall(vm.Ptr, handle.Ptr);
 
-			_prefCall.End();
+			PrefCall.End();
 
 			return result;
 		}
 
-		public readonly void Gc()
+		public static void Gc(this IVmUnmanaged vm)
 		{
-			if (IfInvalid(this)) return;
-			Interop.wrenCollectGarbage(_ptr);
+			if (ExpectedValid(vm)) return;
+			Interop.wrenCollectGarbage(vm.Ptr);
 		}
 
-		public readonly void Abort(in Slot msg)
+		public static void Abort(this IVmUnmanaged vm, in ISlotUnmanaged msg)
 		{
-			if (IfInvalid(this)) return;
-			Interop.wrenAbortFiber(_ptr, msg.Index);
+			if (ExpectedValid(vm)) return;
+			Interop.wrenAbortFiber(vm.Ptr, msg.Index);
 		}
 
-		public readonly Handle MakeCallHandle(string signature)
+		public static Handle MakeCallHandle(this IVmManaged vm, string signature)
 		{
-			return Handle.New(this, signature);
+			return Handle.New(vm, signature);
 		}
 
-		public bool HasModuleAndVariable(string module, string variable)
+		public static bool HasModuleAndVariable(this IVmUnmanaged vm, string module, string variable)
 		{
-			if (HasModule(module) == false) return false;
-			if (HasVariable(module, variable) == false) return false;
+			if (vm.HasModule(module) == false) return false;
+			if (vm.HasVariable(module, variable) == false) return false;
 			return true;
 		}
 
@@ -267,116 +292,103 @@ namespace Wrench
 		/// returns false if not found. The module must be imported at the time, 
 		/// use <see cref="HasModule"/>  to ensure that before calling.
 		/// </summary>
-		public bool HasVariable(string module, string name)
+		public static bool HasVariable(this IVmUnmanaged vm, string module, string name)
 		{
-			return Interop.wrenHasVariable(_ptr, module, name);
+			return Interop.wrenHasVariable(vm.Ptr, module, name);
 		}
 
 		/// <summary>
 		/// Returns true if <paramref name="module"/> has been imported/resolved before, false if not.
 		/// </summary>
-		public bool HasModule(string module)
+		public static bool HasModule(this IVmUnmanaged vm, string module)
 		{
-			return Interop.wrenHasModule(_ptr, module);
+			return Interop.wrenHasModule(vm.Ptr, module);
 		}
 
 		#endregion
 
 		#region Slots
 
-		public int SlotCount
+		public static int GetSlotCount(this IVmUnmanaged vm)
 		{
-			get
-			{
-				if (IfInvalid(this)) return 0;
-				return Interop.wrenGetSlotCount(_ptr);
-			}
+			if (ExpectedValid(vm)) return 0;
+			return Interop.wrenGetSlotCount(vm.Ptr);
 		}
 
 
-		public readonly void EnsureSlots(int size)
+		public static void EnsureSlots(this IVmUnmanaged vm, int size)
 		{
-			if (IfInvalid(this)) return;
-			Interop.wrenEnsureSlots(_ptr, size);
+			if (ExpectedValid(vm)) return;
+			Interop.wrenEnsureSlots(vm.Ptr, size);
 		}
 
 		#endregion
 
-		#region Validate
-		
-		internal static bool IfInvalid(IntPtr vmPtr)
+		#region Managed
+
+		public static void SetWriteListener(this IVmManaged vm, WriteDelegate @delegate)
 		{
-			Vm vm = FromPtr(vmPtr);
-			return IfInvalid(vm);
+			if (ExpectedValid(vm)) return;
+			Managed.ManagedClasses[vm.Ptr].WriteEvent = @delegate;
 		}
 
-		internal static bool IfInvalid(in Vm vm)
+		public static void SetErrorListener(this IVmManaged vm, ErrorDelegate @delegate)
 		{
-			if (vm.IsValid) return false;
-			
-			Expected.ThrowException(new ObjectDisposedException(nameof(Vm), "Vm is already disposed"));
-			return true;
+			if (ExpectedValid(vm)) return;
+			Managed.ManagedClasses[vm.Ptr].ErrorEvent = @delegate;
 		}
 
-		internal static bool IfNotSameVm(in Vm vm, in IVmElement element, params IVmElement[] elements)
+		public static void SetResolveModuleListener(this IVmManaged vm, ResolveModuleDelegate @delegate)
 		{
-			return IfNotSameVm(vm._ptr, element, elements);
+			if (ExpectedValid(vm)) return;
+			Managed.ManagedClasses[vm.Ptr].ResolveModuleEvent = @delegate;
 		}
 
-		internal static bool IfNotSameVm(in IVmElement element, params IVmElement[] elements)
+		public static void SetLoadModuleListener(this IVmManaged vm, LoadModuleDelegate @delegate)
 		{
-			return IfNotSameVm(element.VmPtr, element, elements);
+			if (ExpectedValid(vm)) return;
+			Managed.ManagedClasses[vm.Ptr].LoadModuleEvent = @delegate;
 		}
 
-		private static bool IfNotSameVm(IntPtr ptr, IVmElement element, params IVmElement[] elements)
+		public static void SetBindForeignMethodListener(this IVmManaged vm, BindForeignMethodDelegate @delegate)
 		{
-			bool sameVm = ptr == element.VmPtr;
+			if (ExpectedValid(vm)) return;
+			Managed.ManagedClasses[vm.Ptr].BindForeignMethodEvent = @delegate;
+		}
 
-			if (sameVm)
-			{
-				for (int i = 0; i < elements.Length; i++)
-				{
-					if (ptr == elements[i].VmPtr) continue;
+		public static void SetBindForeignClassListener(this IVmManaged vm, BindForeignClassDelegate @delegate)
+		{
+			if (ExpectedValid(vm)) return;
+			Managed.ManagedClasses[vm.Ptr].BindForeignClassEvent = @delegate;
+		}
 
-					sameVm = false;
-					break;
-				}
-			}
+		public static void SetUserData<T>(this IVmManaged vm, T obj)
+		{
+			if (ExpectedValid(vm)) return;
+			Managed.ManagedClasses[vm.Ptr].UserData = obj;
+		}
 
-			if (sameVm) return false;
-			
-			Expected.ThrowException(new ArgumentOutOfRangeException(nameof(sameVm), "Not all elements are from the same Vm"));
-			return true;
+		public static T GetUserData<T>(this IVmManaged vm)
+		{
+			if (ExpectedValid(vm)) return default;
+			return (T) Managed.ManagedClasses[vm.Ptr].UserData;
 		}
 
 		#endregion
 
 		#region Equality
 
-		public bool Equals(Vm other)
+		public static bool Vm_Equals(IVmUnmanaged self, object obj) => obj switch
 		{
-			return _ptr.Equals(other._ptr);
-		}
+			ISlotUnmanaged slot => Vm_Equals(self, slot),
+			_ => throw new ArgumentOutOfRangeException(nameof(obj), obj, null),
+		};
 
-		public override bool Equals(object obj)
-		{
-			return obj is Vm other && Equals(other);
-		}
+		public static bool Vm_Equals(in IVmUnmanaged self, in IVmUnmanaged other) => self.Ptr == other.Ptr;
 
-		public override int GetHashCode()
-		{
-			return _ptr.GetHashCode();
-		}
-
-		public static bool operator ==(Vm left, Vm right)
-		{
-			return left.Equals(right);
-		}
-
-		public static bool operator !=(Vm left, Vm right)
-		{
-			return !left.Equals(right);
-		}
+		public static int Vm_GetHashCode(in IVmUnmanaged self) => self.Ptr.GetHashCode();
+		public static bool Vm_EqualsOp(in IVmUnmanaged left, in IVmUnmanaged right) => Vm_Equals(left, right);
+		public static bool Vm_NotEqualOp(in IVmUnmanaged left, in IVmUnmanaged right) => Vm_Equals(left, right) == false;
 
 		#endregion
 	}

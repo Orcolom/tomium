@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-using Debug = UnityEngine.Debug;
+using Wrench.Native;
 
 namespace Wrench
 {
@@ -39,23 +39,24 @@ namespace Wrench
 
 		#region Getters
 
-		public static bool Type(in Vm vm, in Slot slot, ValueType type)
+		public static bool Type(in Vm vm, in ISlotUnmanaged slot, ValueType type)
 		{
-			if (slot.Type == type) return false;
+			if (slot.GetValueType() == type) return false;
 			
 			AbortException(vm, "invalid-type");
 			return true;
 		}
 		
-		public static bool Type(in Vm vm, in Slot slot, ValueType typeA, ValueType typeB)
+		public static bool Type(in Vm vm, in ISlotUnmanaged slot, ValueType typeA, ValueType typeB)
 		{
-			if (slot.Type == typeA || slot.Type == typeB) return false;
+			var type = slot.GetValueType();
+			if (type == typeA || type == typeB) return false;
 			
 			AbortException(vm, "invalid-type");
 			return true;
 		}
 		
-		public static bool Int(in Vm vm, in Slot slot, out int value)
+		public static bool Int(in Vm vm, in ISlotUnmanaged slot, out int value)
 		{
 			value = 0;
 			if (Expected.Type(vm, slot, ValueType.Number)) return false;
@@ -64,7 +65,7 @@ namespace Wrench
 			return true;
 		}
 
-		public static bool Double(in Vm vm, in Slot slot, out double value)
+		public static bool Double(in Vm vm, in ISlotUnmanaged slot, out double value)
 		{
 			value = 0;
 			if (Expected.Type(vm, slot, ValueType.Number)) return false;
@@ -73,7 +74,7 @@ namespace Wrench
 			return true;
 		}
 		
-		public static bool Float(in Vm vm, in Slot slot, out float value)
+		public static bool Float(in Vm vm, in ISlotUnmanaged slot, out float value)
 		{
 			value = 0;
 			if (Expected.Type(vm, slot, ValueType.Number)) return false;
@@ -82,7 +83,7 @@ namespace Wrench
 			return true;
 		}
 				
-		public static bool String(in Vm vm, in Slot slot, out string value)
+		public static bool String(in Vm vm, in ISlotUnmanaged slot, out string value)
 		{
 			value = null;
 			if (Expected.Type(vm, slot, ValueType.String)) return false;
@@ -99,15 +100,17 @@ namespace Wrench
 			return true;
 		}
 
-		public static bool UnManagedForeignType<TType>(in Vm vm, in Slot foreignSlot, out UnManagedForeignObject<TType> unManagedForeign) 
+		public static bool UnManagedForeignType<TType>(in Vm vm, in ISlotUnmanaged foreignSlot, out UnmanagedForeignObject<TType> unmanagedForeign) 
 			where TType : unmanaged
 		{
-			unManagedForeign = default;
+			unmanagedForeign = default;
+			if (foreignSlot.ExpectedValid(ValueType.Foreign)) return false;
 			
-			var iForeign = foreignSlot.GetForeign();
-			if (iForeign.IsValueOfUnManagedType<TType>())
+			var ptr = Interop.wrenGetSlotForeign(foreignSlot.VmPtr, foreignSlot.Index);
+			
+			if (ForeignObjectUtils.IsValueOfUnmanagedType<TType>(ptr))
 			{
-				unManagedForeign = iForeign.AsUnManaged<TType>();
+				unmanagedForeign = new UnmanagedForeignObject<TType>(ptr);
 				return false;
 			}
 			
@@ -115,15 +118,16 @@ namespace Wrench
 			return true;
 		}
 		
-		
-		public static bool ManagedForeignType<TType>(in Vm vm, in Slot foreignSlot, out ManagedForeignObject<TType> managedForeign) 
+		public static bool ForeignType<TType>(in Vm vm, in ISlotManaged foreignSlot, out ForeignObject<TType> foreign) 
 		{
-			managedForeign = default;
+			foreign = default;
+			if (foreignSlot.ExpectedValid(ValueType.Foreign)) return false;
+
+			var ptr = Interop.wrenGetSlotForeign(foreignSlot.VmPtr, foreignSlot.Index);
 			
-			var iForeign = foreignSlot.GetForeign();
-			if (iForeign.IsValueOfManagedType<TType>())
+			if (ForeignObjectUtils.IsValueOfManaged<TType>(ptr))
 			{
-				managedForeign = iForeign.AsManaged<TType>();
+				foreign = new ForeignObject<TType>(ptr);
 				return false;
 			}
 			

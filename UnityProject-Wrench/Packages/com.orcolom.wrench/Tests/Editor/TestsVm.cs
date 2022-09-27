@@ -22,9 +22,9 @@ namespace Tests
 		public void Vm_New_Dispose()
 		{
 			using var vm = Vm.New();
-			Assert.IsTrue(vm.IsValid);
+			Assert.IsTrue(vm.IsValid());
 			vm.Dispose();
-			Assert.IsFalse(vm.IsValid);
+			Assert.IsFalse(vm.IsValid());
 		}
 
 		#endregion

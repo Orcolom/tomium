@@ -5,20 +5,20 @@ namespace Wrench
 {
 	public static class WrenchUtils
 	{
-		public delegate void UnManagedForeignActionS1<TType>(in Vm vm, UnManagedForeignObject<TType> fo)
+		public delegate void UnManagedForeignActionS1<TType>(in Vm vm, UnmanagedForeignObject<TType> fo)
 			where TType : unmanaged;
 
-		public delegate void UnManagedForeignActionS2<TType>(in Vm vm, in Slot s1, UnManagedForeignObject<TType> fo)
+		public delegate void UnManagedForeignActionS2<TType>(in Vm vm, in Slot s1, UnmanagedForeignObject<TType> fo)
 			where TType : unmanaged;
 
-		public delegate void UnManagedForeignActionS3<TType>(in Vm vm, in Slot s1, in Slot s2, UnManagedForeignObject<TType> fo)
+		public delegate void UnManagedForeignActionS3<TType>(in Vm vm, in Slot s1, in Slot s2, UnmanagedForeignObject<TType> fo)
 			where TType : unmanaged;
 
-		public delegate void ManagedForeignActionS1<TType>(in Vm vm, ManagedForeignObject<TType> fo);
+		public delegate void ManagedForeignActionS1<TType>(in Vm vm, ForeignObject<TType> fo);
 
-		public delegate void ManagedForeignActionS2<TType>(in Vm vm, in Slot s1, ManagedForeignObject<TType> fo);
+		public delegate void ManagedForeignActionS2<TType>(in Vm vm, in Slot s1, ForeignObject<TType> fo);
 
-		public delegate void ManagedForeignActionS3<TType>(in Vm vm, in Slot s1, in Slot s2, ManagedForeignObject<TType> fo);
+		public delegate void ManagedForeignActionS3<TType>(in Vm vm, in Slot s1, in Slot s2, ForeignObject<TType> fo);
 
 		public static void Method(this Class @class, Signature signature, ForeignAction action)
 		{
@@ -36,7 +36,7 @@ namespace Wrench
 					new ForeignMethod((in Vm vm) =>
 					{
 						vm.EnsureSlots(1);
-						if (Expected.ManagedForeignType<TType>(vm, vm.Slot0, out var foreign)) return;
+						if (Expected.ForeignType<TType>(vm, vm.Slot0, out var foreign)) return;
 						get.Invoke(vm, foreign);
 					})
 				));
@@ -49,7 +49,7 @@ namespace Wrench
 					new ForeignMethod((in Vm vm) =>
 					{
 						vm.EnsureSlots(2);
-						if (Expected.ManagedForeignType<TType>(vm, vm.Slot0, out var foreign)) return;
+						if (Expected.ForeignType<TType>(vm, vm.Slot0, out var foreign)) return;
 						set.Invoke(vm, vm.Slot1, foreign);
 					})
 				));

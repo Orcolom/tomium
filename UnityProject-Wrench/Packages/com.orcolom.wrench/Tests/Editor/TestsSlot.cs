@@ -23,9 +23,9 @@ var Value = null
 
 		private void GetSetTest<T>(in Slot slot, ValueType type, T value, Func<Slot, T> get, Action<Slot, T> set)
 		{
-			Assert.AreEqual(_vm.Slot0.Type, ValueType.Null);
+			Assert.AreEqual(_vm.Slot0.GetValueType(), ValueType.Null);
 			set.Invoke(slot, value);
-			Assert.AreEqual(_vm.Slot0.Type, type);
+			Assert.AreEqual(_vm.Slot0.GetValueType(), type);
 			var result = get.Invoke(slot);
 			Assert.AreEqual(value, result);
 		}
@@ -87,7 +87,7 @@ var Value = null
 		[Test]
 		public void Slot_Null()
 		{
-			Assert.AreEqual(_vm.Slot0.Type, ValueType.Null);
+			Assert.AreEqual(_vm.Slot0.GetValueType(), ValueType.Null);
 		}
 	}
 }

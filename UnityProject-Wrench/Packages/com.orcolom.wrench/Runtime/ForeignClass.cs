@@ -41,15 +41,15 @@ namespace Wrench
 			FinToAlloc.Data.Map.TryAdd(_allocPtr, _finPtr);
 		}
 
-		public static ForeignClass DefaultAlloc<T>()
+		public static ForeignClass DefaultUnmanagedAlloc<T>()
 			where T: unmanaged
 		{
 			return new ForeignClass((in Vm vm) => vm.Slot0.SetNewForeign<T>(vm.Slot0));
 		}
 
-		public static ForeignClass DefaultManagedAlloc<T>()
+		public static ForeignClass DefaultAlloc<T>()
 		{
-			return new ForeignClass((in Vm vm) => vm.Slot0.SetNewManagedForeign<T>(vm.Slot0));
+			return new ForeignClass((in Vm vm) => vm.Slot0.SetNewForeign<T>(vm.Slot0));
 		}
 
 		

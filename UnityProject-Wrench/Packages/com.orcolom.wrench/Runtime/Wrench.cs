@@ -93,7 +93,7 @@ namespace Wrench
 #endif
 		private static void OnWrenWrite(IntPtr vmPtr, string text)
 		{
-			Vm.GetData(vmPtr, out var vm, out var evt);
+			VmUtils.GetData(vmPtr, out var vm, out var evt);
 			evt.WriteEvent?.Invoke(vm, text);
 		}
 
@@ -103,7 +103,7 @@ namespace Wrench
 #endif
 		private static void OnWrenError(IntPtr vmPtr, ErrorType type, string module, int line, string message)
 		{
-			Vm.GetData(vmPtr, out var vm, out var evt);
+			VmUtils.GetData(vmPtr, out var vm, out var evt);
 			evt.ErrorEvent?.Invoke(vm, type, module, line, message);
 		}
 
@@ -117,7 +117,7 @@ namespace Wrench
 #endif
 		private static IntPtr OnWrenResolveModule(IntPtr vmPtr, IntPtr importerPtr, IntPtr namePtr)
 		{
-			Vm.GetData(vmPtr, out var vm, out var evt);
+			VmUtils.GetData(vmPtr, out var vm, out var evt);
 
 			if (evt.ResolveModuleEvent == null) return namePtr;
 
@@ -161,7 +161,7 @@ namespace Wrench
 #endif
 		private static NativeLoadModuleResult OnWrenLoadModule(IntPtr vmPtr, string name)
 		{
-			Vm.GetData(vmPtr, out var vm, out var evt);
+			VmUtils.GetData(vmPtr, out var vm, out var evt);
 
 			string result = evt.LoadModuleEvent?.Invoke(vm, name);
 			if (string.IsNullOrEmpty(result)) return new NativeLoadModuleResult();
@@ -194,7 +194,7 @@ namespace Wrench
 #endif
 		internal static NativeForeignClass OnWrenBindForeignClass(IntPtr vmPtr, string module, string className)
 		{
-			Vm.GetData(vmPtr, out var vm, out var evt);
+			VmUtils.GetData(vmPtr, out var vm, out var evt);
 
 			if (evt.BindForeignClassEvent != null)
 			{
@@ -223,7 +223,7 @@ namespace Wrench
 		private static NativeBindForeignMethodResult OnWrenBindForeignMethod(IntPtr vmPtr, string module,
 			string className, bool isStatic, string signature)
 		{
-			Vm.GetData(vmPtr, out var vm, out var evt);
+			VmUtils.GetData(vmPtr, out var vm, out var evt);
 
 			if (evt.BindForeignMethodEvent == null) return new NativeBindForeignMethodResult();
 
@@ -242,7 +242,7 @@ namespace Wrench
 #endif
 		private static void OnWrenCallForeign(IntPtr vmPtr, IntPtr userData)
 		{
-			var vm = Vm.FromPtr(vmPtr);
+			var vm = VmUtils.FromPtr(vmPtr);
 			ForeignMethod method = ForeignMethod.FromPtr(userData);
 			method.Invoke(vm);
 		}
@@ -252,7 +252,7 @@ namespace Wrench
 #endif
 		private static void OnWrenCallForeignAllocator(IntPtr vmPtr, IntPtr userData)
 		{
-			var vm = Vm.FromPtr(vmPtr);
+			var vm = VmUtils.FromPtr(vmPtr);
 			var foreignClass = ForeignClass.FromAllocPtr(userData);
 			if (foreignClass.IsValid == false) return;
 			foreignClass.InvokeAllocator(vm);

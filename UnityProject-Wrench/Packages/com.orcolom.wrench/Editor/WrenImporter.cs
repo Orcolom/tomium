@@ -25,19 +25,16 @@ namespace Wrench.Editor
 
 			Sb.Clear();
 			int count = 0;
-			var vmHandle = Vm.New();
+			var vm = Vm.New();
 
-			vmHandle.AtomicAccess((in Vm vm) =>
+			vm.SetErrorListener((in Vm _, ErrorType type, string _, int line, string message) =>
 			{
-				vm.SetErrorListener((in Vm _, ErrorType type, string _, int line, string message) =>
-				{
-					if (type != ErrorType.CompileError) return;
-					Sb.AppendLine($"line {line}: {message}");
-					count++;
-				});
+				if (type != ErrorType.CompileError) return;
+				Sb.AppendLine($"line {line}: {message}");
+				count++;
 			});
 
-			vmHandle.AtomicAccess((in Vm vm) => vm.Interpret(ctx.assetPath, text));
+			vm.Interpret(ctx.assetPath, text);
 
 			if (Sb.Length == 0) return;
 
