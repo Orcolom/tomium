@@ -13,7 +13,8 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.orcolom.wrench": "0.4.0"
+        "com.orcolom.wrench": "0.4.0",
+        "com.unity.nuget.mono-cecil": "1.10.1"
       }
     },
     "com.unity.burst": {
@@ -91,6 +92,13 @@
     "com.unity.mathematics": {
       "version": "1.2.6",
       "depth": 2,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.nuget.mono-cecil": {
+      "version": "1.10.2",
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
