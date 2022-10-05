@@ -11,15 +11,15 @@ using Wrench.CodeGen;
 
 namespace Wrench.Weaver
 {
-    public class MirageILPostProcessor : ILPostProcessor
+    public class WeaverILPostProcessor : ILPostProcessor
     {
-        public const string RuntimeAssemblyName = "Mirage";
+        public const string RuntimeAssemblyName = "Wrench";
 
         public override ILPostProcessor GetInstance() => this;
 
         private static void Log(string msg)
         {
-            Console.WriteLine($"[MirageILPostProcessor] {msg}");
+            Console.WriteLine($"[WEAVER] {msg}");
         }
 
         public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
@@ -67,7 +67,7 @@ namespace Wrench.Weaver
             {
                 var defineMsg = ArrayMessage("Defines", compiledAssembly.Defines);
                 var refMsg = ArrayMessage("References", compiledAssembly.References);
-                var msg = $"Weaver Failed with {errorCount} errors on {compiledAssembly.Name}. See Editor log for full details.\n{defineMsg}\n{refMsg}";
+                var msg = $"[Weaver] Failed with {errorCount} errors on {compiledAssembly.Name}. See Editor log for full details.\n{defineMsg}\n{refMsg}";
 
 
                 // if fail
@@ -94,7 +94,10 @@ namespace Wrench.Weaver
         /// </summary>
         /// <param name="compiledAssembly"></param>
         /// <returns></returns>
-        public override bool WillProcess(ICompiledAssembly compiledAssembly) =>
-            compiledAssembly.References.Any(filePath => Path.GetFileNameWithoutExtension(filePath) == RuntimeAssemblyName);
+        public override bool WillProcess(ICompiledAssembly compiledAssembly)
+        {
+            return compiledAssembly.Name.Contains("Wrench") == false && compiledAssembly.References.Any(filePath =>
+                Path.GetFileNameWithoutExtension(filePath) == RuntimeAssemblyName);
+        }
     }
 }

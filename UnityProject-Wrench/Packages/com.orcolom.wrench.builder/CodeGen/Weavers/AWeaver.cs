@@ -4,7 +4,6 @@ using System.IO;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
-using UnityEngine;
 using ConditionalAttribute = System.Diagnostics.ConditionalAttribute;
 
 namespace Wrench.Weaver

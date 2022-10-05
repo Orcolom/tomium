@@ -52,7 +52,7 @@ namespace Wrench.Weaver
 
 		public void Warning(string message, MemberReference mr, SequencePoint sequencePoint)
 		{
-			AddMessage($"{message} (at {mr})", sequencePoint, DiagnosticType.Warning);
+			AddMessage($"[WEAVER] {message} (at {mr})", sequencePoint, DiagnosticType.Warning);
 		}
 
 		public void Warning(string message, MethodDefinition md)
@@ -71,6 +71,11 @@ namespace Wrench.Weaver
 				Column = sequencePoint?.StartColumn ?? 0,
 				MessageData = message
 			});
+		}
+
+		public void Log(string str)
+		{
+			Console.WriteLine($"[WEAVER] {str}");
 		}
 	}
 }

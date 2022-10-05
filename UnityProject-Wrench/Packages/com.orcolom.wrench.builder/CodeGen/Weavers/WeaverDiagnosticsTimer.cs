@@ -33,7 +33,7 @@ namespace Wrench.Weaver
 			}
 		}
 
-		[Conditional("WEAVER_DEBUG_TIMER")]
+		// [Conditional("WEAVER_DEBUG_TIMER")]
 		public void Start(string name)
 		{
 			this.name = name;

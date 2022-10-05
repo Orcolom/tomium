@@ -4,14 +4,21 @@ using Unity.Burst;
 
 namespace Wrench
 {
+	internal static class ForeignClassStatics
+	{
+		internal static readonly SharedStatic<StaticMap<ForeignClass>> Classes =
+			SharedStatic<StaticMap<ForeignClass>>.GetOrCreate<ForeignClass>();
+
+		internal static readonly SharedStatic<StaticMap<IntPtr>> FinToAlloc =
+			SharedStatic<StaticMap<IntPtr>>.GetOrCreate<ForeignClass, IntPtr>();
+	}
+
 	public struct ForeignClass
 	{
-		internal static readonly SharedStatic<StaticMap<ForeignClass>> Classes = SharedStatic<StaticMap<ForeignClass>>.GetOrCreate<ForeignClass>();
-		internal static readonly SharedStatic<StaticMap<IntPtr>> FinToAlloc = SharedStatic<StaticMap<IntPtr>>.GetOrCreate<ForeignClass, IntPtr>();
 		static ForeignClass()
 		{
-			Classes.Data.Init(16);
-			FinToAlloc.Data.Init(16);
+			ForeignClassStatics.Classes.Data.Init(16);
+			ForeignClassStatics.FinToAlloc.Data.Init(16);
 		}
 		
 		private IntPtr _allocPtr;
@@ -29,7 +36,7 @@ namespace Wrench
 			_allocPtr = Marshal.GetFunctionPointerForDelegate(alloc);
 			_finPtr = IntPtr.Zero;
 			Managed.Actions.TryAdd(_allocPtr, alloc);
-			Classes.Data.Map.TryAdd(_allocPtr, this);
+			ForeignClassStatics.Classes.Data.Map.TryAdd(_allocPtr, this);
 		}
 		
 		public ForeignClass(ForeignAction alloc, ForeignAction fin)
@@ -37,8 +44,8 @@ namespace Wrench
 			_allocPtr = Marshal.GetFunctionPointerForDelegate(alloc);
 			_finPtr = Marshal.GetFunctionPointerForDelegate(fin);
 			Managed.Actions.TryAdd(_allocPtr, alloc);
-			Classes.Data.Map.TryAdd(_allocPtr, this);
-			FinToAlloc.Data.Map.TryAdd(_allocPtr, _finPtr);
+			ForeignClassStatics.Classes.Data.Map.TryAdd(_allocPtr, this);
+			ForeignClassStatics.FinToAlloc.Data.Map.TryAdd(_allocPtr, _finPtr);
 		}
 
 		public static ForeignClass DefaultUnmanagedAlloc<T>()
@@ -55,12 +62,12 @@ namespace Wrench
 		
 		internal static ForeignClass FromAllocPtr(IntPtr ptr)
 		{
-			return Classes.Data.Map.TryGetValue(ptr, out var @class) ? @class : new ForeignClass();
+			return ForeignClassStatics.Classes.Data.Map.TryGetValue(ptr, out var @class) ? @class : new ForeignClass();
 		}
 
 		internal static ForeignClass FromFinPtr(IntPtr ptr)
 		{
-			return FinToAlloc.Data.Map.TryGetValue(ptr, out var alloc) ? FromAllocPtr(alloc) : new ForeignClass();
+			return ForeignClassStatics.FinToAlloc.Data.Map.TryGetValue(ptr, out var alloc) ? FromAllocPtr(alloc) : new ForeignClass();
 		}
 
 		#endregion
