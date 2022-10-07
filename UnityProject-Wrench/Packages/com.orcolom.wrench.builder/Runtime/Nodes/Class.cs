@@ -29,6 +29,8 @@ namespace Wrench.Builder
 
 		internal readonly List<Method> Methods;
 
+		protected Class() { }
+		
 		public Class(string name, string inherits = null, ForeignClass foreign = default, ClassBody body = null)
 		{
 			Name = Token.Name(name);

@@ -14,6 +14,8 @@ namespace Wrench
 			internal set => _text = value;
 			get => _text;
 		}
+
+#if UNITY_EDITOR
 		
 		[CustomEditor(typeof(WrenScript))]
 		private class Inspector : Editor
@@ -28,5 +30,8 @@ namespace Wrench
 				};
 			}
 		}
+		
+#endif
+		
 	}
 }

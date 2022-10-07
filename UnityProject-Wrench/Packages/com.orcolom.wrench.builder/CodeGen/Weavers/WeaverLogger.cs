@@ -76,6 +76,7 @@ namespace Wrench.Weaver
 		public void Log(string str)
 		{
 			Console.WriteLine($"[WEAVER] {str}");
+			Warning(str);
 		}
 	}
 }

@@ -35,6 +35,8 @@ namespace Wrench.Builder
 			}
 		}
 
+		protected Module() { }
+
 		public void Add(IModuleScoped node)
 		{
 			Tokens.Add(node);

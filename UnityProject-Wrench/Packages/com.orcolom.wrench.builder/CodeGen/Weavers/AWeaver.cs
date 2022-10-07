@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
@@ -16,13 +17,15 @@ namespace Wrench.Weaver
 	/// - <c>WEAVER_DEBUG_TIMER</c><br />
 	/// </para>
 	/// </summary>
-	public abstract class AWeaver
+	public abstract class AWeaver<TImports>
+		where TImports : Imports, new()
 	{
-		protected WeaverLogger Logger { get; }
+		protected internal TImports Imports { get; private set; }
+		protected internal WeaverLogger Logger { get; }
 		protected WeaverDiagnosticsTimer Timer { get; }
 
-		protected AssemblyDefinition CurrentAssembly { get; private set; }
-		protected ModuleDefinition MainModule { get; private set; }
+		protected internal AssemblyDefinition CurrentAssembly { get; private set; }
+		protected internal ModuleDefinition MainModule { get; private set; }
 
 		[Conditional("WEAVER_DEBUG_LOGS")]
 		public static void DebugLog(TypeDefinition td, string message)
@@ -52,11 +55,19 @@ namespace Wrench.Weaver
 				using (Timer.Sample("AssemblyDefinitionFor"))
 				{
 					CurrentAssembly = AssemblyDefinitionFor(compiledAssembly);
+					
+					// foreach (string reference in compiledAssembly.References)
+						// Logger.Log($"{compiledAssembly.Name} references {reference}");
 				}
 
 				MainModule = CurrentAssembly.MainModule;
+				Imports = new TImports();
 				
-				Weave();
+				if (Imports.Populate(Logger, MainModule))
+				{
+					Weave();
+				}
+				
 				// readers = new Readers(module, logger);
 				// writers = new Writers(module, logger);
 				// propertySiteProcessor = new PropertySiteProcessor();
@@ -103,7 +114,9 @@ namespace Wrench.Weaver
 			}
 			catch (Exception e)
 			{
-				Logger.Error("Exception :" + e);
+				StringBuilder stringBuilder = new StringBuilder();
+
+				Logger.Error("Exception :" + e +  e.StackTrace);
 				// write line too because the error about doesn't show stacktrace
 				Console.WriteLine("[WeaverException] :" + e);
 				return null;
@@ -232,6 +245,20 @@ namespace Wrench.Weaver
 		}
 	}
 
+
+	public class Imports
+	{
+		public TypeReference VoidRef;
+		public TypeReference StringRef;
+		
+		public virtual bool Populate(WeaverLogger logger, ModuleDefinition moduleDefinition)
+		{
+			VoidRef = moduleDefinition.ImportReference(typeof(void));
+			StringRef = moduleDefinition.ImportReference(typeof(string));
+			return true;
+		}
+	}
+	
 	public class FoundType
 	{
 		public readonly TypeDefinition TypeDefinition;
