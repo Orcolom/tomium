@@ -64,7 +64,7 @@ namespace Wrench.CodeGen.Processors
 					input);
 				return false;
 			}
-			
+
 			// create initializer method
 			var md = new MethodDefinition(InitializerMethodName,
 				MethodAttributes.HideBySig | MethodAttributes.Private,
@@ -73,7 +73,6 @@ namespace Wrench.CodeGen.Processors
 			data.InitializerBody = md.Body.GetILProcessor();
 			data.InitializerBody.Emit(OpCodes.Nop);
 			data.InitializerBody.Emit(OpCodes.Ret);
-			
 			// weave the initializer in the constructors
 			for (int i = 0; i < input.Methods.Count; i++)
 			{
@@ -87,7 +86,7 @@ namespace Wrench.CodeGen.Processors
 					WeaveInitMethodOnConstructor(weaver, method, data);
 					continue;
 				}
-				weaver.Logger.Error($"`{input.FullName}` {method.HasEmptyBody()} {method.Body.Instructions.Count} has constructors. this is not supported at the moment", method);
+				weaver.Logger.Error($"`{input.FullName}` has constructors. this is not supported at the moment", method);
 				return false;
 			}
 			
@@ -98,27 +97,34 @@ namespace Wrench.CodeGen.Processors
 		private static void WeaveInitMethodOnConstructor(WrenchWeaver weaver, MethodDefinition constructor, WrenchClassDefinition module)
 		{
 			// assumes that it has an empty body
+			constructor.Body.Instructions.Clear();
+			constructor.Body.Variables.Clear();
 			
-			constructor.Body.RemoveTrailingRet();
+			var il = constructor.Body.GetILProcessor();
+			
+			// local variables
+			constructor.Body.InitLocals = true;
+			var localForeign = new VariableDefinition(weaver.Imports.ForeignClass);
+			constructor.Body.Variables.Add(localForeign);
+			
+			// base..ctor((Attributes) null, {Name}, (string) null, new ForeignClass(), (ClassBody) null);
+			il.Emit(OpCodes.Ldarg_0);
+			il.Emit(OpCodes.Ldnull);
+			il.Emit(OpCodes.Ldstr, module.Name);
+			il.Emit(OpCodes.Ldnull);
+			il.Emit(OpCodes.Ldloca_S, localForeign);
+			il.Emit(OpCodes.Initobj, weaver.Imports.ForeignClass);
+			il.Emit(OpCodes.Ldloc_0);
+			il.Emit(OpCodes.Ldnull);
+			il.Emit(OpCodes.Call, weaver.Imports.Class_ctor__Attributes_string_string_ForeignClass_ClassBody);
+			il.Emit(OpCodes.Nop);
+			
+			// this.{Init}();
+			il.Emit(OpCodes.Ldarg_0);
+			il.Emit(OpCodes.Call, module.InitializerBody.Body.Method);
+			il.Emit(OpCodes.Nop);
 
-			var il = constructor.Body.Instructions;
-			
-			// // : base() => : base({Name}, default, default, default)
-			il.RemoveAt(1);
-			il.Insert(1, Instruction.Create(OpCodes.Ldstr, module.Name));
-			// TODO: exception here 
-			// il.Insert(2, Instruction.Create(OpCodes.Ldloca_S, 0));
-			// il.Insert(3, Instruction.Create(OpCodes.Initobj, weaver.Imports.ForeignClass));
-			// il.Insert(4, Instruction.Create(OpCodes.Ldloc_0));
-			// il.Insert(5, Instruction.Create(OpCodes.Ldnull));
-			// il.Insert(6, Instruction.Create(OpCodes.Call, weaver.Imports.Class_ctor__string_string_ForeignClass_ClassBody));
-			//
-			// // this.{Init}();
-			// il.Add(Instruction.Create(OpCodes.Ldarg_0));
-			// il.Add(Instruction.Create(OpCodes.Call, module.InitializerBody.Body.Method));
-			// il.Add(Instruction.Create(OpCodes.Nop));
-			//
-			// il.Add(Instruction.Create(OpCodes.Ret));
+			il.Emit(OpCodes.Ret);
 		}
 	}
 }

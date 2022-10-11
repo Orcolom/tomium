@@ -11,8 +11,8 @@ namespace Binding
 	[WrenchClass(typeof(UnityModule), nameof(GameObject))]
 	public class GameObjectBinding : Class
 	{
-		// 	public GameObjectBinding() : base() {}
-		// 	
+			// public GameObjectBinding() : base(null, "unity__", null) {}
+			
 		// 	// public GameObjectBinding() : base("GameObject", null, ForeignClass.DefaultAlloc<GameObject>())
 		// 	// {
 		// 		// this.Method(Signature.Create(MethodType.Construct, "new"), (in Vm vm) =>
@@ -47,34 +47,29 @@ namespace Binding
 		// 		// });
 		// 	// }
 		//
-		//
-		// 	private static GameObject Create(Vm vm)
-		// 	{
-		// 		// var x = UnityModule.Weaved();
-		// 		return new GameObject();
-		// 	}
-		// 	
-		// 	private static GameObject Create(Vm vm, string name)
-		// 	{
-		// 		return new GameObject(name);
-		// 	}
-		//
-		// 	private string GetName(Vm vm, GameObject gameObject)
-		// 	{
-		// 		return gameObject.name;
-		// 	}
-		// 	
-		// 	private void SetName(Vm vm, GameObject gameObject, string name)
-		// 	{
-		// 		gameObject.name = name;
-		// 	}
+		
+		// [WrenchMethod(MethodType.Construct)]
+		// private static GameObject Create(Vm vm, GameObject self)
+		// {
+		// 	return new GameObject();
 		// }
 		//
-		// public class TransformBinding : Class
+		// [WrenchMethod(MethodType.Construct)]
+		// private static GameObject Create(Vm vm, GameObject self, string name)
 		// {
-		// 	public TransformBinding() : base("Transform", null, ForeignClass.DefaultAlloc<Transform>())
-		// 	{
-		// 		// this.
-		// 	}
+		// 	return new GameObject(name);
+		// }
+		//
+		// [WrenchMethod(MethodType.FieldGetter)]
+		// private string Name(Vm vm, GameObject self)
+		// {
+		// 	return self.name;
+		// }
+		// 	
+		// [WrenchMethod(MethodType.FieldSetter)]
+		// private void Name(Vm vm, GameObject self, string name)
+		// {
+		// 	self.name = name;
+		// }
 	}
 }

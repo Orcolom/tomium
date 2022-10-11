@@ -57,7 +57,7 @@ namespace Wrench.CodeGen
 		
 		
 		public TypeReference Class;
-		public MethodReference Class_ctor__string_string_ForeignClass_ClassBody;
+		public MethodReference Class_ctor__Attributes_string_string_ForeignClass_ClassBody;
 
 		public TypeReference ForeignClass;
 
@@ -97,18 +97,19 @@ namespace Wrench.CodeGen
 				var method = @class.Methods[i];
 				
 				if (method.IsConstructor == false) continue;
-				if (method.Parameters.Count != 4) continue;
-				if (method.Parameters[0].ParameterType.Is<string>() == false) continue;
+				if (method.HasParameters == false) continue;
+				if (method.Parameters[0].ParameterType.Is<Attributes>() == false) continue;
 				if (method.Parameters[1].ParameterType.Is<string>() == false) continue;
-				if (method.Parameters[2].ParameterType.Is<ForeignClass>() == false) continue;
-				if (method.Parameters[3].ParameterType.Is<ClassBody>() == false) continue;
+				if (method.Parameters[2].ParameterType.Is<string>() == false) continue;
+				if (method.Parameters[3].ParameterType.Is<ForeignClass>() == false) continue;
+				if (method.Parameters[4].ParameterType.Is<ClassBody>() == false) continue;
 
-				Class_ctor__string_string_ForeignClass_ClassBody = moduleDefinition.ImportReference(method);
+				Class_ctor__Attributes_string_string_ForeignClass_ClassBody = moduleDefinition.ImportReference(method);
 			}
 
-			if (Class_ctor__string_string_ForeignClass_ClassBody == null)
+			if (Class_ctor__Attributes_string_string_ForeignClass_ClassBody == null)
 			{
-				logger.Error($"could not find {nameof(Class_ctor__string_string_ForeignClass_ClassBody)}");
+				logger.Error($"could not find {nameof(Class_ctor__Attributes_string_string_ForeignClass_ClassBody)}");
 				return false;
 			}
 

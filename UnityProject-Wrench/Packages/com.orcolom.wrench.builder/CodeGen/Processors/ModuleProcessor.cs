@@ -83,22 +83,23 @@ namespace Wrench.CodeGen.Processors
 		private static void WeaveInitMethodOnConstructor(WrenchWeaver weaver, MethodDefinition constructor, WrenchModuleDefinition module)
 		{
 			// assumes that it has an empty body
-			
-			constructor.Body.RemoveTrailingRet();
+			constructor.Body.Instructions.Clear();
+			constructor.Body.Variables.Clear();
 
-			var il = constructor.Body.Instructions;
+			var il = constructor.Body.GetILProcessor();
 			
-			// : base() => : base({Path})
-			il.Insert(1, Instruction.Create(OpCodes.Ldstr, module.Path));
-			il.RemoveAt(2);
-			il.Insert(2, Instruction.Create(OpCodes.Call, weaver.Imports.Module_ctor__string));
+			// base..ctor({Path});
+			il.Emit(OpCodes.Ldarg_0);
+			il.Emit(OpCodes.Ldstr, module.Path);
+			il.Emit(OpCodes.Call, weaver.Imports.Module_ctor__string);
+			il.Emit(OpCodes.Nop);
 			
 			// this.{Init}();
-			il.Add(Instruction.Create(OpCodes.Ldarg_0));
-			il.Add(Instruction.Create(OpCodes.Call, module.InitializerBody.Body.Method));
-			il.Add(Instruction.Create(OpCodes.Nop));
+			il.Emit(OpCodes.Ldarg_0);
+			il.Emit(OpCodes.Call, module.InitializerBody.Body.Method);
+			il.Emit(OpCodes.Nop);
 			
-			il.Add(Instruction.Create(OpCodes.Ret));
+			il.Emit(OpCodes.Ret);
 		}
 	}
 }

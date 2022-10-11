@@ -24,9 +24,14 @@ namespace Wrench.Builder
 		}
 	}
 	
-	public class IsPartOfModuleAttribute : System.Attribute
+	public class WrenchMethodAttribute : System.Attribute
 	{
-		public Type ModuleType;
-		public IsPartOfModuleAttribute(Type type) { }
+		public readonly MethodType MethodType;
+		public string Name;
+
+		public WrenchMethodAttribute(MethodType methodType)
+		{
+			MethodType = methodType;
+		}
 	}
 }
