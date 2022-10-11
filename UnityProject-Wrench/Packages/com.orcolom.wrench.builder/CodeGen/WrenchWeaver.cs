@@ -18,6 +18,7 @@ namespace Wrench.CodeGen
 		{
 			var moduleProcessor = new ModuleProcessor();
 			var classProcessor = new ClassProcessor();
+			var methodProcessor = new MethodProcessor();
 
 			var module = MainModule;
 
@@ -28,7 +29,13 @@ namespace Wrench.CodeGen
 				Logger.Log(input.ToString());
 
 				if (moduleProcessor.TryExtract(this, input, out var moduleDefinition)) continue;
-				if (classProcessor.TryExtract(this, input, out var classDefinition)) continue;
+				if (classProcessor.TryExtract(this, input, out var classDefinition))
+				{
+					for (int j = 0; j < input.Methods.Count; j++)
+					{
+						methodProcessor.TryExtract(this, input, input.Methods[j], out var methodDefinition);
+					}
+				}
 
 				// if (type.IsDerivedFrom<Class>() == false) continue;
 
@@ -52,6 +59,8 @@ namespace Wrench.CodeGen
 
 	public class WrenchImports : Imports
 	{
+		public TypeReference Vm;
+
 		public TypeReference Module;
 		public MethodReference Module_ctor__string;
 		
@@ -66,6 +75,7 @@ namespace Wrench.CodeGen
 			if (base.Populate(logger, moduleDefinition) == false) return false;
 
 			ForeignClass = moduleDefinition.ImportReference(typeof(ForeignClass));
+			Vm = moduleDefinition.ImportReference(typeof(Vm));
 			
 			// import Module
 			Module = moduleDefinition.ImportReference(typeof(Module));

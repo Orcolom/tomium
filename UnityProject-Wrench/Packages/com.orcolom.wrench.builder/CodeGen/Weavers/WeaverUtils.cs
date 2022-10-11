@@ -2,13 +2,14 @@
 using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using ICustomAttributeProvider = Mono.Cecil.ICustomAttributeProvider;
 using MethodBody = Mono.Cecil.Cil.MethodBody;
 
 namespace Wrench.Weaver
 {
 	public static class WeaverUtils
 	{
-		public static bool HasAttribute<T>(this TypeDefinition td, out CustomAttribute attribute)
+		public static bool HasAttribute<T>(this ICustomAttributeProvider td, out CustomAttribute attribute)
 		{
 			attribute = default;
 			if (td.HasCustomAttributes == false) return false;

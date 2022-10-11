@@ -34,9 +34,10 @@ namespace Wrench.Weaver
 			AddMessage($"{message} (at {mr})", sequencePoint, DiagnosticType.Error);
 		}
 
-		public void Error(string message, MethodDefinition md)
+		public bool Error(string message, MethodDefinition md)
 		{
 			Error(message, md, md.DebugInformation.SequencePoints.FirstOrDefault());
+			return false;
 		}
 
 

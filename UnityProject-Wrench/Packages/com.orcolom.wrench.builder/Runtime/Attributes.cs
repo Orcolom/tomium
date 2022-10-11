@@ -27,7 +27,7 @@ namespace Wrench.Builder
 	public class WrenchMethodAttribute : System.Attribute
 	{
 		public readonly MethodType MethodType;
-		public string Name;
+		// public string Name;
 
 		public WrenchMethodAttribute(MethodType methodType)
 		{
