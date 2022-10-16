@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Wrench.Builder;
@@ -11,11 +10,20 @@ namespace Wrench.CodeGen.Processors
 	{
 		public string Name;
 		public TypeDefinition ModuleType;
-		public ILProcessor InitializerBody;
+		public TypeDefinition ClassType;
+		public MethodDefinition CtorMethod;
+		public MethodDefinition InitMethod;
+		public List<WrenchMethodDefinition> Methods = new List<WrenchMethodDefinition>();
+
+		public void AddMethod(WrenchMethodDefinition data)
+		{
+			ClassType.Methods.Add(data.WrapperMethod);
+			Methods.Add(data);
+		}
 	}
 
-	
-	public class ClassProcessor : IProcessor<WrenchImports, WrenchWeaver, TypeDefinition, WrenchClassDefinition>
+
+	public class ClassProcessor
 	{
 		private const string InitializerMethodName = WrenchWeaver.Prefix + "init";
 
@@ -23,7 +31,10 @@ namespace Wrench.CodeGen.Processors
 
 		public bool TryExtract(WrenchWeaver weaver, TypeDefinition input, out WrenchClassDefinition data)
 		{
-			data = new WrenchClassDefinition();
+			data = new WrenchClassDefinition()
+			{
+				ClassType = input,
+			};
 
 			// implements attribute and has valid arguments
 			if (input.HasAttribute<WrenchClassAttribute>(out var attribute) == false) return false;
@@ -34,7 +45,7 @@ namespace Wrench.CodeGen.Processors
 					input);
 				return false;
 			}
-			
+
 			if (attribute.ConstructorArguments[1].Value is not string str || string.IsNullOrEmpty(str))
 			{
 				weaver.Logger.Error(
@@ -66,47 +77,52 @@ namespace Wrench.CodeGen.Processors
 			}
 
 			// create initializer method
-			var md = new MethodDefinition(InitializerMethodName,
+			data.InitMethod = new MethodDefinition(InitializerMethodName,
 				MethodAttributes.HideBySig | MethodAttributes.Private,
 				weaver.Imports.VoidRef);
-			input.Methods.Add(md);
-			data.InitializerBody = md.Body.GetILProcessor();
-			data.InitializerBody.Emit(OpCodes.Nop);
-			data.InitializerBody.Emit(OpCodes.Ret);
+			input.Methods.Add(data.InitMethod);
+			
+			var il = data.InitMethod.Body.GetILProcessor();
+			il.Emit(OpCodes.Nop);
+			il.Emit(OpCodes.Ret);
+			
 			// weave the initializer in the constructors
 			for (int i = 0; i < input.Methods.Count; i++)
 			{
 				var method = input.Methods[i];
-			
+
 				if (method.IsConstructor == false) continue;
-				
+
 				// allow an empty default constructor
 				if (method.HasEmptyBody() && method.HasParameters == false)
 				{
 					WeaveInitMethodOnConstructor(weaver, method, data);
+					data.CtorMethod = method;
 					continue;
 				}
+
 				weaver.Logger.Error($"`{input.FullName}` has constructors. this is not supported at the moment", method);
 				return false;
 			}
-			
+
 			Classes.Add(data);
 			return true;
 		}
-		
-		private static void WeaveInitMethodOnConstructor(WrenchWeaver weaver, MethodDefinition constructor, WrenchClassDefinition module)
+
+		private static void WeaveInitMethodOnConstructor(WrenchWeaver weaver, MethodDefinition constructor,
+			WrenchClassDefinition module)
 		{
 			// assumes that it has an empty body
 			constructor.Body.Instructions.Clear();
 			constructor.Body.Variables.Clear();
-			
+
 			var il = constructor.Body.GetILProcessor();
-			
+
 			// local variables
 			constructor.Body.InitLocals = true;
 			var localForeign = new VariableDefinition(weaver.Imports.ForeignClass);
 			constructor.Body.Variables.Add(localForeign);
-			
+
 			// base..ctor((Attributes) null, {Name}, (string) null, new ForeignClass(), (ClassBody) null);
 			il.Emit(OpCodes.Ldarg_0);
 			il.Emit(OpCodes.Ldnull);
@@ -118,13 +134,47 @@ namespace Wrench.CodeGen.Processors
 			il.Emit(OpCodes.Ldnull);
 			il.Emit(OpCodes.Call, weaver.Imports.Class_ctor__Attributes_string_string_ForeignClass_ClassBody);
 			il.Emit(OpCodes.Nop);
-			
+
 			// this.{Init}();
 			il.Emit(OpCodes.Ldarg_0);
-			il.Emit(OpCodes.Call, module.InitializerBody.Body.Method);
+			il.Emit(OpCodes.Call, module.InitMethod);
 			il.Emit(OpCodes.Nop);
 
 			il.Emit(OpCodes.Ret);
+		}
+
+		public void Process(WrenchWeaver weaver)
+		{
+			for (int i = 0; i < Classes.Count; i++)
+			{
+				var classData = Classes[i];
+				var body = classData.InitMethod.Body;
+				
+				body.Instructions.Clear();
+				body.Variables.Clear();
+				var il = body.GetILProcessor();
+				
+				
+				for (int j = 0; j < classData.Methods.Count; j++)
+				{
+					var methodData = classData.Methods[j];
+					
+					il.Emit(OpCodes.Ldarg_0);
+					il.Emit(OpCodes.Ldc_I4_S, (sbyte)methodData.MethodType);
+					il.Emit(OpCodes.Ldstr, methodData.UserMethod.Name);
+					il.Emit(OpCodes.Ldc_I4_S, (sbyte)methodData.Parameters.Count);
+					il.Emit(OpCodes.Call, weaver.Imports.Signature_Create__MethodType_string_int);
+					il.Emit(OpCodes.Ldarg_0);
+					il.Emit(OpCodes.Ldftn, methodData.WrapperMethod);
+					il.Emit(OpCodes.Newobj, weaver.Imports.ForeignAction_ctor);
+					il.Emit(OpCodes.Newobj, weaver.Imports.ForeignMethod_ctor__ForeignAction);
+					il.Emit(OpCodes.Newobj, weaver.Imports.Method_ctor__Signature_ForeignMethod);
+					il.Emit(OpCodes.Call, weaver.Imports.Class_Add__IClassScoped);
+					il.DEBUG_EmitNop();
+				}
+				
+				il.Emit(OpCodes.Ret);
+			}
 		}
 	}
 }

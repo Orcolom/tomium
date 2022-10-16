@@ -94,17 +94,6 @@ namespace Wrench.Weaver
 			}
 		}
 
-		/// <summary>
-		/// Methods have to end with a return statement. this removes it before we append the il body.
-		/// Don't forget to ad a new return value at the end.
-		/// </summary>
-		/// <param name="body"></param>
-		public static void RemoveTrailingRet(this MethodBody body)
-		{
-			if (body.Instructions[^1].OpCode != OpCodes.Ret) return;
-			body.Instructions.RemoveAt(body.Instructions.Count - 1);
-		}
-
 		public static bool HasEmptyBody(this MethodDefinition method)
 		{
 			var instructions = method.Body.Instructions;
@@ -114,6 +103,30 @@ namespace Wrench.Weaver
 			if (instructions[2].OpCode != OpCodes.Nop) return false;
 			if (instructions[3].OpCode != OpCodes.Ret) return false;
 			return true;
+		}
+
+		public static void DEBUG_EmitNop(this ILProcessor il)
+		{
+#if DEBUG
+			il.Emit(OpCodes.Nop);
+#endif
+		}
+		
+		public static void Emit_Ldarg_x(this ILProcessor il, int index, MethodDefinition methodDefinition)
+		{
+			index = methodDefinition.IsStatic ? index - 1 : index;
+			var op = index switch
+			{
+				-1 => OpCodes.Nop,
+				0 => OpCodes.Ldarg_0,
+				1 => OpCodes.Ldarg_1,
+				2 => OpCodes.Ldarg_2,
+				3 => OpCodes.Ldarg_3,
+				_ => throw new ArgumentOutOfRangeException(nameof(index), index, null),
+			};
+
+			if (op == OpCodes.Nop) return;
+			il.Emit(op);
 		}
 	}
 }

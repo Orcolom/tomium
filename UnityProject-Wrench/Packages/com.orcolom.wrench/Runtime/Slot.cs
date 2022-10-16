@@ -125,7 +125,7 @@ namespace Wrench
 		{
 			// TODO: stop referencing vm here
 			if (ExpectedValid(slot)) return;
-			IVmUnmanaged vm = VmUtils.FromPtr(slot.VmPtr);
+			Vm vm = VmUtils.FromPtr(slot.VmPtr);
 			if (vm.HasModuleAndVariable(module, variable) == false) return;
 			Interop.wrenGetVariable(slot.VmPtr, module, variable, slot.Index);
 		}

@@ -30,12 +30,12 @@ namespace Wrench
 			Handles.Data.Map.Add(_ptr, this);
 		}
 
-		public static Handle New(in IVmManaged vm, string signature)
+		internal static Handle New(in IntPtr vmPtr, string signature)
 		{
-			if (vm.ExpectedValid()) return new Handle();
+			if (VmUtils.ExpectedValid(vmPtr)) return new Handle();
 
-			IntPtr handlePtr = Interop.wrenMakeCallHandle(vm.Ptr, signature);
-			var handle = new Handle(vm.Ptr, handlePtr);
+			IntPtr handlePtr = Interop.wrenMakeCallHandle(vmPtr, signature);
+			var handle = new Handle(vmPtr, handlePtr);
 			Handles.Data.Map.Add(handlePtr, handle);
 			return handle;
 		}

@@ -14,19 +14,19 @@ namespace Wrench.CodeGen.Processors
 		public ILProcessor InitializerBody;
 	}
 
-	public class ModuleProcessor : IProcessor<WrenchImports, WrenchWeaver, TypeDefinition, WrenchModuleDefinition>
+	public class ModuleProcessor
 	{
 		private const string InitializerMethodName = WrenchWeaver.Prefix + "init";
 
 		public List<WrenchModuleDefinition> Modules = new List<WrenchModuleDefinition>();
 
-		public bool TryExtract(WrenchWeaver weaver, TypeDefinition input, out WrenchModuleDefinition data)
+		public bool TryExtract(WrenchWeaver weaver, TypeDefinition input)
 		{
-			data = new WrenchModuleDefinition
+			var data = new WrenchModuleDefinition
 			{
 				ModuleType = input,
 			};
-			
+
 			// implements attribute and has valid arguments
 			if (input.HasAttribute<WrenchModuleAttribute>(out var attribute) == false) return false;
 			if (attribute.HasConstructorArguments == false
@@ -38,9 +38,9 @@ namespace Wrench.CodeGen.Processors
 					input);
 				return false;
 			}
-			
+
 			data.Path = str;
-			
+
 			// derives from module class
 			if (input.IsDerivedFrom<Module>() == false)
 			{
@@ -49,7 +49,7 @@ namespace Wrench.CodeGen.Processors
 					input);
 				return false;
 			}
-			
+
 			// create initializer method
 			var md = new MethodDefinition(InitializerMethodName,
 				MethodAttributes.HideBySig | MethodAttributes.Private,
@@ -63,43 +63,74 @@ namespace Wrench.CodeGen.Processors
 			for (int i = 0; i < input.Methods.Count; i++)
 			{
 				var method = input.Methods[i];
-			
+
 				if (method.IsConstructor == false) continue;
-				
+
 				// allow an empty default constructor
 				if (method.HasEmptyBody() && method.HasParameters == false)
 				{
 					WeaveInitMethodOnConstructor(weaver, method, data);
 					continue;
 				}
-				weaver.Logger.Error($"`{input.FullName}` {method.HasEmptyBody()} {method.Body.Instructions.Count} has constructors. this is not supported at the moment", method);
+
+				weaver.Logger.Error(
+					$"`{input.FullName}` {method.HasEmptyBody()} {method.Body.Instructions.Count} has constructors. this is not supported at the moment",
+					method);
 				return false;
 			}
-			
+
 			Modules.Add(data);
 			return true;
 		}
 
-		private static void WeaveInitMethodOnConstructor(WrenchWeaver weaver, MethodDefinition constructor, WrenchModuleDefinition module)
+		private static void WeaveInitMethodOnConstructor(WrenchWeaver weaver, MethodDefinition constructor,
+			WrenchModuleDefinition module)
 		{
 			// assumes that it has an empty body
 			constructor.Body.Instructions.Clear();
 			constructor.Body.Variables.Clear();
 
 			var il = constructor.Body.GetILProcessor();
-			
+
 			// base..ctor({Path});
 			il.Emit(OpCodes.Ldarg_0);
 			il.Emit(OpCodes.Ldstr, module.Path);
 			il.Emit(OpCodes.Call, weaver.Imports.Module_ctor__string);
 			il.Emit(OpCodes.Nop);
-			
+
 			// this.{Init}();
 			il.Emit(OpCodes.Ldarg_0);
 			il.Emit(OpCodes.Call, module.InitializerBody.Body.Method);
 			il.Emit(OpCodes.Nop);
-			
+
 			il.Emit(OpCodes.Ret);
+		}
+
+		public void Process(WrenchWeaver weaver, ClassProcessor classProcessor)
+		{
+			for (int i = 0; i < Modules.Count; i++)
+			{
+				var moduleData = Modules[i];
+
+				moduleData.InitializerBody.Body.Instructions.Clear();
+				moduleData.InitializerBody.Body.Variables.Clear();
+
+				var il = moduleData.InitializerBody.Body.GetILProcessor();
+
+				for (int j = 0; j < classProcessor.Classes.Count; j++)
+				{
+					var classData = classProcessor.Classes[i];
+
+					if (classData.ModuleType != moduleData.ModuleType) continue;
+
+					il.Emit(OpCodes.Ldarg_0);
+					il.Emit(OpCodes.Newobj, classData.CtorMethod);
+					il.Emit(OpCodes.Call, weaver.Imports.Module_Add__IModuleScoped);
+					il.DEBUG_EmitNop();
+				}
+
+				il.Emit(OpCodes.Ret);
+			}
 		}
 	}
 }

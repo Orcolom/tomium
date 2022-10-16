@@ -8,13 +8,19 @@ namespace Wrench
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	public delegate void ForeignAction(in Vm vm);
 
-	public struct ForeignMethod
+
+	internal static class ForeignMethodStatics
 	{
 		internal static readonly SharedStatic<StaticMap<ForeignMethod>> Methods = SharedStatic<StaticMap<ForeignMethod>>.GetOrCreate<ForeignMethod>();
+	}
+	
+
+	public struct ForeignMethod
+	{
 
 		static ForeignMethod()
 		{
-			Methods.Data.Init(16);
+			ForeignMethodStatics.Methods.Data.Init(16);
 		}
 		
 		private IntPtr _ptr;
@@ -27,12 +33,12 @@ namespace Wrench
 		{
 			_ptr = Marshal.GetFunctionPointerForDelegate(action);
 			Managed.Actions.TryAdd(_ptr, action);
-			Methods.Data.Map.TryAdd(_ptr, this);
+			ForeignMethodStatics.Methods.Data.Map.TryAdd(_ptr, this);
 		}
 
 		internal static ForeignMethod FromPtr(IntPtr ptr)
 		{
-			return Methods.Data.Map.TryGetValue(ptr, out var method) ? method : new ForeignMethod();
+			return ForeignMethodStatics.Methods.Data.Map.TryGetValue(ptr, out var method) ? method : new ForeignMethod();
 		}
 
 		#endregion
