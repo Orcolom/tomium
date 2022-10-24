@@ -8,11 +8,6 @@ using Wrench.Native;
 
 namespace Wrench
 {
-	public interface IVmElement
-	{
-		internal IntPtr VmPtr { get; }
-	}
-
 	public struct Vm : IEquatable<Vm>, IDisposable
 	{
 		private IntPtr _ptr;
@@ -117,6 +112,7 @@ namespace Wrench
 
 		#region Expected
 
+		
 		public static bool IsValid(this Vm vm) => IsValid(vm.Ptr);
 
 		public static bool IsValid(IntPtr vmPtr)
@@ -131,18 +127,20 @@ namespace Wrench
 		{
 			if (IsValid(vmPtr)) return false;
 
-			Expected.ThrowException(new ObjectDisposedException(nameof(Vm), "Vm is already disposed"));
+			PrefHelper.ThrowException(new ObjectDisposedException(nameof(Vm), "Vm is already disposed"));
 			return true;
 		}
 
-		internal static bool ExpectedSameVm(this Vm vm, in IVmElement element) => ExpectedSameVm(vm.Ptr, element);
-		internal static bool ExpectedSameVm(this IVmElement self, in IVmElement other) => ExpectedSameVm(self.VmPtr, other);
+		internal static bool ExpectedSameVm(this Vm self, in Slot other) => ExpectedSameVm(self.Ptr, other.VmPtr);
+		internal static bool ExpectedSameVm(this Vm self, in Handle other) => ExpectedSameVm(self.Ptr, other.VmPtr);
+		internal static bool ExpectedSameVm(this Slot self, in Slot other) => ExpectedSameVm(self.VmPtr, other.VmPtr);
+		internal static bool ExpectedSameVm(this Slot self, in Handle other) => ExpectedSameVm(self.VmPtr, other.VmPtr);
 
-		internal static bool ExpectedSameVm(IntPtr vmPtr, in IVmElement element)
+		internal static bool ExpectedSameVm(IntPtr ptr, IntPtr other)
 		{
-			if (vmPtr == element.VmPtr) return false;
+			if (ptr == other) return false;
 
-			Expected.ThrowException(new ArgumentOutOfRangeException(nameof(element),
+			PrefHelper.ThrowException(new ArgumentOutOfRangeException("ExpectedSameVm",
 				"Not all elements are from the same Vm"));
 			return true;
 		}
@@ -181,7 +179,7 @@ namespace Wrench
 
 			if (ExpectedValid(vm)) return InterpretResult.CompileError;
 			if (Handle.IfInvalid(handle)) return InterpretResult.CompileError;
-			if (ExpectedSameVm(vm, handle)) return InterpretResult.CompileError;
+			if (vm.ExpectedSameVm(handle)) return InterpretResult.CompileError;
 			var result = Interop.wrenCall(vm.Ptr, handle.Ptr);
 
 			PrefCall.End();
@@ -195,7 +193,7 @@ namespace Wrench
 			Interop.wrenCollectGarbage(vm.Ptr);
 		}
 
-		public static void Abort(this Vm vm, in ISlotUnmanaged msg)
+		public static void Abort(this Vm vm, in Slot msg)
 		{
 			if (ExpectedValid(vm)) return;
 			Interop.wrenAbortFiber(vm.Ptr, msg.Index);

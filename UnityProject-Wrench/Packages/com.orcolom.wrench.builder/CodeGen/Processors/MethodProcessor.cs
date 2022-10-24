@@ -93,7 +93,7 @@ namespace Wrench.CodeGen.Processors
 
 			var wrapperMethod = new MethodDefinition($"{WrenchWeaver.Prefix}{data.UserMethod.Name}_{namePostfix}",
 				MethodAttributes.Private | MethodAttributes.HideBySig,
-				weaver.Imports.VoidRef);
+				weaver.Imports.Void);
 			wrapperMethod.IsStatic = data.UserMethod.IsStatic;
 
 			data.WrapperMethod = wrapperMethod;
@@ -101,7 +101,7 @@ namespace Wrench.CodeGen.Processors
 			wrapperMethod.Parameters.Add(new ParameterDefinition("vm", ParameterAttributes.In, weaver.Imports.Vm));
 		}
 
-		public void Process(WrenchWeaver weaver)
+		public void Process(WrenchWeaver weaver, ExpectProcessor expectProcessor)
 		{
 			for (int i = 0; i < Methods.Count; i++)
 			{
@@ -113,7 +113,8 @@ namespace Wrench.CodeGen.Processors
 				body.Variables.Clear();
 
 				var il = body.GetILProcessor();
-
+				var lastInstruction = Instruction.Create(OpCodes.Ret);
+				
 				// ensure slot size
 				il.Emit_Ldarg_x(1, method);
 				il.Emit(OpCodes.Ldc_I4_S, (sbyte)methodData.Parameters.Count);
@@ -123,12 +124,32 @@ namespace Wrench.CodeGen.Processors
 				// load parameters in local variables 
 				for (int j = 0; j < methodData.Parameters.Count; j++)
 				{
-					var localVar = new VariableDefinition(weaver.Imports.Slot);
-					body.Variables.Add(localVar);
+					var forType = methodData.Parameters[j];
+					bool expectsSlot = forType.Is<Slot>();
 
-					il.Emit_Ldarg_x(1, method);
-					il.Emit(OpCodes.Ldfld, weaver.Imports.Vm_Slots[j]);
-					il.Emit(OpCodes.Stloc_S, localVar);
+					var localVar = new VariableDefinition(expectsSlot ? weaver.Imports.Slot : forType);
+					body.Variables.Add(localVar);
+				}
+
+				// load parameters in local variables 
+				for (int j = 0; j < methodData.Parameters.Count; j++)
+				{
+					var forType = methodData.Parameters[j];
+					bool expectsSlot = forType.Is<Slot>();
+
+					var localVar = body.Variables[j];
+
+					var slot = weaver.Imports.Vm_Slots[j];
+					if (expectsSlot)
+					{
+						il.Emit_Ldarg_x(1, method);
+						il.Emit(OpCodes.Ldfld, slot);
+						il.Emit(OpCodes.Stloc_S, localVar);
+					}
+					else
+					{
+						expectProcessor.EmitExpectIl(weaver, method, il, forType, localVar, slot, lastInstruction);
+					}
 					il.DEBUG_EmitNop();
 				}
 
@@ -144,7 +165,7 @@ namespace Wrench.CodeGen.Processors
 				il.Emit(OpCodes.Call, methodData.UserMethod);
 				il.DEBUG_EmitNop();
 
-				il.Emit(OpCodes.Ret);
+				body.Instructions.Add(lastInstruction);
 			}
 		}
 	}

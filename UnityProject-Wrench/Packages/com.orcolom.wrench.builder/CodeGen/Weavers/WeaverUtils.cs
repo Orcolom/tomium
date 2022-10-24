@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Reflection;
+using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using ICustomAttributeProvider = Mono.Cecil.ICustomAttributeProvider;
 using MethodBody = Mono.Cecil.Cil.MethodBody;
+using TypeAttributes = Mono.Cecil.TypeAttributes;
 
 namespace Wrench.Weaver
 {
@@ -26,13 +28,32 @@ namespace Wrench.Weaver
 		public static bool Is<T>(this TypeReference td) => Is(td, typeof(T));
 
 		public static bool Is(this TypeReference td, TypeReference t)
-			=> td.GetElementType().FullName == t.FullName;
+		{
+			if (td is ByReferenceType tdByRef) td = tdByRef.ElementType;
+			if (t is ByReferenceType tByRef) t = tByRef.ElementType;
+			
+			if (td.GetElementType().FullName != t.GetElementType().FullName) return false;
+			return td.IsArray == t.IsArray;
+		}
+
 		public static bool Is(this TypeReference td, Type t)
 		{
-			if (t.IsGenericType) return td.GetElementType().FullName == t.FullName;
-			return td.FullName == t.FullName;
+			if (td is ByReferenceType tdByRef) td = tdByRef.ElementType;
+			if (td.GetElementType().FullName != t.FullName) return false;
+			return td.IsArray == t.IsArray;
 		}
-		
+
+		public static bool IsDerivedFrom(this TypeReference td, TypeReference t, ref int depth)
+		{
+			var type = td.Resolve();
+			
+			if (type.Is(t)) return true;
+			if (type.BaseType == null) return false;
+			
+			depth++;
+			return type.BaseType.IsDerivedFrom(t, ref depth);
+		}
+
 		public static bool IsDerivedFrom<T>(this TypeDefinition td) => IsDerivedFrom(td, typeof(T));
 		public static bool IsDerivedFrom(this TypeDefinition td, Type t)
 		{

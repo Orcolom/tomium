@@ -79,7 +79,7 @@ namespace Wrench.CodeGen.Processors
 			// create initializer method
 			data.InitMethod = new MethodDefinition(InitializerMethodName,
 				MethodAttributes.HideBySig | MethodAttributes.Private,
-				weaver.Imports.VoidRef);
+				weaver.Imports.Void);
 			input.Methods.Add(data.InitMethod);
 			
 			var il = data.InitMethod.Body.GetILProcessor();

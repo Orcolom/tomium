@@ -5,7 +5,7 @@ using Wrench.Native;
 
 namespace Wrench
 {
-	public struct Handle : IDisposable, IVmElement, IEquatable<Handle>
+	public struct Handle : IDisposable, IEquatable<Handle>
 	{
 		internal static readonly SharedStatic<StaticMap<Handle>> Handles = SharedStatic<StaticMap<Handle>>.GetOrCreate<Handle>();
 		static Handle()
@@ -21,7 +21,7 @@ namespace Wrench
 		public bool IsValid => FromPtr(_ptr)._ptr != IntPtr.Zero;
 
 		internal IntPtr Ptr => _ptr;
-		IntPtr IVmElement.VmPtr => _vmPtr;
+		internal IntPtr VmPtr => _vmPtr;
 
 		internal Handle(IntPtr vmPtr, IntPtr ptr)
 		{
@@ -58,7 +58,7 @@ namespace Wrench
 		{
 			if (handle.IsValid) return false;
 			
-			Expected.ThrowException(new ObjectDisposedException("Handle is already disposed"));
+			PrefHelper.ThrowException(new ObjectDisposedException("Handle is already disposed"));
 			return true;
 		}
 

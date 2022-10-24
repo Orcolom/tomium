@@ -7,29 +7,6 @@ using ValueType = Wrench.ValueType;
 
 namespace Binding
 {
-	// public class GetUnityObjectValueUtils<T>
-	// 	where T : Object,
-	// 	IGetValueFromSlot<T>
-	// {
-	// 	public bool GetValue(in Vm vm, in ISlotManaged slot, out T value)
-	// 	{
-	// 		value = null;
-	// 		if (GetValueUtils.IsOfValueType(vm, slot, ValueType.Foreign) == false) return false;
-	//
-	// 		var foreign = slot.GetForeign<T>();
-	// 		value = foreign.Value;
-	// 		return true;
-	// 	}
-	// }
-
-	public class Example2Module : Module
-	{
-		public Example2Module() : base("/~~/path")
-		{
-			Add(new Import("/~/path", new ImportVariable(nameof(ExampleClass))));
-		}
-	}
-
 	public class ExampleModule : Module
 	{
 		public ExampleModule() : base("/~/path")
@@ -46,7 +23,8 @@ namespace Binding
 		}
 
 		// [WrenchMethod(MethodType.Construct)]
-		private void Create(Vm vm, Slot a0, Slot a1, Slot a2, Slot a3, Slot a4, Slot a5, Slot a6, Slot a7, Slot a8, Slot a9,
+		private void Create(Vm vm, Slot a0, Slot a1, string a2, Slot a3, byte[] a4, Slot a5, int a6, Slot a7,
+			ForeignObject<GameObject> a8, Slot a9,
 			Slot a10, Slot a11, Slot a12, Slot a13, Slot a14, Slot a15, Slot a16)
 		{
 			var foreign = a0.GetForeign<GameObject>();
@@ -59,13 +37,21 @@ namespace Binding
 
 			var arg0 = vm.Slot0;
 			var arg1 = vm.Slot1;
-			var arg2 = vm.Slot2;
-			var arg3 = vm.Slot3;
-			var arg4 = vm.Slot4;
+
+			if (ExpectValue.ExpectString(vm, vm.Slot2, out string arg2) == false) return;
+
+			var arg3 = vm.Slot2;
+
+			if (ExpectValue.ExpectByteArray(vm, vm.Slot4, out byte[] arg4) == false) return;
+
 			var arg5 = vm.Slot5;
-			var arg6 = vm.Slot6;
+
+			if (ExpectValue.ExpectInt(vm, vm.Slot3, out int arg6) == false) return;
+
 			var arg7 = vm.Slot7;
-			var arg8 = vm.Slot8;
+
+			var arg8 = vm.Slot8.GetForeign<GameObject>();
+
 			var arg9 = vm.Slot9;
 			var arg10 = vm.Slot10;
 			var arg11 = vm.Slot11;
@@ -81,48 +67,21 @@ namespace Binding
 	}
 
 	[WrenchModule("Unity")]
-	public class UnityModule : Module { }
+	public class UnityModule : Module
+	{
+		[WrenchExpect(typeof(ForeignObject<Object>), true)]
+		public static bool ExpectObject<T>(in Vm vm, in Slot slot, out ForeignObject<T> value) where T : Object
+		{
+			value = new ForeignObject<T>();
+			if (ExpectValue.IsOfValueType(vm, slot, ValueType.Foreign, true) == false) return false;
+			value = slot.GetForeign<T>();
+			return true;
+		}
+	}
 
 	[WrenchClass(typeof(UnityModule), nameof(GameObject))]
 	public class GameObjectBinding : Class
 	{
-		// public GameObjectBinding() : base(null, "unity__", null) {}
-
-		// 	// public GameObjectBinding() : base("GameObject", null, ForeignClass.DefaultAlloc<GameObject>())
-		// 	// {
-		// 		// this.Method(Signature.Create(MethodType.Construct, "new"), (in Vm vm) =>
-		// 		// {
-		// 		// 	if (Expected.ForeignType(vm, vm.Slot0, out ForeignObject<GameObject> foreign)) return;
-		// 		// 	foreign.Value = new GameObject();
-		// 		// });
-		// 		//
-		// 		// this.Method(Signature.Create(MethodType.Construct, "new", 1), (in Vm vm) =>
-		// 		// {
-		// 		// 	vm.EnsureSlots(2);
-		// 		// 	if (Expected.ForeignType<GameObject>(vm, vm.Slot0, out var foreign)) return;
-		// 		// 	if (Expected.String(vm, vm.Slot1, out var nameStr)) return;
-		// 		// 	foreign.Value = new GameObject(nameStr);
-		// 		// });
-		// 		//
-		// 		// this.Field(nameof(GameObject.name), false,
-		// 		// 	get: (in Vm vm, ForeignObject<GameObject> fo) => { vm.Slot0.SetString(fo.Value.name); },
-		// 		// 	set: (in Vm vm, in Slot s1, ForeignObject<GameObject> fo) =>
-		// 		// 	{
-		// 		// 		if (Expected.String(vm, s1, out var nameStr)) return;
-		// 		// 		fo.Value.name = nameStr;
-		// 		// 	}
-		// 		// );
-		// 		//
-		// 		// this.Method(Signature.Create(MethodType.Method, nameof(GameObject.GetComponent), 1), (in Vm vm) =>
-		// 		// {
-		// 		// 	vm.EnsureSlots(2);
-		// 		// 	if (Expected.ForeignType<GameObject>(vm, vm.Slot0, out var foreign)) return;
-		// 		// 	if (Expected.String(vm, vm.Slot1, out var nameStr)) return;
-		// 		// 	foreign.Value = new GameObject(nameStr);
-		// 		// });
-		// 	// }
-		//
-
 		[WrenchMethod(MethodType.Construct)]
 		private void Create(Vm vm, Slot self)
 		{
@@ -139,22 +98,21 @@ namespace Binding
 		}
 
 		[WrenchMethod(MethodType.Construct)]
-		private static void Create(Vm vm, Slot self, Slot name)
+		private static void Create(in Vm vm, ForeignObject<GameObject> self, string name)
 		{
-			var foreign = self.GetForeign<GameObject>();
-			foreign.Value = new GameObject(name.GetString());
+			self.Value = new GameObject(name);
 		}
 
-		// [WrenchMethod(MethodType.FieldGetter)]
-		// private string Name(Vm vm, GameObject self)
-		// {
-		// 	return self.name;
-		// }
-		// 	
-		// [WrenchMethod(MethodType.FieldSetter)]
-		// private void Name(Vm vm, GameObject self, string name)
-		// {
-		// 	self.name = name;
-		// }
+		[WrenchMethod(MethodType.FieldGetter)]
+		private string Name(Vm vm, ForeignObject<GameObject> self)
+		{
+			return self.Value.name;
+		}
+
+		[WrenchMethod(MethodType.FieldSetter)]
+		private void Name(Vm vm, ForeignObject<GameObject> self, string name)
+		{
+			self.Value.name = name;
+		}
 	}
 }

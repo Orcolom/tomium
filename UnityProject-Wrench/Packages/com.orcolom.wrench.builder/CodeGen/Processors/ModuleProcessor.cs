@@ -45,7 +45,7 @@ namespace Wrench.CodeGen.Processors
 			if (input.IsDerivedFrom<Module>() == false)
 			{
 				weaver.Logger.Error(
-					$"`{input.FullName}` wants to be weaved with `{nameof(WrenchModuleAttribute)}` but derive from type `{nameof(Builder.Module)}`",
+					$"`{input.FullName}` wants to be weaved with `{nameof(WrenchModuleAttribute)}` but doesn't derive from type `{nameof(Builder.Module)}`",
 					input);
 				return false;
 			}
@@ -53,7 +53,7 @@ namespace Wrench.CodeGen.Processors
 			// create initializer method
 			var md = new MethodDefinition(InitializerMethodName,
 				MethodAttributes.HideBySig | MethodAttributes.Private,
-				weaver.Imports.VoidRef);
+				weaver.Imports.Void);
 			input.Methods.Add(md);
 			data.InitializerBody = md.Body.GetILProcessor();
 			data.InitializerBody.Emit(OpCodes.Nop);

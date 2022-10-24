@@ -248,13 +248,15 @@ namespace Wrench.Weaver
 
 	public class Imports
 	{
-		public TypeReference VoidRef;
-		public TypeReference StringRef;
+		public TypeReference Void;
+		public TypeReference String;
+		public TypeReference Bool;
 		
 		public virtual bool Populate(WeaverLogger logger, ModuleDefinition moduleDefinition)
 		{
-			VoidRef = moduleDefinition.ImportReference(typeof(void));
-			StringRef = moduleDefinition.ImportReference(typeof(string));
+			Void = moduleDefinition.ImportReference(typeof(void));
+			String = moduleDefinition.ImportReference(typeof(string));
+			Bool = moduleDefinition.ImportReference(typeof(bool));
 			return true;
 		}
 	}

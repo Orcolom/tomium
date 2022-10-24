@@ -17,32 +17,56 @@ namespace Wrench.CodeGen
 
 		protected override void Weave()
 		{
+			var expectProcessor = new ExpectProcessor();
+
 			var moduleProcessor = new ModuleProcessor();
 			var classProcessor = new ClassProcessor();
 			var methodProcessor = new MethodProcessor();
 
-			var module = MainModule;
+			for (int i = 0; i < MainModule.AssemblyReferences.Count; i++)
+			{
+				var assembly = MainModule.AssemblyResolver.Resolve(MainModule.AssemblyReferences[i]);
+
+				for (int j = 0; j < assembly.Modules.Count; j++)
+				{
+					var module = assembly.Modules[j];
+					SearchModuleForTypes(module, expectProcessor);
+				}
+			}
+			SearchModuleForTypes(MainModule, expectProcessor);
 
 			// collect all info
-			for (int i = 0; i < module.Types.Count; i++)
+			for (int i = 0; i < MainModule.Types.Count; i++)
 			{
-				var input = module.Types[i];
-
-				Logger.Log(input.ToString());
+				var input = MainModule.Types[i];
 
 				if (moduleProcessor.TryExtract(this, input)) continue;
-				if (classProcessor.TryExtract(this, input, out var classDefinition))
+				bool foundClass = classProcessor.TryExtract(this, input, out var classDefinition);
+
+				for (int j = 0; j < input.Methods.Count; j++)
 				{
-					for (int j = 0; j < input.Methods.Count; j++)
-					{
-						methodProcessor.TryExtract(this, classDefinition, input.Methods[j]);
-					}
+					if (foundClass) methodProcessor.TryExtract(this, classDefinition, input.Methods[j]);
 				}
 			}
 
-			methodProcessor.Process(this);
+			methodProcessor.Process(this, expectProcessor);
 			classProcessor.Process(this);
 			moduleProcessor.Process(this, classProcessor);
+		}
+
+		private void SearchModuleForTypes(ModuleDefinition module, ExpectProcessor expectProcessor)
+		{
+			for (int k = 0; k < module.Types.Count; k++)
+			{
+				var type = module.Types[k];
+
+				for (int l = 0; l < type.Methods.Count; l++)
+				{
+					var method = type.Methods[l];
+
+					expectProcessor.TryExtract(this, method);
+				}
+			}
 		}
 	}
 

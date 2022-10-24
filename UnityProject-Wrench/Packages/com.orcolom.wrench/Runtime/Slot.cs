@@ -5,44 +5,13 @@ using Wrench.Native;
 
 namespace Wrench
 {
-	public readonly struct UnmanagedSlot : ISlotUnmanaged, IEquatable<ISlotUnmanaged>
-	{
-		private readonly int _index;
-
-		[NativeDisableUnsafePtrRestriction]
-		private readonly IntPtr _vmPtr;
-
-		IntPtr IVmElement.VmPtr => _vmPtr;
-		int ISlotUnmanaged.Index => _index;
-
-		internal UnmanagedSlot(IntPtr vmPtr, int index)
-		{
-			_vmPtr = vmPtr;
-			_index = index;
-		}
-
-		public override int GetHashCode() => SlotUtils.Slot_GetHashCode(this);
-		public override bool Equals(object obj) => SlotUtils.Slot_Equals(this, obj);
-		
-		public bool Equals(ISlotUnmanaged other) => SlotUtils.Slot_Equals(this, other);
-
-		public static bool operator ==(UnmanagedSlot left, UnmanagedSlot right) => SlotUtils.Slot_EqualsOp(left, right);
-		public static bool operator !=(UnmanagedSlot left, UnmanagedSlot right) => SlotUtils.Slot_NotEqualOp(left, right);
-		
-		public static bool operator ==(Slot left, UnmanagedSlot right) => SlotUtils.Slot_EqualsOp(left, right);
-		public static bool operator !=(Slot left, UnmanagedSlot right) => SlotUtils.Slot_EqualsOp(left, right);
-
-		public static bool operator ==(UnmanagedSlot left, Slot right) => SlotUtils.Slot_NotEqualOp(left, right);
-		public static bool operator !=(UnmanagedSlot left, Slot right) => SlotUtils.Slot_NotEqualOp(left, right);
-	}
-
-	public readonly struct Slot : ISlotManaged, IEquatable<ISlotUnmanaged>
+	public readonly struct Slot : IEquatable<Slot>
 	{
 		private readonly int _index;
 		private readonly IntPtr _vmPtr;
 
-		IntPtr IVmElement.VmPtr => _vmPtr;
-		int ISlotUnmanaged.Index => _index;
+		internal IntPtr VmPtr => _vmPtr;
+		internal int Index => _index;
 
 		internal Slot(IntPtr vmPtr, int index)
 		{
@@ -50,60 +19,51 @@ namespace Wrench
 			_index = index;
 		}
 
-		public override int GetHashCode() => SlotUtils.Slot_GetHashCode(this);
-		public override bool Equals(object obj) => SlotUtils.Equals(this, obj);
+		public override int GetHashCode() => (_index, _vmPtr).GetHashCode();
+		public override bool Equals(object obj)  => obj switch
+		{
+			Slot slot => Equals(slot),
+			_ => throw new ArgumentOutOfRangeException(nameof(obj), obj, null),
+		};
 		
-		public bool Equals(ISlotUnmanaged other) => SlotUtils.Slot_Equals(this, other);
+		public bool Equals(Slot other) => _index == other._index && _vmPtr.Equals(other._vmPtr);
 		
-		public static bool operator ==(Slot left, Slot right) => SlotUtils.Slot_EqualsOp(left, right);
-		public static bool operator !=(Slot left, Slot right) => SlotUtils.Slot_NotEqualOp(left, right);
-		
-		public static bool operator ==(ISlotUnmanaged left, Slot right) => SlotUtils.Slot_EqualsOp(left, right);
-		public static bool operator !=(ISlotUnmanaged left, Slot right) => SlotUtils.Slot_NotEqualOp(left, right);
-		
-		public static bool operator ==(Slot left, ISlotUnmanaged right) => SlotUtils.Slot_EqualsOp(left, right);
-		public static bool operator !=(Slot left, ISlotUnmanaged right) => SlotUtils.Slot_NotEqualOp(left, right);
+		public static bool operator ==(Slot left, Slot right) => Equals(left, right);
+		public static bool operator !=(Slot left, Slot right) => Equals(left, right) == false;
 	}
-	
-	public interface ISlotUnmanaged : IVmElement
-	{
-		internal int Index { get; }
-	}
-
-	public interface ISlotManaged : ISlotUnmanaged { }
 
 	public static class SlotUtils
 	{
 		#region Expected
 
-		public static bool ExpectedValid(this ISlotUnmanaged slot)
+		public static bool ExpectedValid(this Slot slot)
 		{
 			if (VmUtils.ExpectedValid(slot.VmPtr)) return true;
 
 			int count = Interop.wrenGetSlotCount(slot.VmPtr);
 			if (slot.Index < count) return false;
 
-			Expected.ThrowException(new ArgumentOutOfRangeException(nameof(slot),
+			PrefHelper.ThrowException(new ArgumentOutOfRangeException(nameof(slot),
 				$"Slot {slot.Index} outside of ensured size {count}"));
 
 			return true;
 		}
 
-		public static bool ExpectedValid(this ISlotUnmanaged slot, ValueType typeA, ValueType? typeB = null)
+		public static bool ExpectedValid(this Slot slot, ValueType typeA, ValueType? typeB = null)
 		{
 			if (ExpectedValid(slot)) return true;
 
 			var actualType = Interop.wrenGetSlotType(slot.VmPtr, slot.Index);
 			if (actualType == typeA || actualType == typeB) return false;
 
-			Expected.ThrowException(
+			PrefHelper.ThrowException(
 				new TypeAccessException($"slot {slot.Index} is of type {actualType} not of types [{typeA}, {typeB}]"));
 			return true;
 		}
 
 		#endregion
 
-		public static ValueType GetValueType(this ISlotUnmanaged slot)
+		public static ValueType GetValueType(this Slot slot)
 		{
 			if (ExpectedValid(slot)) return ValueType.Unknown;
 			return Interop.wrenGetSlotType(slot.VmPtr, slot.Index);
@@ -112,7 +72,7 @@ namespace Wrench
 		/// <summary>
 		/// Stores null
 		/// </summary>
-		public static void SetNull(this ISlotUnmanaged slot)
+		public static void SetNull(this Slot slot)
 		{
 			if (ExpectedValid(slot)) return;
 			Interop.wrenSetSlotNull(slot.VmPtr, slot.Index);
@@ -121,7 +81,7 @@ namespace Wrench
 		/// <summary>
 		/// Looks up the top level variable with <paramref name="variable"/> in resolved <paramref name="module"/> and store it
 		/// </summary>
-		public static void GetVariable(this ISlotUnmanaged slot, string module, string variable)
+		public static void GetVariable(this Slot slot, string module, string variable)
 		{
 			// TODO: stop referencing vm here
 			if (ExpectedValid(slot)) return;
@@ -136,7 +96,7 @@ namespace Wrench
 		/// Reads a boolean value
 		/// It is an error to call this if the slot does not contain a boolean value.
 		/// </summary>
-		public static bool GetBool(this ISlotUnmanaged slot)
+		public static bool GetBool(this Slot slot)
 		{
 			if (ExpectedValid(slot, ValueType.Bool)) return false;
 			return Interop.wrenGetSlotBool(slot.VmPtr, slot.Index);
@@ -145,7 +105,7 @@ namespace Wrench
 		/// <summary>
 		/// Stores the boolean <paramref name="value"/>
 		/// </summary>
-		public static void SetBool(this ISlotUnmanaged slot, bool value)
+		public static void SetBool(this Slot slot, bool value)
 		{
 			if (ExpectedValid(slot)) return;
 			Interop.wrenSetSlotBool(slot.VmPtr, slot.Index, value);
@@ -160,7 +120,7 @@ namespace Wrench
 		///
 		/// It is an error to call this if the slot does not contain a string.
 		/// </summary>
-		public static byte[] GetBytes(this ISlotUnmanaged slot)
+		public static byte[] GetBytes(this Slot slot)
 		{
 			if (ExpectedValid(slot, ValueType.String)) return null;
 
@@ -173,7 +133,7 @@ namespace Wrench
 		/// <summary>
 		/// Stores the array of <paramref name="bytes"/>
 		/// </summary>
-		public static void SetBytes(this ISlotUnmanaged slot, byte[] bytes)
+		public static void SetBytes(this Slot slot, byte[] bytes)
 		{
 			if (ExpectedValid(slot)) return;
 
@@ -188,7 +148,7 @@ namespace Wrench
 		///
 		/// It is an error to call this if the slot does not contain a string.
 		/// </summary>
-		public static string GetString(this ISlotUnmanaged slot)
+		public static string GetString(this Slot slot)
 		{
 			if (ExpectedValid(slot, ValueType.String)) return null;
 
@@ -204,7 +164,7 @@ namespace Wrench
 		/// 	should use <see cref="SetBytes"/> instead.
 		/// </para>
 		/// </summary>
-		public static void SetString(this ISlotUnmanaged slot, string value)
+		public static void SetString(this Slot slot, string value)
 		{
 			if (ExpectedValid(slot)) return;
 
@@ -216,25 +176,25 @@ namespace Wrench
 		#region Double
 
 		/// <inheritdoc cref="GetDouble"/>
-		public static float GetFloat(this ISlotUnmanaged slot)
+		public static float GetFloat(this Slot slot)
 		{
 			return (float) GetDouble(slot);
 		}
 
 		/// <inheritdoc cref="SetDouble"/>
-		public static void SetFloat(this ISlotUnmanaged slot, float value)
+		public static void SetFloat(this Slot slot, float value)
 		{
 			SetDouble(slot, value);
 		}
 
 		/// <inheritdoc cref="GetDouble"/>
-		public static int GetInt(this ISlotUnmanaged slot)
+		public static int GetInt(this Slot slot)
 		{
 			return (int) Math.Round(GetDouble(slot));
 		}
 
 		/// <inheritdoc cref="SetDouble"/>
-		public static void SetInt(this ISlotUnmanaged slot, int value)
+		public static void SetInt(this Slot slot, int value)
 		{
 			SetDouble(slot, value);
 		}
@@ -244,7 +204,7 @@ namespace Wrench
 		///
 		/// It is an error to call this if the slot does not contain a number.
 		/// </summary>
-		public static double GetDouble(this ISlotUnmanaged slot)
+		public static double GetDouble(this Slot slot)
 		{
 			if (ExpectedValid(slot, ValueType.Number)) return 0;
 			return Interop.wrenGetSlotDouble(slot.VmPtr, slot.Index);
@@ -253,7 +213,7 @@ namespace Wrench
 		/// <summary>
 		/// Stores the numeric <paramref name="value"/>
 		/// </summary>
-		public static void SetDouble(this ISlotUnmanaged slot, double value)
+		public static void SetDouble(this Slot slot, double value)
 		{
 			if (ExpectedValid(slot)) return;
 
@@ -270,7 +230,7 @@ namespace Wrench
 		/// This will prevent the object that is referred to from being garbage collected
 		/// until the handle is released by calling <see cref="Handle.Dispose"/>.
 		/// </summary>
-		public static Handle GetHandle(this ISlotUnmanaged slot)
+		public static Handle GetHandle(this Slot slot)
 		{
 			if (ExpectedValid(slot)) return new Handle();
 
@@ -284,18 +244,18 @@ namespace Wrench
 		///
 		/// This does not release the handle!
 		/// </summary>
-		public static void SetHandle(this ISlotUnmanaged slot, Handle handle)
+		public static void SetHandle(this Slot slot, Handle handle)
 		{
 			if (ExpectedValid(slot)) return;
 			if (Handle.IfInvalid(handle)) return;
-			if (VmUtils.ExpectedSameVm(slot.VmPtr, handle)) return;
+			if (slot.ExpectedSameVm(handle)) return;
 
 			Interop.wrenSetSlotHandle(slot.VmPtr, slot.Index, handle.Ptr);
 		}
 
 		#endregion
 		
-		public static int GetCount(this ISlotUnmanaged slot)
+		public static int GetCount(this Slot slot)
 		{
 			if (ExpectedValid(slot, ValueType.List, ValueType.Map)) return 0;
 
@@ -313,7 +273,7 @@ namespace Wrench
 		/// <summary>
 		/// Stores a new empty list
 		/// </summary>
-		public static void SetNewList(this ISlotUnmanaged slot)
+		public static void SetNewList(this Slot slot)
 		{
 			if (ExpectedValid(slot)) return;
 			Interop.wrenSetSlotNewList(slot.VmPtr, slot.Index);
@@ -323,11 +283,11 @@ namespace Wrench
 		/// Sets the value stored at <paramref name="index"/> in the list
 		/// to the value from <paramref name="element"/>. 
 		/// </summary>
-		public static void SetListElement(this ISlotUnmanaged slot, int index, in ISlotUnmanaged element)
+		public static void SetListElement(this Slot slot, int index, in Slot element)
 		{
 			if (ExpectedValid(slot, ValueType.List)) return;
 			if (ExpectedValid(element)) return;
-			if (VmUtils.ExpectedSameVm(slot.VmPtr, element)) return;
+			if (slot.ExpectedSameVm(element)) return;
 
 			Interop.wrenSetListElement(slot.VmPtr, slot.Index, index, element.Index);
 		}
@@ -335,11 +295,11 @@ namespace Wrench
 		/// <summary>
 		/// Reads element <paramref name="index"/> from the list and stores it in <paramref name="element"/>.
 		/// </summary>
-		public static void GetListElement(this ISlotUnmanaged slot, int index, in ISlotUnmanaged element)
+		public static void GetListElement(this Slot slot, int index, in Slot element)
 		{
 			if (ExpectedValid(slot, ValueType.List)) return;
 			if (ExpectedValid(element)) return;
-			if (VmUtils.ExpectedSameVm(slot.VmPtr, element)) return;
+			if (slot.ExpectedSameVm(element)) return;
 
 			Interop.wrenGetListElement(slot.VmPtr, slot.Index, index, element.Index);
 		}
@@ -351,16 +311,16 @@ namespace Wrench
 		/// 	As in Wren, negative indexes can be used to insert from the end. To append an element, use `-1` for the index.
 		/// </para>
 		/// </summary>
-		public static void InsertInList(this ISlotUnmanaged slot, int index, in ISlotUnmanaged element)
+		public static void InsertInList(this Slot slot, int index, in Slot element)
 		{
 			if (ExpectedValid(slot, ValueType.List)) return;
 			if (ExpectedValid(element)) return;
-			if (VmUtils.ExpectedSameVm(slot.VmPtr, element)) return;
+			if (slot.ExpectedSameVm(element)) return;
 
 			Interop.wrenInsertInList(slot.VmPtr, slot.Index, index, element.Index);
 		}
 
-		public static void AddToList(this ISlotUnmanaged slot, in ISlotUnmanaged element)
+		public static void AddToList(this Slot slot, in Slot element)
 		{
 			InsertInList(slot, -1, element);
 		}
@@ -372,7 +332,7 @@ namespace Wrench
 		/// <summary>
 		/// Stores a new empty map
 		/// </summary>
-		public static void SetNewMap(this ISlotUnmanaged slot)
+		public static void SetNewMap(this Slot slot)
 		{
 			if (ExpectedValid(slot)) return;
 			Interop.wrenSetSlotNewMap(slot.VmPtr, slot.Index);
@@ -381,7 +341,7 @@ namespace Wrench
 		/// <summary>
 		/// Returns true if the key in <paramref name="key"/> is found in the map
 		/// </summary>
-		public static bool MapContainsKey(this ISlotUnmanaged slot, in ISlotUnmanaged key)
+		public static bool MapContainsKey(this Slot slot, in Slot key)
 		{
 			if (ExpectedValid(slot, ValueType.Map)) return false;
 			if (ExpectedValid(key)) return false;
@@ -394,7 +354,7 @@ namespace Wrench
 		/// Retrieves a value with the key in <paramref name="key"/> from the map
 		/// stores it in <paramref name="value"/>.
 		/// </summary>
-		public static void GetMapValue(this ISlotUnmanaged slot, in ISlotUnmanaged key, in ISlotUnmanaged value)
+		public static void GetMapValue(this Slot slot, in Slot key, in Slot value)
 		{
 			if (ExpectedValid(slot, ValueType.Map)) return;
 			if (ExpectedValid(key)) return;
@@ -407,7 +367,7 @@ namespace Wrench
 		/// <summary>
 		/// Takes the value stored at <paramref name="value"/> and inserts it into the map with key <paramref name="key"/>.
 		/// </summary>
-		public static void SetMapValue(this ISlotUnmanaged slot, in ISlotUnmanaged key, in ISlotUnmanaged value)
+		public static void SetMapValue(this Slot slot, in Slot key, in Slot value)
 		{
 			if (ExpectedValid(slot, ValueType.Map)) return;
 			if (ExpectedValid(key)) return;
@@ -422,7 +382,7 @@ namespace Wrench
 		/// and place it in <paramref name="removedValue"/>. If not found, <paramref name="removedValue"/> is
 		/// set to null, the same behaviour as the Wren Map API.
 		/// </summary>
-		public static void RemoveMapValue(this ISlotUnmanaged slot, in ISlotUnmanaged key, in ISlotUnmanaged removedValue)
+		public static void RemoveMapValue(this Slot slot, in Slot key, in Slot removedValue)
 		{
 			if (ExpectedValid(slot, ValueType.Map)) return;
 			if (ExpectedValid(key)) return;
@@ -447,7 +407,7 @@ namespace Wrench
 		/// </para>
 		/// 
 		/// </summary>
-		public static ForeignObject<T> SetNewForeign<T>(this ISlotManaged slot, in ISlotUnmanaged @class, T data = default)
+		public static ForeignObject<T> SetNewForeign<T>(this Slot slot, in Slot @class, T data = default)
 		{
 			if (ExpectedValid(slot, ValueType.Foreign)) return new ForeignObject<T>();
 			if (VmUtils.ExpectedValid(slot.VmPtr)) return new ForeignObject<T>();
@@ -457,7 +417,7 @@ namespace Wrench
 			return new ForeignObject<T>(ptr);
 		}
 		
-		public static ForeignObject<T> GetForeign<T>(this ISlotManaged slot)
+		public static ForeignObject<T> GetForeign<T>(this Slot slot)
 		{
 			if (ExpectedValid(slot, ValueType.Foreign)) return new ForeignObject<T>();
 			var ptr = Interop.wrenGetSlotForeign(slot.VmPtr, slot.Index);
@@ -479,7 +439,7 @@ namespace Wrench
 		/// </para>
 		/// 
 		/// </summary>
-		public static UnmanagedForeignObject<T> SetNewUnmanagedForeign<T>(this ISlotUnmanaged slot, in ISlotUnmanaged @class, T data = default)
+		public static UnmanagedForeignObject<T> SetNewUnmanagedForeign<T>(this Slot slot, in Slot @class, T data = default)
 			where T : unmanaged
 		{
 			if (ExpectedValid(slot, ValueType.Foreign)) return new UnmanagedForeignObject<T>();
@@ -493,30 +453,13 @@ namespace Wrench
 			return obj;
 		}
 
-		public static UnmanagedForeignObject<T> GetUnmanagedForeign<T>(this ISlotUnmanaged slot)
+		public static UnmanagedForeignObject<T> GetUnmanagedForeign<T>(this Slot slot)
 			where T : unmanaged
 		{
 			if (ExpectedValid(slot, ValueType.Foreign)) return new UnmanagedForeignObject<T>();
 			var ptr = Interop.wrenGetSlotForeign(slot.VmPtr, slot.Index);
 			return UnmanagedForeignObject<T>.FromPtr(ptr);
 		}
-
-		#endregion
-
-		#region Equality
-
-		public static bool Slot_Equals(ISlotUnmanaged self, object obj) => obj switch
-		{
-			ISlotUnmanaged slot => Slot_Equals(self, slot),
-			_ => throw new ArgumentOutOfRangeException(nameof(obj), obj, null),
-		};
-
-		public static bool Slot_Equals(in ISlotUnmanaged self, in ISlotUnmanaged other) =>
-			self.Index == other.Index && self.VmPtr.Equals(other.VmPtr);
-		
-		public static int Slot_GetHashCode(in ISlotUnmanaged self) => (self.Index, self.VmPtr).GetHashCode();
-		public static bool Slot_EqualsOp(in ISlotUnmanaged left, in ISlotUnmanaged right) => Slot_Equals(left, right);
-		public static bool Slot_NotEqualOp(in ISlotUnmanaged left, in ISlotUnmanaged right) => Slot_Equals(left, right) == false;
 
 		#endregion
 	}

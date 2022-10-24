@@ -2,6 +2,7 @@
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Wrench.Native;
+using Object = UnityEngine.Object;
 
 namespace Wrench
 {
@@ -64,7 +65,7 @@ namespace Wrench
 		{
 			if (unmanagedForeignObject.IsValid) return false;
 
-			Expected.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
+			PrefHelper.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
 			return true;
 		}
 	}
@@ -105,7 +106,7 @@ namespace Wrench
 		{
 			if (foreignObject.IsValid) return false;
 			
-			Expected.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
+			PrefHelper.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
 			return true;
 		}
 	}
