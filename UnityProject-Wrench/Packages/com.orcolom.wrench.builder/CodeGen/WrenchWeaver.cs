@@ -82,8 +82,13 @@ namespace Wrench.CodeGen
 		public MethodReference Module_ctor__string;
 		public MethodReference Module_Add__IModuleScoped;
 
-		public TypeReference Class;
 		public TypeReference ForeignClass;
+		public MethodReference ForeignClass_DefaultAlloc__T;
+
+		public TypeReference ForeignObject;
+		public MethodReference ForeignObject_As__T;
+
+		public TypeReference Class;
 		public MethodReference Class_ctor__Attributes_string_string_ForeignClass_ClassBody;
 		public MethodReference Class_Add__IClassScoped;
 		public MethodReference Signature_Create__MethodType_string_int;
@@ -97,6 +102,27 @@ namespace Wrench.CodeGen
 			if (base.Populate(logger, moduleDefinition) == false) return false;
 
 			ForeignClass = moduleDefinition.ImportReference(typeof(ForeignClass));
+			var foreignClass = ForeignClass.Resolve();
+			for (int i = 0; i < foreignClass.Methods.Count; i++)
+			{
+				var method = foreignClass.Methods[i];
+
+				if (method.IsStatic == false) continue;
+				if (method.Name != nameof(global::Wrench.ForeignClass.DefaultAlloc)) continue;
+				ForeignClass_DefaultAlloc__T = method;
+			}
+
+			ForeignObject = moduleDefinition.ImportReference(typeof(ForeignObject<>));
+			var foreignObject = ForeignObject.Resolve();
+			for (int i = 0; i < foreignObject.Methods.Count; i++)
+			{
+				var method = foreignObject.Methods[i];
+
+				if (method.IsStatic) continue;
+				if (method.Name != nameof(ForeignObject<int>.As)) continue; // int is just placeholder
+				ForeignObject_As__T = method;
+			}
+
 			Slot = moduleDefinition.ImportReference(typeof(Slot));
 
 			// import vm

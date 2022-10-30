@@ -43,6 +43,12 @@ namespace Wrench.Weaver
 			return td.IsArray == t.IsArray;
 		}
 
+		public static bool IsDerivedFrom(this TypeReference td, TypeReference t)
+		{
+			int i = 0;
+			return td.IsDerivedFrom(t, ref i);
+		}
+		
 		public static bool IsDerivedFrom(this TypeReference td, TypeReference t, ref int depth)
 		{
 			var type = td.Resolve();

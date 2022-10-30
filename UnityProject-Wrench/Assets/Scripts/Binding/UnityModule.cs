@@ -20,7 +20,7 @@ namespace Binding
 		}
 	}
 
-	[WrenchClass(typeof(UnityModule), nameof(GameObject))]
+	[WrenchClass(typeof(UnityModule), nameof(GameObject), typeof(GameObject))]
 	public class GameObjectBinding : Class
 	{
 		[WrenchMethod(MethodType.Construct)]

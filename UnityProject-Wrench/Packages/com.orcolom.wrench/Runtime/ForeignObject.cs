@@ -101,6 +101,11 @@ namespace Wrench
 			ExpectedValid(foreignObject);
 			return foreignObject;
 		}
+		
+		public ForeignObject<TType> As<TType>()
+		{
+			return new ForeignObject<TType>(_ptr);
+		}
 
 		internal static bool ExpectedValid(in ForeignObject<T> foreignObject)
 		{

@@ -55,7 +55,7 @@ namespace Wrench.Builder
 			Name = Token.Name(name);
 			InheritClass = Token.Name(inherits, true);
 			Foreign = foreign;
-			Body = body;
+			Body = body ?? new ClassBody();
 
 			Methods = new List<Method>();
 			for (int i = 0; i < Body.Elements.Count; i++)
@@ -65,8 +65,6 @@ namespace Wrench.Builder
 					Methods.Add(method);
 				}
 			}
-
-			if (body == null) throw new ArgumentException("body == null");
 		}
 
 		public void Flatten(in Vm vm, TokenCollector tokens)

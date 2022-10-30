@@ -11,6 +11,7 @@ namespace Wrench.CodeGen.Processors
 		public string Name;
 		public TypeDefinition ModuleType;
 		public TypeDefinition ClassType;
+		public TypeDefinition ForType;
 		public MethodDefinition CtorMethod;
 		public MethodDefinition InitMethod;
 		public List<WrenchMethodDefinition> Methods = new List<WrenchMethodDefinition>();
@@ -67,6 +68,11 @@ namespace Wrench.CodeGen.Processors
 
 			data.ModuleType = moduleType;
 
+			if (attribute.ConstructorArguments[2].Value is TypeReference type)
+			{
+				data.ForType = type.Resolve();
+			}
+
 			// derives from module class
 			if (input.IsDerivedFrom<Class>() == false)
 			{
@@ -120,17 +126,31 @@ namespace Wrench.CodeGen.Processors
 
 			// local variables
 			constructor.Body.InitLocals = true;
-			var localForeign = new VariableDefinition(weaver.Imports.ForeignClass);
-			constructor.Body.Variables.Add(localForeign);
 
-			// base..ctor((Attributes) null, {Name}, (string) null, new ForeignClass(), (ClassBody) null);
+			// base..ctor((Attributes) null, {Name}, (string) null, {ForeignClass}, (ClassBody) null);
 			il.Emit(OpCodes.Ldarg_0);
 			il.Emit(OpCodes.Ldnull);
 			il.Emit(OpCodes.Ldstr, module.Name);
 			il.Emit(OpCodes.Ldnull);
-			il.Emit(OpCodes.Ldloca_S, localForeign);
-			il.Emit(OpCodes.Initobj, weaver.Imports.ForeignClass);
-			il.Emit(OpCodes.Ldloc_0);
+			if (module.ForType == null)
+			{
+				// new ForeignClass();
+				var localForeign = new VariableDefinition(weaver.Imports.ForeignClass);
+				constructor.Body.Variables.Add(localForeign);
+				
+				il.Emit(OpCodes.Ldloca_S, localForeign);
+				il.Emit(OpCodes.Initobj, weaver.Imports.ForeignClass);
+				il.Emit(OpCodes.Ldloc_0);
+			}
+			else
+			{
+				// ForeignClass.DefaultAlloc<T>()
+				var invokeMethodReferenceInstance = new GenericInstanceMethod(weaver.Imports.ForeignClass_DefaultAlloc__T);
+				invokeMethodReferenceInstance.GenericArguments.Add(module.ForType);
+				var imported = weaver.MainModule.ImportReference(invokeMethodReferenceInstance);
+				
+				il.Emit(OpCodes.Call, imported);
+			}
 			il.Emit(OpCodes.Ldnull);
 			il.Emit(OpCodes.Call, weaver.Imports.Class_ctor__Attributes_string_string_ForeignClass_ClassBody);
 			il.Emit(OpCodes.Nop);

@@ -87,7 +87,11 @@ namespace Wrench.CodeGen.Processors
 					TypeReference dereffedParameter = param2.ParameterType is ByReferenceType t ? t.ElementType : param2.ParameterType;
 					var parameterType = (dereffedParameter as GenericInstanceType)?.GenericArguments[0];
 
-					if (attributeType == null) sb.AppendLine("- no valid attribute type");
+					if (dereffedParameter.Is(weaver.Imports.ForeignObject) == false)
+					{
+						sb.AppendLine("- generic doesnt derive from ForeignObject");
+					}
+					else if (attributeType == null) sb.AppendLine("- no valid attribute type");
 					else if (methodConstraint == null) sb.AppendLine("- invalid method constraint");
 					else if (parameterType == null) sb.AppendLine("- invalid parameter type");
 					else if (attributeType.Is(methodConstraint) == false)
@@ -134,6 +138,13 @@ namespace Wrench.CodeGen.Processors
 			il.Emit_Ldarg_x(1, method);
 			il.Emit(OpCodes.Ldflda, slot);
 			il.Emit(OpCodes.Ldloca_S, localVar);
+			if (existingData.ForType.IsDerivedFrom(forType) == true)
+			{
+			}
+			else
+			{
+				il.Emit(OpCodes.Ldloca_S, localVar);
+			}
 			il.Emit(OpCodes.Call, existingData.Method);
 			il.Emit(OpCodes.Ldc_I4_0);
 			il.Emit(OpCodes.Ceq);

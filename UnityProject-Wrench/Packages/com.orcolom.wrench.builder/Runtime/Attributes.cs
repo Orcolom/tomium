@@ -16,11 +16,13 @@ namespace Wrench.Builder
 	{
 		public readonly string Name;
 		public readonly Type ModuleType;
+		public readonly Type ForType;
 
-		public WrenchClassAttribute(Type moduleType, string name)
+		public WrenchClassAttribute(Type moduleType, string name, Type forType = null)
 		{
 			ModuleType = moduleType;
 			Name = name;
+			ForType = forType;
 		}
 	}
 
