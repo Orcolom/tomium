@@ -152,14 +152,14 @@ var fn = Fn.new { fn2.call() }
 			var loadMarker = new Marker("loadMarker");
 
 			// setup listeners
-			vm.SetResolveModuleListener((in Vm _, string _, string name) =>
+			vm.SetResolveModuleListener((_, _, name) =>
 			{
 				resolveMarker.Trigger();
 				if (name == "Foo") return "Foo/Bar";
 				return null;
 			});
 
-			vm.SetLoadModuleListener((in Vm _, string name) =>
+			vm.SetLoadModuleListener((_, name) =>
 			{
 				loadMarker.Trigger();
 				return name switch
@@ -222,14 +222,14 @@ System.write(Val1)
 			var foreinMethodMarker = new Marker("foreign method");
 			var bindMethodMarker = new Marker("bind method");
 
-			ForeignMethod method = new ForeignMethod((in Vm _) => foreinMethodMarker.Trigger());
-			vm.SetBindForeignMethodListener((in Vm _, string _, string _, bool _, string _) =>
+			ForeignMethod method = new ForeignMethod(_ => foreinMethodMarker.Trigger());
+			vm.SetBindForeignMethodListener((_, _, _, _, _) =>
 			{
 				bindMethodMarker.Trigger();
 				return method;
 			});
 
-			vm.SetLoadModuleListener((in Vm _, string _) =>
+			vm.SetLoadModuleListener((_, _) =>
 			{
 				loadModuleMarker.Trigger();
 

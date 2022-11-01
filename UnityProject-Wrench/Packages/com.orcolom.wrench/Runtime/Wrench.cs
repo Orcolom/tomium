@@ -13,7 +13,7 @@ namespace Wrench
 	{
 		public static readonly bool IsSupported;
 		public static readonly int CurrentWrenVersion;
-		public static readonly string CurrentWrenVersionSimVer;
+		public static readonly string CurrentWrenVersionSemVer;
 
 		private static readonly int[] WrenMinVersion = {0, 4, 0};
 		private static readonly int[] WrenMaxVersion = {0, 4, -1};
@@ -25,7 +25,7 @@ namespace Wrench
 			int patch = CurrentWrenVersion % 1000;
 			int minor = ((CurrentWrenVersion - patch) / 1000) % 1000;
 			int major = ((CurrentWrenVersion - (minor * 1000) - patch) / 1000000) % 1000;
-			CurrentWrenVersionSimVer = $"{major}.{minor}.{patch}";
+			CurrentWrenVersionSemVer = $"{major}.{minor}.{patch}";
 
 			IsSupported =
 				major >= WrenMinVersion[0] && (major <= WrenMaxVersion[0] || WrenMaxVersion[0] == -1) &&
@@ -40,18 +40,26 @@ namespace Wrench
 					$"included wren is of version {CurrentWrenVersion} but expected version between {minVersion} and {maxVersion}");
 			}
 
-			// make sure there is a reference to these methods
+			// by subscribing the functions to an Action we keep the function in use
+			// and ensures that the functions won't get garbage collected or stripped  
+			// we get a Ptr if we will have to pass it to the native side 
 			WriteCallback += OnWrenWrite;
 			ErrorCallback += OnWrenError;
 			ResolveCallback += OnWrenResolveModule;
 			LoadCallback += OnWrenLoadModule;
+			
 			LoadCompleteCallback += OnWrenLoadComplete;
 			LoadCompleteCallbackPtr = Marshal.GetFunctionPointerForDelegate(LoadCompleteCallback);
+
+			BindForeignClassCallback += OnWrenBindForeignClass;
 			BindForeignMethodCallback += OnWrenBindForeignMethod;
+			
 			ForeignMethodCallback += OnWrenCallForeign;
 			ForeignMethodCallbackPtr = Marshal.GetFunctionPointerForDelegate(ForeignMethodCallback);
+			
 			ForeignAlloc += OnWrenCallForeignAllocator;
 			ForeignAllocCallbackPtr = Marshal.GetFunctionPointerForDelegate(ForeignAlloc);
+			
 			ForeignFin += OnWrenCallForeignFinalizer;
 			ForeignFinCallbackPtr = Marshal.GetFunctionPointerForDelegate(ForeignFin);
 		}
@@ -77,6 +85,7 @@ namespace Wrench
 		internal static readonly NativeLoadModuleDelegate LoadCallback;
 		private static readonly NativeLoadModuleCompleteDelegate LoadCompleteCallback;
 		private static readonly IntPtr LoadCompleteCallbackPtr;
+		internal static readonly NativeBindForeignClassDelegate BindForeignClassCallback;
 		internal static readonly NativeBindForeignMethodDelegate BindForeignMethodCallback;
 		private static readonly NativeForeignMethodDelegate ForeignMethodCallback;
 		private static readonly IntPtr ForeignMethodCallbackPtr;
@@ -238,7 +247,7 @@ namespace Wrench
 		}
 
 #if ENABLE_IL2CPP
-		[AOT.MonoPInvokeCallback(typeof(NativeBindForeignMethodDelegate))]
+		[AOT.MonoPInvokeCallback(typeof(NativeForeignMethodDelegate))]
 #endif
 		private static void OnWrenCallForeign(IntPtr vmPtr, IntPtr userData)
 		{
@@ -248,7 +257,7 @@ namespace Wrench
 		}
 
 #if ENABLE_IL2CPP
-		[AOT.MonoPInvokeCallback(typeof(NativeBindForeignMethodDelegate))]
+		[AOT.MonoPInvokeCallback(typeof(NativeForeignMethodDelegate))]
 #endif
 		private static void OnWrenCallForeignAllocator(IntPtr vmPtr, IntPtr userData)
 		{
@@ -259,7 +268,7 @@ namespace Wrench
 		}
 
 #if ENABLE_IL2CPP
-		[AOT.MonoPInvokeCallback(typeof(NativeBindForeignMethodDelegate))]
+		[AOT.MonoPInvokeCallback(typeof(NativeForeignMethodDelegate))]
 #endif
 		private static void OnWrenCallForeignFinalizer(IntPtr vmPtr, IntPtr userData)
 		{

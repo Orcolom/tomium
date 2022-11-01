@@ -73,6 +73,7 @@ namespace Wrench.CodeGen
 	public class WrenchImports : Imports
 	{
 		public TypeReference Vm;
+		public ByReferenceType VmByRef;
 		public FieldReference[] Vm_Slots = new FieldReference[17];
 		public TypeReference Slot;
 		public MethodReference VmUtils_EnsureSlots__VM_int;
@@ -127,6 +128,7 @@ namespace Wrench.CodeGen
 
 			// import vm
 			Vm = moduleDefinition.ImportReference(typeof(Vm));
+			VmByRef = new ByReferenceType(Vm);
 			var vm = Vm.Resolve();
 			for (int i = 0; i < vm.Fields.Count; i++)
 			{

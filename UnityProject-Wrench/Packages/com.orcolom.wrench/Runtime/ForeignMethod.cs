@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Unity.Burst;
+using UnityEngine;
 
 namespace Wrench
 {
 	
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-	public delegate void ForeignAction(in Vm vm);
+	public delegate void ForeignAction(Vm vm);
 
 
 	internal static class ForeignMethodStatics
@@ -45,23 +46,8 @@ namespace Wrench
 
 		public void Invoke(in Vm vm)
 		{
-			try
-			{
-				var action = Marshal.GetDelegateForFunctionPointer<ForeignAction>(_ptr);
-				action.Invoke(vm);
-			}
-			catch (TypeAccessException)
-			{
-				// #if DEBUG
-				// vm.AbortFiber(e.Message);
-				// #else
-				// vm.AbortFiber("invalid type");
-				// #endif
-			}
-			catch (Exception)
-			{
-				// vm.AbortFiber($"<native> {e.Message}");
-			}
+			var action = Marshal.GetDelegateForFunctionPointer<ForeignAction>(_ptr);
+			action.Invoke(vm);
 		}
 	}
 }

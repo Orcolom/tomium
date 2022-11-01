@@ -119,7 +119,7 @@ namespace Wrench.CodeGen.Processors
 
 				for (int j = 0; j < classProcessor.Classes.Count; j++)
 				{
-					var classData = classProcessor.Classes[i];
+					var classData = classProcessor.Classes[j];
 
 					if (classData.ModuleType != moduleData.ModuleType) continue;
 

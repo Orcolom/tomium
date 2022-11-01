@@ -135,7 +135,7 @@ namespace Tests.Helpers
 			Teardown(vm, exception);
 		}
 		
-		private void HandleErrors(in Vm vm, ErrorType type, string module, int line, string message)
+		private void HandleErrors(Vm vm, ErrorType type, string module, int line, string message)
 		{
 			var msg = type switch
 			{
@@ -147,7 +147,7 @@ namespace Tests.Helpers
 			_wrenErrors.Append(msg);
 		}
 
-		private void HandleWrites(in Vm vm, string text)
+		private void HandleWrites(Vm vm, string text)
 		{
 			if (_hasFail) return;
 

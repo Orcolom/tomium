@@ -11,7 +11,7 @@ namespace Binding
 	public class UnityModule : Module
 	{
 		[WrenchExpect(typeof(ForeignObject<Object>), true)]
-		public static bool ExpectObject<T>(in Vm vm, in Slot slot, out ForeignObject<T> value) where T : Object
+		public static bool ExpectObject<T>(Vm vm, Slot slot, out ForeignObject<T> value) where T : Object
 		{
 			value = new ForeignObject<T>();
 			if (ExpectValue.IsOfValueType(vm, slot, ValueType.Foreign, true) == false) return false;
@@ -20,20 +20,24 @@ namespace Binding
 		}
 	}
 
+	[WrenchClass(typeof(UnityModule), nameof(Transform), typeof(Transform))]
+	public class TransformBinding : Class { }
+
 	[WrenchClass(typeof(UnityModule), nameof(GameObject), typeof(GameObject))]
 	public class GameObjectBinding : Class
 	{
 		[WrenchMethod(MethodType.Construct)]
-		private void Create(Vm vm, Slot self)
+		private void New(Vm vm, Slot self)
 		{
 			var foreign = self.GetForeign<GameObject>();
 			foreign.Value = new GameObject();
 		}
 
 		[WrenchMethod(MethodType.Construct)]
-		private static void Create(in Vm vm, ForeignObject<GameObject> self, string name)
+		private void New(Vm vm, Slot self, Slot name)
 		{
-			self.Value = new GameObject(name);
+			var foreign = self.GetForeign<GameObject>();
+			foreign.Value = new GameObject(name.GetString());
 		}
 
 		[WrenchMethod(MethodType.FieldGetter)]
@@ -46,6 +50,12 @@ namespace Binding
 		private void Name(Vm vm, ForeignObject<GameObject> self, string name)
 		{
 			self.Value.name = name;
+		}
+		
+		[WrenchMethod(MethodType.Method)]
+		private void GetComponent(Vm vm, ForeignObject<GameObject> self, Slot type)
+		{
+			Debug.Log(type.GetValueType());
 		}
 	}
 }

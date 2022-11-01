@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Unity.Burst;
+using UnityEngine;
 
 namespace Wrench
 {
@@ -51,12 +52,12 @@ namespace Wrench
 		public static ForeignClass DefaultUnmanagedAlloc<T>()
 			where T: unmanaged
 		{
-			return new ForeignClass((in Vm vm) => vm.Slot0.SetNewForeign<T>(vm.Slot0));
+			return new ForeignClass(vm => vm.Slot0.SetNewForeign<T>(vm.Slot0));
 		}
 
 		public static ForeignClass DefaultAlloc<T>()
 		{
-			return new ForeignClass((in Vm vm) => vm.Slot0.SetNewForeign<T>(vm.Slot0));
+			return new ForeignClass(vm => vm.Slot0.SetNewForeign<T>(vm.Slot0));
 		}
 
 		
@@ -79,9 +80,9 @@ namespace Wrench
 				var action = Marshal.GetDelegateForFunctionPointer<ForeignAction>(_allocPtr);
 				action.Invoke(vm);
 			}
-			catch
+			catch(Exception e)
 			{
-				// ignored
+				Debug.LogException(e);
 			}
 		}
 

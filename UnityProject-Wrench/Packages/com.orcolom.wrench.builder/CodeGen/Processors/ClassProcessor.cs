@@ -182,7 +182,7 @@ namespace Wrench.CodeGen.Processors
 					il.Emit(OpCodes.Ldarg_0);
 					il.Emit(OpCodes.Ldc_I4_S, (sbyte)methodData.MethodType);
 					il.Emit(OpCodes.Ldstr, methodData.UserMethod.Name);
-					il.Emit(OpCodes.Ldc_I4_S, (sbyte)methodData.Parameters.Count);
+					il.Emit(OpCodes.Ldc_I4_S, (sbyte) (methodData.Parameters.Count - 1));
 					il.Emit(OpCodes.Call, weaver.Imports.Signature_Create__MethodType_string_int);
 					il.Emit(OpCodes.Ldarg_0);
 					il.Emit(OpCodes.Ldftn, methodData.WrapperMethod);

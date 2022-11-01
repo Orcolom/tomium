@@ -74,6 +74,17 @@ namespace Wrench.CodeGen.Processors
 				return;
 			}
 
+			for (int i = 0; i < input.Parameters.Count; i++)
+			{
+				var param = input.Parameters[i];
+				if (param.IsIn || param.IsOut || param.IsOptional)
+				{
+					weaver.Logger.Error($"`{input.FullName}` is not allwed to have any `in`, `out` or `ref` parameters",
+						input);
+					return;
+				}
+			}
+
 			data.UserMethod = input;
 			CreateWrapperMethod(weaver, data);
 
@@ -83,22 +94,23 @@ namespace Wrench.CodeGen.Processors
 
 		private void CreateWrapperMethod(WrenchWeaver weaver, WrenchMethodDefinition data)
 		{
-			string namePostfix = null;
 			for (int i = 1; i < data.UserMethod.Parameters.Count; i++)
 			{
 				var param = data.UserMethod.Parameters[i];
 				data.Parameters.Add(param.ParameterType);
-				namePostfix = $"{namePostfix}_{param.ParameterType.Name}";
 			}
 
-			var wrapperMethod = new MethodDefinition($"{WrenchWeaver.Prefix}{data.UserMethod.Name}_{namePostfix}",
-				MethodAttributes.Private | MethodAttributes.HideBySig,
-				weaver.Imports.Void);
-			wrapperMethod.IsStatic = data.UserMethod.IsStatic;
+			var wrapperMethod = new MethodDefinition(
+				$"{WrenchWeaver.Prefix}{data.UserMethod.Name}__{data.UserMethod.FullName.GetStableHashCode()}",
+				MethodAttributes.Private,
+				weaver.Imports.Void)
+			{
+				IsStatic = data.UserMethod.IsStatic,
+			};
 
 			data.WrapperMethod = wrapperMethod;
 
-			wrapperMethod.Parameters.Add(new ParameterDefinition("vm", ParameterAttributes.In, weaver.Imports.Vm));
+			wrapperMethod.Parameters.Add(new ParameterDefinition("vm", ParameterAttributes.None, weaver.Imports.Vm));
 		}
 
 		public void Process(WrenchWeaver weaver, ExpectProcessor expectProcessor)
@@ -114,7 +126,7 @@ namespace Wrench.CodeGen.Processors
 
 				var il = body.GetILProcessor();
 				var lastInstruction = Instruction.Create(OpCodes.Ret);
-				
+
 				// ensure slot size
 				il.Emit_Ldarg_x(1, method);
 				il.Emit(OpCodes.Ldc_I4_S, (sbyte)methodData.Parameters.Count);
@@ -148,7 +160,7 @@ namespace Wrench.CodeGen.Processors
 					}
 					else
 					{
-						expectProcessor.EmitExpectIl(weaver, method, il, forType, localVar, slot, lastInstruction);
+						expectProcessor.EmitExpectIl(weaver, method, il, forType, j, methodData.UserMethod, localVar, slot, lastInstruction);
 					}
 					il.DEBUG_EmitNop();
 				}

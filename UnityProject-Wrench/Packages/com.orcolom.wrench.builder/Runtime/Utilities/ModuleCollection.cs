@@ -43,7 +43,7 @@ namespace Wrench.Builder
 			return null;
 		}
 		
-		public ForeignMethod BindForeignMethodHandler(in Vm vm, string module, string classname, bool isstatic,
+		public ForeignMethod BindForeignMethodHandler(Vm vm, string module, string classname, bool isstatic,
 			string signature)
 		{
 			if (_modules.TryGetValue(module, out Module wrenModule) == false) return default;
@@ -51,7 +51,7 @@ namespace Wrench.Builder
 			return wrenMethod.Foreign;
 		}
 
-		public ForeignClass BindForeignClassHandler(in Vm vm, string module, string classname)
+		public ForeignClass BindForeignClassHandler(Vm vm, string module, string classname)
 		{
 			if (_modules.TryGetValue(module, out Module wrenModule) == false) return default;
 			if (wrenModule.TryFindClass(classname, out Class wrenClass) == false) return default;

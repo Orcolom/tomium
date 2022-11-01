@@ -17,7 +17,11 @@ namespace Wrench.Native
 		// | <any>*           | IntPtr   |
 		// |				          |					 |
 
+#if WRENCH_DEBUG
+		public const string DllName = "wren_d.dll";
+#else
 		public const string DllName = "wren.dll";
+#endif
 
 		/// <summary>
 		/// Get wren version

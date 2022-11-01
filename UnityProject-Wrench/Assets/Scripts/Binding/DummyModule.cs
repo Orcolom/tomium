@@ -23,7 +23,6 @@ namespace Binding
 			Add(new Method(Signature.Create(MethodType.StaticMethod, "injected"), Inject_Create()));
 		}
 
-		// [WrenchMethod(MethodType.Construct)]
 		private void Create(Vm vm, Slot a0, Slot a1, string a2, Slot a3, byte[] a4, Slot a5, int a6, Slot a7,
 			ForeignObject<GameObject> a8, Slot a9,
 			Slot a10, Slot a11, Slot a12, Slot a13, Slot a14, Slot a15, Slot a16)
@@ -42,7 +41,24 @@ return Dummy.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,)
 			};
 		}
 
-		private void Create_Example(in Vm vm)
+		
+		private static void Wrench__New__1531160386(Vm vm)
+		{
+			vm.EnsureSlots(2);
+			Slot slot0 = vm.Slot0;
+			Slot slot1 = vm.Slot1;
+			New(vm, slot0, slot1);
+		}
+
+		[WrenchMethod(MethodType.Construct)]
+		private static void New(Vm vm, Slot self, Slot name)
+		{
+			var v = self.GetForeign<GameObject>();
+			v.Value = new GameObject(name.GetString());
+		}
+
+
+		private void Create_Example(Vm vm)
 		{
 			vm.EnsureSlots(16);
 

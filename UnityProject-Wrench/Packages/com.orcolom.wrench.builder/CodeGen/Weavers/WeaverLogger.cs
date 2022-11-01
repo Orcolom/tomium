@@ -76,6 +76,8 @@ namespace Wrench.Weaver
 
 		public void Log(string str)
 		{
+			// weaver.Logger.Log(DebugPrinter.Encoded(sb => DebugPrinter.Print(sb, 0, method)));
+
 			Console.WriteLine($"[WEAVER] {str}");
 			Warning(str);
 		}

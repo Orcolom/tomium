@@ -27,7 +27,7 @@ namespace Wrench.Editor
 			int count = 0;
 			var vm = Vm.New();
 
-			vm.SetErrorListener((in Vm _, ErrorType type, string _, int line, string message) =>
+			vm.SetErrorListener((_, type, _, line, message) =>
 			{
 				if (type != ErrorType.CompileError) return;
 				Sb.AppendLine($"line {line}: {message}");

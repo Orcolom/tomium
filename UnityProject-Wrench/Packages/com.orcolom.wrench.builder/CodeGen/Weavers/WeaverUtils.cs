@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
+using Wrench.CodeGen;
 using ICustomAttributeProvider = Mono.Cecil.ICustomAttributeProvider;
 using MethodBody = Mono.Cecil.Cil.MethodBody;
 using TypeAttributes = Mono.Cecil.TypeAttributes;
@@ -11,6 +12,28 @@ namespace Wrench.Weaver
 {
 	public static class WeaverUtils
 	{
+		private const int EmptyString = 23;
+
+		/// <summary>
+		/// Gets a hash for a string. This hash will be the same on all platforms 
+		/// </summary>
+		/// <remarks>
+		/// <see cref="string.GetHashCode"/> is not guaranteed to be the same on all platforms
+		/// </remarks>
+		/// based on: https://github.com/MirageNet/Mirage
+		public static uint GetStableHashCode(this string text)
+		{
+			unchecked
+			{
+				var hash = EmptyString;
+				for (int i = 0; i < text.Length; i++)
+				{
+					hash = (hash * 31) + text[i];
+				}
+				return (uint)hash;
+			}
+		}
+		
 		public static bool HasAttribute<T>(this ICustomAttributeProvider td, out CustomAttribute attribute)
 		{
 			attribute = default;
@@ -138,10 +161,10 @@ namespace Wrench.Weaver
 			il.Emit(OpCodes.Nop);
 #endif
 		}
-		
-		public static void Emit_Ldarg_x(this ILProcessor il, int index, MethodDefinition methodDefinition)
+
+		public static void Emit_Ldarg_x(this ILProcessor il, int index, MethodDefinition caller)
 		{
-			index = methodDefinition.IsStatic ? index - 1 : index;
+			index = caller.IsStatic ? index - 1 : index;
 			var op = index switch
 			{
 				-1 => OpCodes.Nop,
@@ -154,6 +177,7 @@ namespace Wrench.Weaver
 
 			if (op == OpCodes.Nop) return;
 			il.Emit(op);
+			return;
 		}
 	}
 }

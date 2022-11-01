@@ -72,6 +72,7 @@ namespace Wrench
 			configuration.NativeError = Wrench.ErrorCallback;
 			configuration.NativeResolveModule = Wrench.ResolveCallback;
 			configuration.NativeLoadModule = Wrench.LoadCallback;
+			configuration.NativeBindForeignClass = Wrench.BindForeignClassCallback;
 			configuration.NativeBindForeignMethod = Wrench.BindForeignMethodCallback;
 
 			// get vm ptr
@@ -167,7 +168,6 @@ namespace Wrench
 			if (ExpectedValid(vm)) return InterpretResult.CompileError;
 			if (string.IsNullOrEmpty(module)) throw new ArgumentNullException();
 			var result = Interop.wrenInterpret(vm.Ptr, module, source);
-
 			PrefInterpret.End();
 
 			return result;

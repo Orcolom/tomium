@@ -2,13 +2,13 @@
 {
 	public class ExpectValue
 	{
-		public static void AbortException(in Vm vm, string msg)
+		public static void AbortException(Vm vm, string msg)
 		{
 			vm.Slot0.SetString(msg);
 			vm.Abort(vm.Slot0);
 		}
 
-		public static bool IsOfValueType(in Vm vm, in Slot slot, ValueType type, bool canBeNull = false)
+		public static bool IsOfValueType(Vm vm, Slot slot, ValueType type, bool canBeNull = false)
 		{
 			var valueType = slot.GetValueType();
 			bool isNull = valueType == ValueType.Null;
@@ -19,7 +19,7 @@
 		}
 
 		[WrenchExpect(typeof(int))]
-		public static bool ExpectInt(in Vm vm, in Slot slot, out int value)
+		public static bool ExpectInt(Vm vm, Slot slot, out int value)
 		{
 			value = 0;
 			if (IsOfValueType(vm, slot, ValueType.Number) == false) return false;
@@ -29,7 +29,7 @@
 		}
 
 		[WrenchExpect(typeof(float))]
-		public static bool ExpectFloat(in Vm vm, in Slot slot, out float value)
+		public static bool ExpectFloat(Vm vm, Slot slot, out float value)
 		{
 			value = 0;
 			if (IsOfValueType(vm, slot, ValueType.Number) == false) return false;
@@ -39,7 +39,7 @@
 		}
 
 		[WrenchExpect(typeof(double))]
-		public static bool ExpectDouble(in Vm vm, in Slot slot, out double value)
+		public static bool ExpectDouble(Vm vm, Slot slot, out double value)
 		{
 			value = 0;
 			if (IsOfValueType(vm, slot, ValueType.Number) == false) return false;
@@ -49,7 +49,7 @@
 		}
 
 		[WrenchExpect(typeof(string))]
-		public static bool ExpectString(in Vm vm, in Slot slot, out string value)
+		public static bool ExpectString(Vm vm, Slot slot, out string value)
 		{
 			value = null;
 			if (IsOfValueType(vm, slot, ValueType.String, true) == false) return false;
@@ -59,7 +59,7 @@
 		}
 
 		[WrenchExpect(typeof(byte[]))]
-		public static bool ExpectByteArray(in Vm vm, in Slot slot, out byte[] value)
+		public static bool ExpectByteArray(Vm vm, Slot slot, out byte[] value)
 		{
 			value = null;
 			if (IsOfValueType(vm, slot, ValueType.String, true) == false) return false;
@@ -69,7 +69,7 @@
 		}
 
 		[WrenchExpect(typeof(bool))]
-		public static bool ExpectBool(in Vm vm, in Slot slot, out bool value)
+		public static bool ExpectBool(Vm vm, Slot slot, out bool value)
 		{
 			value = false;
 			if (IsOfValueType(vm, slot, ValueType.Bool) == false) return false;

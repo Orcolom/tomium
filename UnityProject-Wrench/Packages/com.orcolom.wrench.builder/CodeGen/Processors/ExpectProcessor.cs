@@ -65,18 +65,14 @@ namespace Wrench.CodeGen.Processors
 			{
 				var param0 = method.Parameters[0];
 				if (param0.ParameterType.Is<Vm>() == false) sb.AppendLine("- Parameter 0 should be Vm");
+				if (param0.IsIn || param0.IsOut || param0.IsOptional) sb.AppendLine("- Parameter 0 can not be `in`, `out` or `ref`");
 
 				var param1 = method.Parameters[1];
 				if (param1.ParameterType.Is<Slot>() == false) sb.AppendLine("- Parameter 1 should be Slot");
+				if (param1.IsIn || param1.IsOut || param1.IsOptional) sb.AppendLine("- Parameter 1 can not be `in`, `out` or `ref`");
 
 				var param2 = method.Parameters[2];
-
-				if (expect.ForType.IsGenericInstance)
-				{
-					weaver.Logger.Log(DebugPrinter.Encoded(sb => DebugPrinter.Print(sb, 0, method)));
-				}
-				
-				// (0,0): warning System.Boolean Binding.UnityModule::ExpectObject( [...] ParameterReference(  ByReferenceTypes(  Wrench.ForeignObject`1(  GenericParameters(  T(  )  )  )  )  )  GenericParameters(  T(  Constraints(  UnityEngine.Object(  )  )  )  )  
+				if (param2.IsIn || param2.IsOut == false || param2.IsOptional) sb.AppendLine("- Parameter 2 can not be `in` or `ref` and should be `out`");
 
 				if (expect.ForType.IsGenericInstance || method.HasGenericParameters || param2.ParameterType.ContainsGenericParameter)
 				{
@@ -97,22 +93,13 @@ namespace Wrench.CodeGen.Processors
 					else if (attributeType.Is(methodConstraint) == false)
 					{
 						sb.AppendLine("- constraints do not equal");
-						// weaver.Logger.Log($"{attributeType} {methodConstraint} {parameterType} {methodParameter}");
 					}
 				}
 
 				if (param2.ParameterType.Is(expect.ForType) == false)
 				{
-					weaver.Logger.Log(param2.ParameterType.FullName);
-					weaver.Logger.Log(param2.ParameterType.GetElementType().FullName);
-					weaver.Logger.Log(param2.ParameterType.IsArray.ToString());
-					weaver.Logger.Log(expect.ForType.FullName);
-					weaver.Logger.Log(expect.ForType.GetElementType().FullName);
-					weaver.Logger.Log(expect.ForType.IsArray.ToString());
 					sb.AppendLine("- Parameter 2 should be same as attribute");
 				}
-
-				if (param2.IsOut == false) sb.AppendLine("- Parameter 2 should have out");
 			}
 
 			if (sb.Length == 0) return true;
@@ -122,6 +109,7 @@ namespace Wrench.CodeGen.Processors
 		}
 
 		public bool EmitExpectIl(WrenchWeaver weaver, MethodDefinition method, ILProcessor il, TypeReference forType,
+			int index, MethodDefinition called,
 			VariableDefinition localVar, FieldReference slot, Instruction lastInstruction)
 		{
 			var existingData = FindDefinition(forType);
@@ -136,15 +124,8 @@ namespace Wrench.CodeGen.Processors
 			method.Body.Variables.Add(localBool);
 			il.Emit_Ldarg_x(1, method);
 			il.Emit_Ldarg_x(1, method);
-			il.Emit(OpCodes.Ldflda, slot);
+			il.Emit(OpCodes.Ldfld, slot);
 			il.Emit(OpCodes.Ldloca_S, localVar);
-			if (existingData.ForType.IsDerivedFrom(forType) == true)
-			{
-			}
-			else
-			{
-				il.Emit(OpCodes.Ldloca_S, localVar);
-			}
 			il.Emit(OpCodes.Call, existingData.Method);
 			il.Emit(OpCodes.Ldc_I4_0);
 			il.Emit(OpCodes.Ceq);

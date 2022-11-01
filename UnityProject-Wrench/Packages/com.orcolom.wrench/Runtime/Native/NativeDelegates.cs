@@ -162,10 +162,4 @@ namespace Wrench.Native
 	/// </summary>
 	/// <param name="vm"></param>
 	internal delegate void NativeForeignMethodDelegate(IntPtr vm, IntPtr userData);
-
-	/// <summary>
-	/// A function callable from Wren code, but implemented in C#.
-	/// </summary>
-	/// <param name="vm"></param>
-	internal delegate void NativeForeignFinalizerDelegate(IntPtr vm, IntPtr userData);
 }

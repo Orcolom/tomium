@@ -409,11 +409,12 @@ namespace Wrench
 		/// </summary>
 		public static ForeignObject<T> SetNewForeign<T>(this Slot slot, in Slot @class, T data = default)
 		{
-			if (ExpectedValid(slot, ValueType.Foreign)) return new ForeignObject<T>();
+			if (ExpectedValid(slot)) return new ForeignObject<T>();
 			if (VmUtils.ExpectedValid(slot.VmPtr)) return new ForeignObject<T>();
 
 			var ptr = Interop.wrenSetSlotNewForeign(slot.VmPtr, @class.Index, @class.Index, new IntPtr(IntPtr.Size));
-			
+			Managed.ForeignObjects.Add(ptr, data);
+
 			return new ForeignObject<T>(ptr);
 		}
 		
