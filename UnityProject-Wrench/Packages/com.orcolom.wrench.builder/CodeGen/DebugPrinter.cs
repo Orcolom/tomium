@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Wrench.CodeGen
 {
@@ -65,6 +66,15 @@ namespace Wrench.CodeGen
 			}
 		}
 
+		public static void Print(StringBuilder sb, int d, VariableReference variable)
+		{
+			sb.Open("VariableReference", ref d);
+
+			Print(sb, d, variable.VariableType);
+
+			sb.Close(ref d);
+		}
+		
 		public static void Print(StringBuilder sb, int d, TypeReference type)
 		{
 			switch (type)

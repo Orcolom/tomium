@@ -17,7 +17,7 @@ public class WrenScripting : MonoBehaviour
 	{
 		_modules = new ModuleCollection();
 		var dModule = new DummyModule();
-		var uModule = new UnityModule();
+		var uModule = UnityModule.Instance;
 		_modules.Add(dModule);
 		_modules.Add(uModule);
 

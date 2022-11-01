@@ -64,17 +64,17 @@ namespace Wrench.CodeGen.Processors
 			{
 				var method = input.Methods[i];
 
-				if (method.IsConstructor == false) continue;
+				if (method.IsConstructor == false || method.IsStatic) continue;
 
-				// allow an empty default constructor
-				if (method.HasEmptyBody() && method.HasParameters == false)
+				// allow an default constructor
+				if (method.HasParameters == false)
 				{
 					WeaveInitMethodOnConstructor(weaver, method, data);
 					continue;
 				}
 
 				weaver.Logger.Error(
-					$"`{input.FullName}` {method.HasEmptyBody()} {method.Body.Instructions.Count} has constructors. this is not supported at the moment",
+					$"`{input.FullName}` has constructors. this is not supported at the moment",
 					method);
 				return false;
 			}
@@ -86,8 +86,31 @@ namespace Wrench.CodeGen.Processors
 		private static void WeaveInitMethodOnConstructor(WrenchWeaver weaver, MethodDefinition constructor,
 			WrenchModuleDefinition module)
 		{
-			// assumes that it has an empty body
+			// store original il code and clear it
+			bool foundBaseCall = false;
+			List<Instruction> instructions = new List<Instruction>(constructor.Body.Instructions.Count);
+			for (int i = 0; i < constructor.Body.Instructions.Count; i++)
+			{
+				var instruction = constructor.Body.Instructions[i];
+				if (foundBaseCall == false)
+				{
+					if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference method 
+						&& method.FullName.Contains("::.ctor"))
+					{
+						foundBaseCall = true;
+					}
+					continue;
+				}
+				
+				instructions.Add(constructor.Body.Instructions[i]);
+			}
 			constructor.Body.Instructions.Clear();
+			
+			VariableDefinition[] variables = new VariableDefinition[constructor.Body.Variables.Count];
+			for (int i = 0; i < constructor.Body.Variables.Count; i++)
+			{
+				variables[i] = constructor.Body.Variables[i];
+			}
 			constructor.Body.Variables.Clear();
 
 			var il = constructor.Body.GetILProcessor();
@@ -103,7 +126,20 @@ namespace Wrench.CodeGen.Processors
 			il.Emit(OpCodes.Call, module.InitializerBody.Body.Method);
 			il.Emit(OpCodes.Nop);
 
-			il.Emit(OpCodes.Ret);
+			// // add back original il code
+			for (int i = 0; i < variables.Length; i++)
+			{
+				constructor.Body.Variables.Add(variables[i]);
+			}
+			
+			if (instructions.Count != 0)
+			{
+				for (int i = 0; i < instructions.Count; i++)
+				{
+					constructor.Body.Instructions.Add(instructions[i]);
+				}
+			}
+			else il.Emit(OpCodes.Ret);
 		}
 
 		public void Process(WrenchWeaver weaver, ClassProcessor classProcessor)

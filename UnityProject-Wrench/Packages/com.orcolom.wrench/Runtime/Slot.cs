@@ -420,9 +420,14 @@ namespace Wrench
 		
 		public static ForeignObject<T> GetForeign<T>(this Slot slot)
 		{
-			if (ExpectedValid(slot, ValueType.Foreign)) return new ForeignObject<T>();
-			var ptr = Interop.wrenGetSlotForeign(slot.VmPtr, slot.Index);
-			return ForeignObject<T>.FromPtr(ptr);
+			var ptr = slot.GetForeignPtr();
+			return ptr == IntPtr.Zero ? new ForeignObject<T>() : ForeignObject<T>.FromPtr(ptr);
+		}
+		
+		internal static IntPtr GetForeignPtr(this Slot slot)
+		{
+			if (ExpectedValid(slot, ValueType.Foreign)) return IntPtr.Zero;
+			return Interop.wrenGetSlotForeign(slot.VmPtr, slot.Index);
 		}
 		
 		#endregion

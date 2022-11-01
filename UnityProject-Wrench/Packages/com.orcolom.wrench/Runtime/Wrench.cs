@@ -5,6 +5,7 @@ using Wrench.Native;
 
 [assembly: InternalsVisibleTo("Wrench.Editor")]
 [assembly: InternalsVisibleTo("Wrench.Tests.Editor")]
+[assembly: InternalsVisibleTo("Wrench.Builder")]
 [assembly: InternalsVisibleTo("Unity.Wrench.Builder.CodeGen")]
 
 namespace Wrench

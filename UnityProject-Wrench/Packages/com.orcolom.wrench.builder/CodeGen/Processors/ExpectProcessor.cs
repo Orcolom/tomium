@@ -40,6 +40,7 @@ namespace Wrench.CodeGen.Processors
 			data.UseForChildren = useForChildren;
 
 			var existingData = Definitions.Find(definition => definition.ForType.Is(forType));
+			
 			if (existingData != null)
 			{
 				weaver.Logger.Error($"found multiple {nameof(WrenchExpectAttribute)} for type {forType.FullName}");
@@ -77,26 +78,25 @@ namespace Wrench.CodeGen.Processors
 				if (expect.ForType.IsGenericInstance || method.HasGenericParameters || param2.ParameterType.ContainsGenericParameter)
 				{
 					var attributeType = (expect.ForType as GenericInstanceType)?.GenericArguments[0];
-					var methodParameter = method.GenericParameters[0];
-					var methodConstraint = methodParameter.Constraints[0];
+					var methodParameter = method.HasGenericParameters ? method.GenericParameters[0] : null;
+					var methodConstraint = (methodParameter?.HasConstraints ?? false) ? methodParameter.Constraints[0] : null;
 					
 					TypeReference dereffedParameter = param2.ParameterType is ByReferenceType t ? t.ElementType : param2.ParameterType;
 					var parameterType = (dereffedParameter as GenericInstanceType)?.GenericArguments[0];
 
-					if (dereffedParameter.Is(weaver.Imports.ForeignObject) == false)
+					if (dereffedParameter.Is(weaver.Imports.ForeignObject, true) == false)
 					{
 						sb.AppendLine("- generic doesnt derive from ForeignObject");
 					}
 					else if (attributeType == null) sb.AppendLine("- no valid attribute type");
-					else if (methodConstraint == null) sb.AppendLine("- invalid method constraint");
 					else if (parameterType == null) sb.AppendLine("- invalid parameter type");
-					else if (attributeType.Is(methodConstraint) == false)
+					else if (methodConstraint != null && attributeType.Is(methodConstraint) == false)
 					{
 						sb.AppendLine("- constraints do not equal");
 					}
 				}
 
-				if (param2.ParameterType.Is(expect.ForType) == false)
+				if (param2.ParameterType.Is(expect.ForType, true) == false)
 				{
 					sb.AppendLine("- Parameter 2 should be same as attribute");
 				}
@@ -126,7 +126,15 @@ namespace Wrench.CodeGen.Processors
 			il.Emit_Ldarg_x(1, method);
 			il.Emit(OpCodes.Ldfld, slot);
 			il.Emit(OpCodes.Ldloca_S, localVar);
-			il.Emit(OpCodes.Call, existingData.Method);
+
+			if (existingData.Method.HasGenericParameters)
+			{
+				var genericMethod = new GenericInstanceMethod(existingData.Method);
+				genericMethod.GenericArguments.Add(((GenericInstanceType) localVar.VariableType).GenericArguments[0]);
+				il.Emit(OpCodes.Call, genericMethod);
+			}
+			else il.Emit(OpCodes.Call, existingData.Method);
+			
 			il.Emit(OpCodes.Ldc_I4_0);
 			il.Emit(OpCodes.Ceq);
 			il.Emit(OpCodes.Stloc_S, localBool);
@@ -138,13 +146,19 @@ namespace Wrench.CodeGen.Processors
 
 		public WrenchExpectDefinition FindDefinition(TypeReference type)
 		{
+			if (type is GenericInstanceType g) type = g.ElementType;
+			
 			int foundDepth = int.MaxValue;
 			WrenchExpectDefinition found = null;
 			for (int i = 0; i < Definitions.Count; i++)
 			{
 				int currentDepth = 0;
 				var definition = Definitions[i];
-				if (definition.ForType.IsDerivedFrom(type, ref currentDepth) == false)continue;
+
+				var forType = definition.ForType;
+				if (definition.ForType is GenericInstanceType genericType) forType = genericType.ElementType;
+				
+				if (forType.IsDerivedFrom(type, ref currentDepth) == false) continue;
 				if (currentDepth < foundDepth) found = definition;
 			}
 

@@ -18,6 +18,17 @@
 			return false;
 		}
 
+		public static bool ExpectForeign<T>(Vm vm, Slot slot, out ForeignObject<T> value, bool canBeNull = false)
+		{
+			value = default;
+			if (IsOfValueType(vm, slot, ValueType.Foreign, canBeNull) == false) return false;
+			var ptr = slot.GetForeignPtr();
+			if (Managed.ForeignObjects.TryGetValue(ptr, out var obj) == false) return false;
+			if (obj is not T) return false;
+			value = new ForeignObject<T>(ptr);
+			return true;
+		}
+
 		[WrenchExpect(typeof(int))]
 		public static bool ExpectInt(Vm vm, Slot slot, out int value)
 		{

@@ -50,12 +50,17 @@ namespace Wrench.Weaver
 		
 		public static bool Is<T>(this TypeReference td) => Is(td, typeof(T));
 
-		public static bool Is(this TypeReference td, TypeReference t)
+		public static bool Is(this TypeReference td, TypeReference t, bool ignoreGeneric = false)
 		{
 			if (td is ByReferenceType tdByRef) td = tdByRef.ElementType;
 			if (t is ByReferenceType tByRef) t = tByRef.ElementType;
+
+			if (ignoreGeneric)
+			{
+				if (td.GetElementType().FullName != t.GetElementType().FullName) return false;
+			}
+			else if (td.FullName != t.FullName) return false;
 			
-			if (td.GetElementType().FullName != t.GetElementType().FullName) return false;
 			return td.IsArray == t.IsArray;
 		}
 

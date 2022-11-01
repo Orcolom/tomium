@@ -74,11 +74,11 @@ return Dummy.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,)
 			var arg5 = vm.Slot5;
 
 			if (ExpectValue.ExpectInt(vm, vm.Slot3, out int arg6) == false) return;
-
+			
 			var arg7 = vm.Slot7;
 
-			var arg8 = vm.Slot8.GetForeign<GameObject>();
-
+			if (UnityModule.ExpectObject<GameObject>(vm, vm.Slot3, out var arg8) == false) return;
+			
 			var arg9 = vm.Slot9;
 			var arg10 = vm.Slot10;
 			var arg11 = vm.Slot11;
