@@ -23,7 +23,8 @@ namespace Binding
 		}
 
 		public static UnityModule Instance;
-		public static Dictionary<string, Type> Types = new Dictionary<string, Type>();
+		public static Dictionary<string, Type> TypesById = new Dictionary<string, Type>();
+		public static Dictionary<Type, string> IdByType = new Dictionary<Type, string>();
 
 		static UnityModule()
 		{
@@ -33,7 +34,8 @@ namespace Binding
 			{
 				var type = pair.Value.GetType();
 				var wrenchAttribute = type.GetCustomAttribute<WrenchClassAttribute>();
-				Types.Add(wrenchAttribute.Name, wrenchAttribute.ForType);
+				TypesById.Add(wrenchAttribute.Name, wrenchAttribute.ForType);
+				IdByType.Add(wrenchAttribute.ForType, wrenchAttribute.Name);
 			}
 		}
 
@@ -80,6 +82,12 @@ namespace Binding
 			var selfValue = self.Value;
 			selfValue.z = z;
 			self.Value = selfValue;
+		}
+		
+		[WrenchMethod(MethodType.ToString)]
+		private void ToString(Vm vm, ForeignObject<Vector3> self)
+		{
+			vm.Slot0.SetString(self.Value.ToString());
 		}
 	}
 
@@ -138,7 +146,28 @@ namespace Binding
 	}
 
 	[WrenchClass(typeof(UnityModule), nameof(Transform), typeof(Transform))]
-	public class TransformBinding : Class { }
+	public class TransformBinding : Class
+	{
+		[WrenchMethod(MethodType.FieldGetter)]
+		private void position(Vm vm, ForeignObject<Transform> self)
+		{
+			if (UnityModule.IdByType.TryGetValue(typeof(Vector3), out var type) == false)
+			{
+				vm.Slot0.SetNull();
+				return;
+			}
+			
+			var position = self.Value.position;
+			vm.Slot0.GetVariable(UnityModule.Instance.Path, type);
+			vm.Slot0.SetNewForeign(vm.Slot0, position);
+		}
+		
+		[WrenchMethod(MethodType.FieldSetter)]
+		private void position(Vm vm, ForeignObject<Transform> self, ForeignObject<Vector3> position)
+		{
+			self.Value.position = position.Value;
+		}
+	}
 
 	[WrenchClass(typeof(UnityModule), nameof(GameObject), typeof(GameObject))]
 	public class GameObjectBinding : Class
@@ -147,7 +176,9 @@ namespace Binding
 		{
 			Add(new Method(Signature.Create(MethodType.Method, "GetComponent", 1), new MethodBody
 			{
-				Token.DangerousInsert($"return this.{nameof(f_GetComponent)}(\"%(arg0)\")"),
+				Token.DangerousInsert($@"
+return {nameof(f_GetComponent)}(""%(arg0)"")
+"),
 			}));
 		}
 
@@ -179,7 +210,7 @@ namespace Binding
 		[WrenchMethod(MethodType.Method)]
 		private void f_GetComponent(Vm vm, ForeignObject<GameObject> self, string typeId)
 		{
-			if (UnityModule.Types.TryGetValue(typeId, out var type) == false)
+			if (UnityModule.TypesById.TryGetValue(typeId, out var type) == false)
 			{
 				vm.Slot0.SetNull();
 				return;

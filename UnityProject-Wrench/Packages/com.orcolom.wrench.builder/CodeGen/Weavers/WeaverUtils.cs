@@ -76,16 +76,19 @@ namespace Wrench.Weaver
 			int i = 0;
 			return td.IsDerivedFrom(t, ref i);
 		}
-		
+
 		public static bool IsDerivedFrom(this TypeReference td, TypeReference t, ref int depth)
 		{
-			var type = td.Resolve();
-			
-			if (type.Is(t)) return true;
-			if (type.BaseType == null) return false;
-			
-			depth++;
-			return type.BaseType.IsDerivedFrom(t, ref depth);
+			while (true)
+			{
+				var type = td.Resolve();
+
+				if (type.Is(t)) return true;
+				if (type.BaseType == null) return false;
+
+				depth++;
+				td = type.BaseType;
+			}
 		}
 
 		public static bool IsDerivedFrom<T>(this TypeDefinition td) => IsDerivedFrom(td, typeof(T));

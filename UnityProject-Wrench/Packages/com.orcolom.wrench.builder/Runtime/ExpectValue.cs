@@ -24,7 +24,8 @@
 			if (IsOfValueType(vm, slot, ValueType.Foreign, canBeNull) == false) return false;
 			var ptr = slot.GetForeignPtr();
 			if (Managed.ForeignObjects.TryGetValue(ptr, out var obj) == false) return false;
-			if (obj is not T) return false;
+			//TODO: is it safe to assume null here??
+			if (obj != null && obj is not T) return false;
 			value = new ForeignObject<T>(ptr);
 			return true;
 		}

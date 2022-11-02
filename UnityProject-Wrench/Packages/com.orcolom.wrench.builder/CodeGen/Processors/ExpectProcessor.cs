@@ -112,7 +112,7 @@ namespace Wrench.CodeGen.Processors
 			int index, MethodDefinition called,
 			VariableDefinition localVar, FieldReference slot, Instruction lastInstruction)
 		{
-			var existingData = FindDefinition(forType);
+			var existingData = FindDefinition(weaver, forType);
 			if (existingData == null)
 			{
 				weaver.Logger.Error(
@@ -144,9 +144,13 @@ namespace Wrench.CodeGen.Processors
 			return true;
 		}
 
-		public WrenchExpectDefinition FindDefinition(TypeReference type)
+		public Dictionary<string, WrenchExpectDefinition> _cachedFinds = new();
+		public WrenchExpectDefinition FindDefinition(WrenchWeaver weaver, TypeReference type)
 		{
-			if (type is GenericInstanceType g) type = g.ElementType;
+			if (_cachedFinds.TryGetValue(type.FullName, out var value)) return value;
+			
+			var normalizedType = type;
+			if (type is GenericInstanceType g) normalizedType = g.GenericArguments[0];
 			
 			int foundDepth = int.MaxValue;
 			WrenchExpectDefinition found = null;
@@ -156,12 +160,13 @@ namespace Wrench.CodeGen.Processors
 				var definition = Definitions[i];
 
 				var forType = definition.ForType;
-				if (definition.ForType is GenericInstanceType genericType) forType = genericType.ElementType;
+				if (definition.ForType is GenericInstanceType genericType) forType = genericType.GenericArguments[0];
 				
-				if (forType.IsDerivedFrom(type, ref currentDepth) == false) continue;
+				if (normalizedType.IsDerivedFrom(forType, ref currentDepth) == false) continue;
 				if (currentDepth < foundDepth) found = definition;
 			}
 
+			_cachedFinds.Add(type.FullName, found);
 			return found;
 		}
 	}
