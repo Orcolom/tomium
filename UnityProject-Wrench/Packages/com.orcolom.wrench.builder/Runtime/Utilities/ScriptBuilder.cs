@@ -4,10 +4,16 @@ namespace Wrench.Builder
 {
 	public class ScriptBuilder
 	{
-		private readonly StringBuilder _sb = new StringBuilder();
+		private readonly StringBuilder _sb = new StringBuilder(2048);
 		internal readonly TokenCollector Collector = new TokenCollector();
 
-		public override string ToString() => _sb.ToString();
+		public override string ToString()
+		{
+			using (ProfilerUtils.AllocScope.Auto())
+			{
+				return _sb.ToString();
+			}
+		}
 
 		public void Clear()
 		{

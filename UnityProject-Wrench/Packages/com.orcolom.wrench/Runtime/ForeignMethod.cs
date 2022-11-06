@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Unity.Burst;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace Wrench
@@ -24,17 +25,22 @@ namespace Wrench
 			ForeignMethodStatics.Methods.Data.Init(16);
 		}
 		
+		private ProfilerMarker _profilerMarker;
+
 		private IntPtr _ptr;
 		internal IntPtr Ptr => _ptr;
 		public bool IsValid => _ptr != IntPtr.Zero;
 
 		#region Lifetime
 
-		public ForeignMethod(ForeignAction action)
+		public ForeignMethod(ForeignAction action, string marker = null)
 		{
 			_ptr = Marshal.GetFunctionPointerForDelegate(action);
+			_profilerMarker = ProfilerUtils.Create(marker ?? action.Method.Name);
+			
 			Managed.Actions.TryAdd(_ptr, action);
 			ForeignMethodStatics.Methods.Data.Map.TryAdd(_ptr, this);
+			action.Method.MethodHandle.GetFunctionPointer(); // force compile method
 		}
 
 		internal static ForeignMethod FromPtr(IntPtr ptr)
@@ -44,8 +50,9 @@ namespace Wrench
 
 		#endregion
 
-		public void Invoke(in Vm vm)
+		public void Invoke(Vm vm)
 		{
+			using var scope = _profilerMarker.Auto();
 			var action = Marshal.GetDelegateForFunctionPointer<ForeignAction>(_ptr);
 			action.Invoke(vm);
 		}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.Profiling;
 using Wrench.Native;
 
 namespace Wrench
@@ -43,7 +44,7 @@ namespace Wrench
 			int count = Interop.wrenGetSlotCount(slot.VmPtr);
 			if (slot.Index < count) return false;
 
-			PrefHelper.ThrowException(new ArgumentOutOfRangeException(nameof(slot),
+			ProfilerUtils.ThrowException(new ArgumentOutOfRangeException(nameof(slot),
 				$"Slot {slot.Index} outside of ensured size {count}"));
 
 			return true;
@@ -56,7 +57,7 @@ namespace Wrench
 			var actualType = Interop.wrenGetSlotType(slot.VmPtr, slot.Index);
 			if (actualType == typeA || actualType == typeB) return false;
 
-			PrefHelper.ThrowException(
+			ProfilerUtils.ThrowException(
 				new TypeAccessException($"slot {slot.Index} is of type {actualType} not of types [{typeA}, {typeB}]"));
 			return true;
 		}
@@ -153,7 +154,10 @@ namespace Wrench
 			if (ExpectedValid(slot, ValueType.String)) return null;
 
 			IntPtr intPtr = Interop.wrenGetSlotString(slot.VmPtr, slot.Index);
-			return Marshal.PtrToStringAnsi(intPtr);
+			using (ProfilerUtils.AllocScope.Auto())
+			{
+				return Marshal.PtrToStringAnsi(intPtr);
+			}
 		}
 
 		/// <summary>
@@ -413,10 +417,15 @@ namespace Wrench
 			if (VmUtils.ExpectedValid(slot.VmPtr)) return new ForeignObject<T>();
 
 			var ptr = Interop.wrenSetSlotNewForeign(slot.VmPtr, @class.Index, @class.Index, new IntPtr(IntPtr.Size));
-			Managed.ForeignObjects.Add(ptr, data);
 
+			using (ProfilerUtils.AllocScope.Auto())
+			{
+				Managed.ForeignObjects.Add(ptr, data);
+			}
+			
 			return new ForeignObject<T>(ptr);
 		}
+
 		
 		public static ForeignObject<T> GetForeign<T>(this Slot slot)
 		{

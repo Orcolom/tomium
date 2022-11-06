@@ -101,8 +101,8 @@ namespace Wrench
 
 	public static class VmUtils
 	{
-		private static readonly ProfilerMarker PrefInterpret = PrefHelper.Create($"{nameof(Vm)}.{nameof(Interpret)}");
-		private static readonly ProfilerMarker PrefCall = PrefHelper.Create($"{nameof(Vm)}.{nameof(Call)}");
+		private static readonly ProfilerMarker PrefInterpret = ProfilerUtils.Create($"{nameof(Vm)}.{nameof(Interpret)}");
+		private static readonly ProfilerMarker PrefCall = ProfilerUtils.Create($"{nameof(Vm)}.{nameof(Call)}");
 
 		internal static readonly SharedStatic<StaticMap<Vm>> Vms = SharedStatic<StaticMap<Vm>>.GetOrCreate<Vm>();
 
@@ -128,20 +128,20 @@ namespace Wrench
 		{
 			if (IsValid(vmPtr)) return false;
 
-			PrefHelper.ThrowException(new ObjectDisposedException(nameof(Vm), "Vm is already disposed"));
+			ProfilerUtils.ThrowException(new ObjectDisposedException(nameof(Vm), "Vm is already disposed"));
 			return true;
 		}
 
-		internal static bool ExpectedSameVm(this Vm self, in Slot other) => ExpectedSameVm(self.Ptr, other.VmPtr);
-		internal static bool ExpectedSameVm(this Vm self, in Handle other) => ExpectedSameVm(self.Ptr, other.VmPtr);
-		internal static bool ExpectedSameVm(this Slot self, in Slot other) => ExpectedSameVm(self.VmPtr, other.VmPtr);
-		internal static bool ExpectedSameVm(this Slot self, in Handle other) => ExpectedSameVm(self.VmPtr, other.VmPtr);
+		internal static bool ExpectedSameVm(this Vm self, Slot other) => ExpectedSameVm(self.Ptr, other.VmPtr);
+		internal static bool ExpectedSameVm(this Vm self, Handle other) => ExpectedSameVm(self.Ptr, other.VmPtr);
+		internal static bool ExpectedSameVm(this Slot self, Slot other) => ExpectedSameVm(self.VmPtr, other.VmPtr);
+		internal static bool ExpectedSameVm(this Slot self, Handle other) => ExpectedSameVm(self.VmPtr, other.VmPtr);
 
 		internal static bool ExpectedSameVm(IntPtr ptr, IntPtr other)
 		{
 			if (ptr == other) return false;
 
-			PrefHelper.ThrowException(new ArgumentOutOfRangeException("ExpectedSameVm",
+			ProfilerUtils.ThrowException(new ArgumentOutOfRangeException("ExpectedSameVm",
 				"Not all elements are from the same Vm"));
 			return true;
 		}

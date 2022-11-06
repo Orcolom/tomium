@@ -100,8 +100,7 @@ namespace Binding
 		{
 			if (UnityModule.ExpectType(vm, typeId, out var type) == false) return;
 
-			var component = self.GetComponent(type);
-			if (component == null)
+			if (self.TryGetComponent(type, out var  component) == false)
 			{
 				vm.Slot0.SetNull();
 				return;

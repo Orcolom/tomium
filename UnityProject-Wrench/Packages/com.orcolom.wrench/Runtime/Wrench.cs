@@ -41,6 +41,9 @@ namespace Wrench
 					$"included wren is of version {CurrentWrenVersion} but expected version between {minVersion} and {maxVersion}");
 			}
 
+			// preload
+			var _ = Managed.Actions;
+			
 			// by subscribing the functions to an Action we keep the function in use
 			// and ensures that the functions won't get garbage collected or stripped  
 			// we get a Ptr if we will have to pass it to the native side 
@@ -64,7 +67,7 @@ namespace Wrench
 			ForeignFin += OnWrenCallForeignFinalizer;
 			ForeignFinCallbackPtr = Marshal.GetFunctionPointerForDelegate(ForeignFin);
 		}
-
+		
 		private static string FormatVersionNumber(int[] version)
 		{
 			string str = string.Empty;

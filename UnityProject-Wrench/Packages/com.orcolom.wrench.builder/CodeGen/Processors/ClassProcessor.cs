@@ -228,7 +228,8 @@ namespace Wrench.CodeGen.Processors
 					il.Emit(methodData.WrapperMethod.IsStatic ? OpCodes.Ldnull : OpCodes.Ldarg_0);
 					il.Emit(OpCodes.Ldftn, methodData.WrapperMethod);
 					il.Emit(OpCodes.Newobj, weaver.Imports.ForeignAction_ctor);
-					il.Emit(OpCodes.Newobj, weaver.Imports.ForeignMethod_ctor__ForeignAction);
+					il.Emit(OpCodes.Ldstr, $"{methodData.UserMethod.DeclaringType.Name}.{methodData.UserMethod.Name}");
+					il.Emit(OpCodes.Newobj, weaver.Imports.ForeignMethod_ctor__ForeignAction_String);
 					il.Emit(OpCodes.Newobj, weaver.Imports.Method_ctor__Signature_ForeignMethod);
 					il.Emit(OpCodes.Call, weaver.Imports.Class_Add__IClassScoped);
 					il.DEBUG_EmitNop();

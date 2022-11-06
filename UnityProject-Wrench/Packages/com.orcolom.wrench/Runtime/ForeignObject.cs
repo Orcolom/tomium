@@ -65,7 +65,7 @@ namespace Wrench
 		{
 			if (unmanagedForeignObject.IsValid) return false;
 
-			PrefHelper.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
+			ProfilerUtils.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
 			return true;
 		}
 	}
@@ -86,7 +86,10 @@ namespace Wrench
 			set
 			{
 				if (ExpectedValid(this)) return;
-				Managed.ForeignObjects[_ptr] = value;
+				using (ProfilerUtils.AllocScope.Auto())
+				{
+					Managed.ForeignObjects[_ptr] = value;
+				}
 			}
 		}
 
@@ -111,7 +114,7 @@ namespace Wrench
 		{
 			if (foreignObject.IsValid) return false;
 			
-			PrefHelper.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
+			ProfilerUtils.ThrowException(new ObjectDisposedException("ForeignObject is already disposed"));
 			return true;
 		}
 	}

@@ -96,7 +96,7 @@ namespace Wrench.CodeGen
 
 		public MethodReference Method_ctor__Signature_ForeignMethod;
 		public MethodReference ForeignAction_ctor;
-		public MethodReference ForeignMethod_ctor__ForeignAction;
+		public MethodReference ForeignMethod_ctor__ForeignAction_String;
 
 		public override bool Populate(WeaverLogger logger, ModuleDefinition moduleDefinition)
 		{
@@ -232,7 +232,7 @@ namespace Wrench.CodeGen
 				var method = foreignMethod.Methods[i];
 				if (method.IsStatic == false && method.IsConstructor && method.HasParameters)
 				{
-					ForeignMethod_ctor__ForeignAction = moduleDefinition.ImportReference(method);
+					ForeignMethod_ctor__ForeignAction_String = moduleDefinition.ImportReference(method);
 				}
 			}
 

@@ -86,7 +86,10 @@ namespace Wrench.Builder
 					$"`{text}` is not name safe (or a number). eg. `{text.MakeNameSafe()}` or 12.345");
 			}
 
-			return new NameToken(text);
+			using (ProfilerUtils.AllocScope.Auto())
+			{
+				return new NameToken(text);
+			}
 		}
 
 		public static BasicToken DangerousInsert(string text) => new BasicToken(text);

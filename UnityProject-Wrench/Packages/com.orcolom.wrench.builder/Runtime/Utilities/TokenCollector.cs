@@ -7,7 +7,7 @@ namespace Wrench.Builder
 {
 	public class TokenCollector
 	{
-		public List<IToken> Tokens = new List<IToken>();
+		public List<IToken> Tokens = new List<IToken>(2048);
 
 		private bool _hadEol;
 		private int _indent;
