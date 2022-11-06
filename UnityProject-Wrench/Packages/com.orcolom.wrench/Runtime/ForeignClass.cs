@@ -88,7 +88,8 @@ namespace Wrench
 
 		public void InvokeFinalizer()
 		{
-			throw new NotImplementedException();
+			Debug.LogError("throw new NotImplementedException()");
+			// throw new NotImplementedException();
 		}
 	}
 }

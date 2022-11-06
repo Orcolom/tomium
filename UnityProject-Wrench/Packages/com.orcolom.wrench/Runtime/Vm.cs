@@ -128,7 +128,7 @@ namespace Wrench
 		{
 			if (IsValid(vmPtr)) return false;
 
-			ProfilerUtils.ThrowException(new ObjectDisposedException(nameof(Vm), "Vm is already disposed"));
+			throw new ObjectDisposedException(nameof(Vm), "Vm is already disposed");
 			return true;
 		}
 
@@ -141,8 +141,8 @@ namespace Wrench
 		{
 			if (ptr == other) return false;
 
-			ProfilerUtils.ThrowException(new ArgumentOutOfRangeException("ExpectedSameVm",
-				"Not all elements are from the same Vm"));
+			throw new ArgumentOutOfRangeException("ExpectedSameVm",
+				"Not all elements are from the same Vm");
 			return true;
 		}
 

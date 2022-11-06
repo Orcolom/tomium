@@ -89,5 +89,12 @@
 			value = slot.GetBool();
 			return true;
 		}
+		
+		[WrenchExpect(typeof(Handle))]
+		public static bool ExpectHandle(Vm vm, Slot slot, out Handle value)
+		{
+			value = slot.GetHandle();
+			return true;
+		}
 	}
 }

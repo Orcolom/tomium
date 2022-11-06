@@ -45,7 +45,7 @@ public class WrenScripting : MonoBehaviour
 		_vm.SetLoadModuleListener((vm, path) =>
 		{
 			var str = _modules.LoadModuleHandler(vm, path);
-			// Debug.LogWarning($"Load `{path}`\n{str}");
+			Debug.LogWarning($"Load `{path}`\n{str}");
 			return str;
 		});
 			

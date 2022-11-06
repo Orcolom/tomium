@@ -58,7 +58,7 @@ namespace Wrench
 		{
 			if (handle.IsValid) return false;
 			
-			ProfilerUtils.ThrowException(new ObjectDisposedException("Handle is already disposed"));
+			throw new ObjectDisposedException("Handle is already disposed");
 			return true;
 		}
 

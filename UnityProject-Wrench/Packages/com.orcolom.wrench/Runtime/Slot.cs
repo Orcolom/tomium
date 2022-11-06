@@ -44,8 +44,8 @@ namespace Wrench
 			int count = Interop.wrenGetSlotCount(slot.VmPtr);
 			if (slot.Index < count) return false;
 
-			ProfilerUtils.ThrowException(new ArgumentOutOfRangeException(nameof(slot),
-				$"Slot {slot.Index} outside of ensured size {count}"));
+			throw new ArgumentOutOfRangeException(nameof(slot),
+				$"Slot {slot.Index} outside of ensured size {count}");
 
 			return true;
 		}
@@ -57,8 +57,7 @@ namespace Wrench
 			var actualType = Interop.wrenGetSlotType(slot.VmPtr, slot.Index);
 			if (actualType == typeA || actualType == typeB) return false;
 
-			ProfilerUtils.ThrowException(
-				new TypeAccessException($"slot {slot.Index} is of type {actualType} not of types [{typeA}, {typeB}]"));
+			throw new TypeAccessException($"slot {slot.Index} is of type {actualType} not of types [{typeA}, {typeB}]");
 			return true;
 		}
 
@@ -441,41 +440,41 @@ namespace Wrench
 		
 		#endregion
 		
-		#region Unmanaged Foreign Object
-
-		/// <summary>
-		/// Creates a new instance of the foreign class stored in <paramref name="class"/>
-		/// 
-		/// <para>
-		/// 	This does not invoke the foreign class's constructor on the new instance. If
-		/// 	you need that to happen, call the constructor from Wren, which will then
-		/// 	call the allocator foreign method. In there, call this to create the object
-		/// 	and then the constructor will be invoked when the allocator returns.
-		/// </para>
-		/// 
-		/// </summary>
-		public static UnmanagedForeignObject<T> SetNewUnmanagedForeign<T>(this Slot slot, in Slot @class, T data = default)
-			where T : unmanaged
-		{
-			if (ExpectedValid(slot, ValueType.Foreign)) return new UnmanagedForeignObject<T>();
-			if (VmUtils.ExpectedValid(slot.VmPtr)) return new UnmanagedForeignObject<T>();
-
-			var ptr = Interop.wrenSetSlotNewForeign(slot.VmPtr, @class.Index, @class.Index, new IntPtr(IntPtr.Size));
-
-			var obj = new UnmanagedForeignObject<T>(ptr);
-			UnmanagedForeignObject<T>.ForeignObjects.Data.Map.TryAdd(ptr, data);
-
-			return obj;
-		}
-
-		public static UnmanagedForeignObject<T> GetUnmanagedForeign<T>(this Slot slot)
-			where T : unmanaged
-		{
-			if (ExpectedValid(slot, ValueType.Foreign)) return new UnmanagedForeignObject<T>();
-			var ptr = Interop.wrenGetSlotForeign(slot.VmPtr, slot.Index);
-			return UnmanagedForeignObject<T>.FromPtr(ptr);
-		}
-
-		#endregion
+		// #region Unmanaged Foreign Object
+		//
+		// /// <summary>
+		// /// Creates a new instance of the foreign class stored in <paramref name="class"/>
+		// /// 
+		// /// <para>
+		// /// 	This does not invoke the foreign class's constructor on the new instance. If
+		// /// 	you need that to happen, call the constructor from Wren, which will then
+		// /// 	call the allocator foreign method. In there, call this to create the object
+		// /// 	and then the constructor will be invoked when the allocator returns.
+		// /// </para>
+		// /// 
+		// /// </summary>
+		// public static UnmanagedForeignObject<T> SetNewUnmanagedForeign<T>(this Slot slot, in Slot @class, T data = default)
+		// 	where T : unmanaged
+		// {
+		// 	if (ExpectedValid(slot, ValueType.Foreign)) return new UnmanagedForeignObject<T>();
+		// 	if (VmUtils.ExpectedValid(slot.VmPtr)) return new UnmanagedForeignObject<T>();
+		//
+		// 	var ptr = Interop.wrenSetSlotNewForeign(slot.VmPtr, @class.Index, @class.Index, new IntPtr(IntPtr.Size));
+		//
+		// 	var obj = new UnmanagedForeignObject<T>(ptr);
+		// 	UnmanagedForeignObject<T>.ForeignObjects.Data.Map.TryAdd(ptr, data);
+		//
+		// 	return obj;
+		// }
+		//
+		// public static UnmanagedForeignObject<T> GetUnmanagedForeign<T>(this Slot slot)
+		// 	where T : unmanaged
+		// {
+		// 	if (ExpectedValid(slot, ValueType.Foreign)) return new UnmanagedForeignObject<T>();
+		// 	var ptr = Interop.wrenGetSlotForeign(slot.VmPtr, slot.Index);
+		// 	return UnmanagedForeignObject<T>.FromPtr(ptr);
+		// }
+		//
+		// #endregion
 	}
 }

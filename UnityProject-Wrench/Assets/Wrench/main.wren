@@ -1,4 +1,4 @@
-import "Unity" for GameObject, Transform
+import "Unity" for GameObject, Transform, WrenComponent
 
 var go = GameObject.New("s")
 go.Name = "from wren"
@@ -11,3 +11,14 @@ transform1.position = pos
 var X = Fn.new {
   transform1.position.X = transform1.position.X + 0.1
 }
+
+
+class Runner is WrenComponent {
+
+  start() {
+    System.print("start")
+  }
+  
+}
+
+go.AddComponent(Runner)

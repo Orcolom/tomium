@@ -4,6 +4,7 @@ using System.Reflection;
 using UnityEngine;
 using Wrench;
 using Wrench.Builder;
+using Wrench.Builder.Tokens;
 using MethodBody = Wrench.Builder.MethodBody;
 using Module = Wrench.Builder.Module;
 using Object = UnityEngine.Object;
@@ -16,6 +17,16 @@ namespace Binding
 	{
 		public const string ComponentName = "BaseComponent";
 
+		public static readonly BasicToken f_AddComponentToken = Token.DangerousInsert(@$"
+var isWren = arg0 is {WrenComponentBinding.WrenName}
+if (isWren) {{
+	var instance = arg0.new()
+	f_RegisterAddComponent(instance)
+	return instance
+}} else {{
+	return f_AddComponent(""%(arg0)"")
+}}");
+		
 		[WrenchExpect(typeof(ForeignObject<Object>), true)]
 		public static bool ExpectObject<T>(Vm vm, Slot slot, out ForeignObject<T> value) where T : Object
 		{
@@ -100,12 +111,20 @@ namespace Binding
 		{
 			if (UnityModule.ExpectType(vm, typeId, out var type) == false) return;
 
-			if (self.TryGetComponent(type, out var  component) == false)
+			if (self.TryGetComponent(type, out var component) == false)
 			{
 				vm.Slot0.SetNull();
 				return;
 			}
 
+			UnityModule.SetNewForeign(vm, vm.Slot0, typeId, component);
+		}
+
+		public static void f_AddComponent(Vm vm, GameObject self, string typeId)
+		{
+			if (UnityModule.ExpectType(vm, typeId, out var type) == false) return;
+			var component = self.AddComponent(type);
+			
 			UnityModule.SetNewForeign(vm, vm.Slot0, typeId, component);
 		}
 	}
@@ -125,6 +144,11 @@ namespace Binding
 			Add(new Method(Signature.Create(MethodType.Method, "GetComponent", 1), new MethodBody
 			{
 				Token.DangerousInsert($"return {nameof(f_GetComponent)}(\"%(arg0)\", arg0 is {WrenComponentBinding.WrenName})"),
+			}));
+
+			Add(new Method(Signature.Create(MethodType.Method, "AddComponent", 1), new MethodBody
+			{
+				UnityModule.f_AddComponentToken,
 			}));
 		}
 
@@ -160,6 +184,18 @@ namespace Binding
 
 			GameObjectBinding.f_GetComponent(vm, self.Value, typeId);
 		}
+
+		[WrenchMethod(MethodType.Method)]
+		private static void f_AddComponent(Vm vm, ForeignObject<GameObject> self, string typeId)
+			=> GameObjectBinding.f_AddComponent(vm, self.Value, typeId);
+
+		[WrenchMethod(MethodType.Method)]
+		private static void f_RegisterAddComponent(Vm vm, ForeignObject<GameObject> self, string typeId, Handle instance)
+		{
+			var go = self.Value.AddComponent<WrenGameObject>();
+			go.Init(vm);
+			go.RegisterAddComponent(typeId, instance);
+		}
 	}
 
 	[WrenchClass(typeof(UnityModule), "WrenGameObject", typeof(WrenGameObject), GameObjectBinding.WrenName)]
@@ -175,6 +211,11 @@ namespace Binding
 			Add(new Method(Signature.Create(MethodType.Method, "GetComponent", 1), new MethodBody
 			{
 				Token.DangerousInsert($"return {nameof(f_GetComponent)}(\"%(arg0)\", arg0 is {WrenComponentBinding.WrenName})"),
+			}));
+
+			Add(new Method(Signature.Create(MethodType.Method, "AddComponent", 1), new MethodBody
+			{
+				UnityModule.f_AddComponentToken,
 			}));
 		}
 
@@ -192,6 +233,14 @@ namespace Binding
 			if (isWrenComponent) self.Value.f_GetComponent(vm, typeId);
 			else GameObjectBinding.f_GetComponent(vm, self.Value.gameObject, typeId);
 		}
+
+		[WrenchMethod(MethodType.Method)]
+		private static void f_AddComponent(Vm vm, ForeignObject<WrenGameObject> self, string typeId)
+			=> GameObjectBinding.f_AddComponent(vm, self.Value.gameObject, typeId);
+		
+		[WrenchMethod(MethodType.Method)]
+		private static void f_RegisterAddComponent(Vm vm, ForeignObject<WrenGameObject> self, string typeId, Handle instance)
+			=> self.Value.RegisterAddComponent(typeId, instance);
 	}
 
 
@@ -208,24 +257,24 @@ namespace Binding
 	}
 
 	[WrenchClass(typeof(UnityModule), WrenName, inherit: ComponentBinding.WrenName)]
-  public class UnityComponentBinding : Class
-  {
-  	public const string WrenName = "UnityComponent";
+	public class UnityComponentBinding : Class
+	{
+		public const string WrenName = "UnityComponent";
 
 		[WrenchMethod(MethodType.FieldGetter)]
 		public void GameObject(Vm vm, ForeignObject<Component> self)
 			=> ComponentBinding.GameObject(vm, self.Value);
 	}
-		
-	[WrenchClass(typeof(UnityModule), WrenName, typeof(WrenComponentData), ComponentBinding.WrenName)]
+
+	[WrenchClass(typeof(UnityModule), WrenName, inherit: ComponentBinding.WrenName)]
 	public class WrenComponentBinding : Class
 	{
 		public const string WrenName = "WrenComponent";
-		
+
 		[WrenchExpect(typeof(ForeignObject<WrenComponentData>), true)]
 		public static bool Expect(Vm vm, Slot slot, out ForeignObject<WrenComponentData> value)
 			=> ExpectValue.ExpectForeign(vm, slot, out value, true);
-		
+
 		[WrenchMethod(MethodType.FieldGetter)]
 		public void GameObject(Vm vm, ForeignObject<WrenComponentData> self)
 			=> ComponentBinding.GameObject(vm, self.Value.GameObject);
