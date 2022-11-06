@@ -105,7 +105,8 @@ namespace Wrench.CodeGen.Processors
 				MethodAttributes.Private,
 				weaver.Imports.Void)
 			{
-				IsStatic = data.UserMethod.IsStatic,
+				// NOTE: Marshal.GetFunctionPointerForDelegate doesn't like il static methods? for ease lets not mimic UserMethods static 
+				IsStatic = false,
 			};
 
 			data.WrapperMethod = wrapperMethod;
@@ -166,7 +167,7 @@ namespace Wrench.CodeGen.Processors
 				}
 
 				// load all local variables
-				il.Emit_Ldarg_x(0, method);
+				if (methodData.UserMethod.IsStatic == false) il.Emit_Ldarg_x(0, method);
 				il.Emit_Ldarg_x(1, method);
 				for (int j = 0; j < methodData.Parameters.Count; j++)
 				{

@@ -9,6 +9,7 @@ namespace Wrench.CodeGen.Processors
 	public class WrenchClassDefinition
 	{
 		public string Name;
+		public string Inherit;
 		public TypeDefinition ModuleType;
 		public TypeDefinition ClassType;
 		public TypeDefinition ForType;
@@ -55,6 +56,8 @@ namespace Wrench.CodeGen.Processors
 				return false;
 			}
 
+			if (attribute.ConstructorArguments[3].Value is string strInherit) data.Inherit = strInherit;
+			
 			data.Name = str;
 
 			if (attribute.ConstructorArguments[0].Value is not TypeDefinition moduleType ||
@@ -150,11 +153,12 @@ namespace Wrench.CodeGen.Processors
 			// local variables
 			constructor.Body.InitLocals = true;
 
-			// base..ctor((Attributes) null, {Name}, (string) null, {ForeignClass}, (ClassBody) null);
+			// base..ctor((Attributes) null, {Name}, {Inherit}, {ForeignClass}, (ClassBody) null);
 			il.Emit(OpCodes.Ldarg_0);
 			il.Emit(OpCodes.Ldnull);
 			il.Emit(OpCodes.Ldstr, module.Name);
-			il.Emit(OpCodes.Ldnull);
+			if (string.IsNullOrEmpty(module.Inherit)) il.Emit(OpCodes.Ldnull);
+			else il.Emit(OpCodes.Ldstr, module.Inherit);
 			if (module.ForType == null)
 			{
 				// new ForeignClass();
@@ -221,7 +225,7 @@ namespace Wrench.CodeGen.Processors
 					il.Emit(OpCodes.Ldstr, methodData.UserMethod.Name);
 					il.Emit(OpCodes.Ldc_I4_S, (sbyte) (methodData.Parameters.Count - 1));
 					il.Emit(OpCodes.Call, weaver.Imports.Signature_Create__MethodType_string_int);
-					il.Emit(OpCodes.Ldarg_0);
+					il.Emit(methodData.WrapperMethod.IsStatic ? OpCodes.Ldnull : OpCodes.Ldarg_0);
 					il.Emit(OpCodes.Ldftn, methodData.WrapperMethod);
 					il.Emit(OpCodes.Newobj, weaver.Imports.ForeignAction_ctor);
 					il.Emit(OpCodes.Newobj, weaver.Imports.ForeignMethod_ctor__ForeignAction);

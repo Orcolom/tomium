@@ -58,7 +58,7 @@ namespace Wrench.Builder
 			return wrenClass.Foreign;
 		}
 
-		public string LoadModuleHandler(in Vm vm, string module)
+		public string LoadModuleHandler(Vm vm, string module)
 		{
 			if (_modules.TryGetValue(module, out Module wrenModule) == false) return null;
 			string str = _wb.CreateModuleSource(vm, wrenModule);

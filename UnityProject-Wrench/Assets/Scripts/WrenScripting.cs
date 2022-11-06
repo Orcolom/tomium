@@ -16,9 +16,9 @@ public class WrenScripting : MonoBehaviour
 	void Start()
 	{
 		_modules = new ModuleCollection();
-		var dModule = new DummyModule();
+		// var dModule = new DummyModule();
 		var uModule = UnityModule.Instance;
-		_modules.Add(dModule);
+		// _modules.Add(dModule);
 		_modules.Add(uModule);
 
 		_vm = Vm.New();
@@ -26,13 +26,13 @@ public class WrenScripting : MonoBehaviour
 			Debug.LogError($"{type}: {module} {line} {message}"));
 		_vm.SetWriteListener((_, text) => Debug.Log(text));
 
-		_vm.SetLoadModuleListener((vm, s) =>
+		_vm.SetLoadModuleListener((vm, path) =>
 		{
-			var str = _modules.LoadModuleHandler(vm, s);
-			Debug.LogWarning($"Load {s}:\n{str}");
+			var str = _modules.LoadModuleHandler(vm, path);
+			Debug.LogWarning($"Load `{path}`\n{str}");
 			return str;
 		});
-		
+			
 		_vm.SetBindForeignClassListener(_modules.BindForeignClassHandler);
 		_vm.SetBindForeignMethodListener(_modules.BindForeignMethodHandler);
 

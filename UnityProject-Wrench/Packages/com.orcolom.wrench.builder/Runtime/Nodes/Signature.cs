@@ -85,7 +85,27 @@ namespace Wrench.Builder
 
 		private static readonly BasicToken InitToken = new BasicToken("init");
 		private static readonly BasicToken Underscore = new BasicToken("_");
-		private static readonly List<NameToken> GenericArgsNames = new List<NameToken>();
+
+		private static readonly NameToken[] GenericArgsNames = new NameToken[]
+		{
+			new NameToken("arg0"),
+			new NameToken("arg1"),
+			new NameToken("arg2"),
+			new NameToken("arg3"),
+			new NameToken("arg4"),
+			new NameToken("arg5"),
+			new NameToken("arg6"),
+			new NameToken("arg7"),
+			new NameToken("arg8"),
+			new NameToken("arg9"),
+			new NameToken("arg10"),
+			new NameToken("arg11"),
+			new NameToken("arg12"),
+			new NameToken("arg13"),
+			new NameToken("arg14"),
+			new NameToken("arg15"),
+			new NameToken("arg16"),
+		};
 
 		private static readonly Dictionary<MethodType, IToken> Characters = new Dictionary<MethodType, IToken>()
 		{
@@ -307,31 +327,19 @@ namespace Wrench.Builder
 			{
 				if (arguments == null || arguments.Count <= 0)
 				{
-					tokens.Add(GetArg(0));
+					tokens.Add(GenericArgsNames[0]);
 					return;
 				}
 
 				string arg = arguments[index];
 				if (string.IsNullOrEmpty(arg))
 				{
-					tokens.Add(GetArg(index));
+					tokens.Add(GenericArgsNames[index]);
 					return;
 				}
 
 				AddName(tokens, arg);
 			}
-		}
-
-		private static NameToken GetArg(int index)
-		{
-			if (GenericArgsNames.Count > index) return GenericArgsNames[index];
-
-			for (int i = GenericArgsNames.Count - 1; i < index + 1; i++)
-			{
-				GenericArgsNames.Add(Token.Name($"arg{index}"));
-			}
-
-			return GenericArgsNames[index];
 		}
 
 		private static void AddName(TokenCollector tokens, string name)

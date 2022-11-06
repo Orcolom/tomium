@@ -17,12 +17,14 @@ namespace Wrench.Builder
 		public readonly string Name;
 		public readonly Type ModuleType;
 		public readonly Type ForType;
+		public readonly string Inherit;
 
-		public WrenchClassAttribute(Type moduleType, string name, Type forType = null)
+		public WrenchClassAttribute(Type moduleType, string name, Type forType = null, string inherit = null)
 		{
 			ModuleType = moduleType;
 			Name = name;
 			ForType = forType;
+			Inherit = inherit;
 		}
 	}
 

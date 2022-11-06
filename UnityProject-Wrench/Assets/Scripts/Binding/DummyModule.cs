@@ -17,10 +17,10 @@ namespace Binding
 
 	public class DummyClass : Class
 	{
-		public DummyClass() : base("Dummy")
+		public DummyClass() : base("Dummy", "inherit")
 		{
 			Add(new Method(Signature.Create(MethodType.Construct, "new", 16), new ForeignMethod(Create_Example)));
-			Add(new Method(Signature.Create(MethodType.StaticMethod, "injected"), Inject_Create()));
+			Add(new Method(Signature.Create(MethodType.StaticMethod, "injected"), new ForeignMethod(Create_Example_static)));
 		}
 
 		private void Create(Vm vm, Slot a0, Slot a1, string a2, Slot a3, byte[] a4, Slot a5, int a6, Slot a7,
@@ -57,6 +57,10 @@ return Dummy.new(0,0,0,0,0,0,0,0,0,0,0,0,0,0,)
 			v.Value = new GameObject(name.GetString());
 		}
 
+		private static void Create_Example_static(Vm vm)
+		{
+			vm.EnsureSlots(16);
+		}
 
 		private void Create_Example(Vm vm)
 		{
