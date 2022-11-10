@@ -34,7 +34,7 @@ namespace Binding
 	public class WrenGameObject : MonoBehaviour
 	{
 		private static readonly Dictionary<string, WrenComponentType> ComponentTypes = new Dictionary<string, WrenComponentType>(32);
-		private List<WrenComponentData> _components;
+		private List<WrenComponentData> _components = new List<WrenComponentData>();
 		
 		private Vm _vm;
 		private Handle _startHandle;
@@ -42,8 +42,9 @@ namespace Binding
 
 		public void Init(Vm vm)
 		{
+			_vm = vm;
 			_startHandle = vm.MakeCallHandle("start()");
-			_startHandle = vm.MakeCallHandle("update()");
+			_updateHandle = vm.MakeCallHandle("update()");
 		}
 
 		public void f_GetComponent(Vm vm, string typeId)
@@ -82,11 +83,10 @@ namespace Binding
 				var component = _components[i];
 				var type = component.Type;
 				
-				_vm.EnsureSlots(1);
-				_vm.Slot0.SetHandle(component.Handle);
-
 				if ((type.HasStart.HasValue == false || type.HasStart.Value) && component.HasDoneInit == false)
 				{
+					_vm.EnsureSlots(1);
+					_vm.Slot0.SetHandle(component.Handle);
 					var result = _vm.Call(_startHandle);
 					if (type.HasStart.HasValue == false) type.HasStart = result == InterpretResult.Success;
 					component.HasDoneInit = true;
@@ -94,6 +94,8 @@ namespace Binding
 
 				if (type.HasUpdate.HasValue == false || type.HasUpdate.Value)
 				{
+					_vm.EnsureSlots(1);
+					_vm.Slot0.SetHandle(component.Handle);
 					var result = _vm.Call(_updateHandle);
 					if (type.HasUpdate.HasValue == false) type.HasUpdate = result == InterpretResult.Success;
 				}

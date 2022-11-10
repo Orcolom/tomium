@@ -34,6 +34,7 @@ public class WrenScripting : MonoBehaviour
 		var uModule = UnityModule.Instance;
 		// _modules.Add(dModule);
 		_modules.Add(uModule);
+		_modules.Add(new UtilityModule());
 		PrefModuleCollections.End();
 		
 		PrefNew.Begin();
@@ -53,8 +54,9 @@ public class WrenScripting : MonoBehaviour
 		_vm.SetBindForeignMethodListener(_modules.BindForeignMethodHandler);
 		PrefNew.End();
 		
-		_vm.Interpret("<script>", _script.Text);
+		var result = _vm.Interpret("<script>", _script.Text);
 		// Debug.Log("x");
+		enabled = result == InterpretResult.Success;
 		
 		_vm.EnsureSlots(1);
 		_vm.Slot0.GetVariable("<script>", "X");

@@ -5,11 +5,11 @@ using Wrench;
 
 namespace Wrench.Builder
 {
-	public class Imports : IModuleScoped, IMethodScoped
+	public class ImportDeferred : IModuleScoped, IMethodScoped
 	{
 		private readonly Action<Vm, List<Class>> _action;
 
-		public Imports(Action<Vm, List<Class>> action)
+		public ImportDeferred(Action<Vm, List<Class>> action)
 		{
 			_action = action;
 		}

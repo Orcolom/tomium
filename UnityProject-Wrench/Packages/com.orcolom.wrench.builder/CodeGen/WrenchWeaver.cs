@@ -33,6 +33,7 @@ namespace Wrench.CodeGen
 					SearchModuleForTypes(module, expectProcessor);
 				}
 			}
+
 			SearchModuleForTypes(MainModule, expectProcessor);
 
 			// collect all info
@@ -97,6 +98,10 @@ namespace Wrench.CodeGen
 		public MethodReference Method_ctor__Signature_ForeignMethod;
 		public MethodReference ForeignAction_ctor;
 		public MethodReference ForeignMethod_ctor__ForeignAction_String;
+
+		public MethodReference Import_ctor__string_ImportVariableArray;
+		public TypeReference ImportVariable;
+		public MethodReference ImportVariable_ctor__string_string;
 
 		public override bool Populate(WeaverLogger logger, ModuleDefinition moduleDefinition)
 		{
@@ -176,6 +181,35 @@ namespace Wrench.CodeGen
 			{
 				logger.Error($"could not find {nameof(Module_ctor__string)}");
 				return false;
+			}
+
+			// import ImportVariable
+			ImportVariable = moduleDefinition.ImportReference(typeof(ImportVariable));
+			var importVariable = ImportVariable.Resolve();
+			for (int i = 0; i < importVariable.Methods.Count; i++)
+			{
+				var method = importVariable.Methods[i];
+
+				if (method.IsConstructor && method.HasParameters && method.Parameters.Count == 2 
+					&& method.Parameters[0].ParameterType.Is<string>() 
+					&& method.Parameters[1].ParameterType.Is<string>())
+				{
+					ImportVariable_ctor__string_string = moduleDefinition.ImportReference(method);
+				}
+			}
+			
+			// import Import
+			var import = moduleDefinition.ImportReference(typeof(Import)).Resolve();
+			for (int i = 0; i < import.Methods.Count; i++)
+			{
+				var method = import.Methods[i];
+
+				if (method.IsConstructor && method.HasParameters && method.Parameters.Count == 2 
+					&& method.Parameters[0].ParameterType.Is<string>() 
+					&& method.Parameters[1].ParameterType.Is(new ArrayType(ImportVariable)))
+				{
+					Import_ctor__string_ImportVariableArray = moduleDefinition.ImportReference(method);
+				}
 			}
 
 			// import Class

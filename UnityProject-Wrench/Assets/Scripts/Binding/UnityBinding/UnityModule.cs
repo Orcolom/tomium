@@ -8,24 +8,26 @@ using Wrench.Builder.Tokens;
 using MethodBody = Wrench.Builder.MethodBody;
 using Module = Wrench.Builder.Module;
 using Object = UnityEngine.Object;
-using ValueType = Wrench.ValueType;
 
 namespace Binding
 {
-	[WrenchModule("Unity")]
+	[WrenchModule("Unity"), WrenchImport(typeof(UtilityBinding))]
 	public class UnityModule : Module
 	{
 		public const string ComponentName = "BaseComponent";
 
 		public static readonly BasicToken f_AddComponentToken = Token.DangerousInsert(@$"
-var isWren = arg0 is {WrenComponentBinding.WrenName}
+var isWren = {UtilityBinding.WrenName}.{UtilityBinding.MetaClassDerivesFrom__MetaClass_MetaClass}(arg0, {WrenComponentBinding.WrenName})
 if (isWren) {{
-	var instance = arg0.new()
-	f_RegisterAddComponent(instance)
+	var instance = arg0.awake()
+	instance.SetGameObject_(this)
+	f_RegisterAddComponent(""%(arg0)"", instance)
 	return instance
 }} else {{
 	return f_AddComponent(""%(arg0)"")
 }}");
+
+		private UtilityBinding _utility;
 		
 		[WrenchExpect(typeof(ForeignObject<Object>), true)]
 		public static bool ExpectObject<T>(Vm vm, Slot slot, out ForeignObject<T> value) where T : Object
@@ -73,7 +75,7 @@ if (isWren) {{
 
 		public static void SetNewForeign<T>(Vm vm, Slot slot, string type, T data = default)
 		{
-			slot.GetVariable(Instance.Path, type);
+			slot.GetVariable(Instance.Path, type); // TODO: does this work for external types? 
 			slot.SetNewForeign(slot, data);
 		}
 	}
@@ -124,7 +126,7 @@ if (isWren) {{
 		{
 			if (UnityModule.ExpectType(vm, typeId, out var type) == false) return;
 			var component = self.AddComponent(type);
-			
+
 			UnityModule.SetNewForeign(vm, vm.Slot0, typeId, component);
 		}
 	}
@@ -136,10 +138,10 @@ if (isWren) {{
 
 		public UnityGameObjectBinding()
 		{
-			Add(new Method(Signature.Create(MethodType.StaticMethod, "type"), new MethodBody
-			{
-				Token.DangerousInsert($"return {GameObjectBinding.WrenName}.type"),
-			}));
+			// Add(new Method(Signature.Create(MethodType.StaticMethod, "type"), new MethodBody
+			// {
+			// 	Token.DangerousInsert($"return {GameObjectBinding.WrenName}.type"),
+			// }));
 
 			Add(new Method(Signature.Create(MethodType.Method, "GetComponent", 1), new MethodBody
 			{
@@ -203,10 +205,10 @@ if (isWren) {{
 	{
 		public WrenGameObjectBinding()
 		{
-			Add(new Method(Signature.Create(MethodType.StaticMethod, "type"), new MethodBody
-			{
-				Token.DangerousInsert($"return {GameObjectBinding.WrenName}.type"),
-			}));
+			// Add(new Method(Signature.Create(MethodType.StaticMethod, "type"), new MethodBody
+			// {
+			// 	Token.DangerousInsert($"return {GameObjectBinding.WrenName}.type"),
+			// }));
 
 			Add(new Method(Signature.Create(MethodType.Method, "GetComponent", 1), new MethodBody
 			{
@@ -237,9 +239,10 @@ if (isWren) {{
 		[WrenchMethod(MethodType.Method)]
 		private static void f_AddComponent(Vm vm, ForeignObject<WrenGameObject> self, string typeId)
 			=> GameObjectBinding.f_AddComponent(vm, self.Value.gameObject, typeId);
-		
+
 		[WrenchMethod(MethodType.Method)]
-		private static void f_RegisterAddComponent(Vm vm, ForeignObject<WrenGameObject> self, string typeId, Handle instance)
+		private static void f_RegisterAddComponent(Vm vm, ForeignObject<WrenGameObject> self, string typeId,
+			Handle instance)
 			=> self.Value.RegisterAddComponent(typeId, instance);
 	}
 
@@ -248,12 +251,6 @@ if (isWren) {{
 	public class ComponentBinding : Class
 	{
 		public const string WrenName = "Component";
-
-		public static void GameObject(Vm vm, Component self)
-		{
-			if (UnityModule.ExpectId(vm, typeof(GameObject), out var typeId) == false) return;
-			UnityModule.SetNewForeign(vm, vm.Slot0, typeId, self.gameObject);
-		}
 	}
 
 	[WrenchClass(typeof(UnityModule), WrenName, inherit: ComponentBinding.WrenName)]
@@ -261,9 +258,20 @@ if (isWren) {{
 	{
 		public const string WrenName = "UnityComponent";
 
+		// public UnityComponentBinding()
+		// {
+		// 	Add(new Method(Signature.Create(MethodType.StaticMethod, "type"), new MethodBody
+		// 	{
+		// 		Token.DangerousInsert($"return {ComponentBinding.WrenName}.type"),
+		// 	}));
+		// }
+
 		[WrenchMethod(MethodType.FieldGetter)]
-		public void GameObject(Vm vm, ForeignObject<Component> self)
-			=> ComponentBinding.GameObject(vm, self.Value);
+		public static void GameObject(Vm vm, ForeignObject<Component> self)
+		{
+			if (UnityModule.ExpectId(vm, typeof(GameObject), out var typeId) == false) return;
+			UnityModule.SetNewForeign(vm, vm.Slot0, typeId, self.Value.gameObject);
+		}
 	}
 
 	[WrenchClass(typeof(UnityModule), WrenName, inherit: ComponentBinding.WrenName)]
@@ -271,12 +279,29 @@ if (isWren) {{
 	{
 		public const string WrenName = "WrenComponent";
 
-		[WrenchExpect(typeof(ForeignObject<WrenComponentData>), true)]
-		public static bool Expect(Vm vm, Slot slot, out ForeignObject<WrenComponentData> value)
-			=> ExpectValue.ExpectForeign(vm, slot, out value, true);
+		public WrenComponentBinding()
+		{
+			// Add(new Method(Signature.Create(MethodType.StaticMethod, "type"), new MethodBody
+			// {
+			// 	Token.DangerousInsert($"return {ComponentBinding.WrenName}.type"),
+			// }));
+			//
+// 			Add(new Method(Signature.Create(MethodType.Is), new MethodBody
+// 			{
+// 				Token.DangerousInsert(@$"
+// System.print(arg0)
+// return {ComponentBinding.WrenName}.type"),
+// 			}));
 
-		[WrenchMethod(MethodType.FieldGetter)]
-		public void GameObject(Vm vm, ForeignObject<WrenComponentData> self)
-			=> ComponentBinding.GameObject(vm, self.Value.GameObject);
+			Add(new Method(Signature.Create(MethodType.FieldGetter, nameof(UnityComponentBinding.GameObject)), new MethodBody
+			{
+				Token.DangerousInsert("return _gameObject"),
+			}));
+
+			Add(new Method(Signature.Create(MethodType.Method, "SetGameObject_", 1), new MethodBody
+			{
+				Token.DangerousInsert("_gameObject = arg0"),
+			}));
+		}
 	}
 }

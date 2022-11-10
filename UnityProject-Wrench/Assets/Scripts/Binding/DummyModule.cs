@@ -11,6 +11,8 @@ namespace Binding
 	{
 		public DummyModule() : base("~/dummy")
 		{
+			Add(new Import("~/path", new ImportVariable("class_name", "as_name"), new ImportVariable("class_names", "as_names")));
+			Add(new Import("~/path"));
 			Add(new DummyClass());
 		}
 	}

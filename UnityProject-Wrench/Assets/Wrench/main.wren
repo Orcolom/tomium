@@ -15,10 +15,21 @@ var X = Fn.new {
 
 class Runner is WrenComponent {
 
+  construct awake() {
+    System.print("awake")
+  }
+
   start() {
     System.print("start")
   }
-  
+
+  update() {
+    System.print("update")
+    var transform = this.GameObject.GetComponent(Transform)
+    var position = transform.position
+    position.X = position.X + 1
+    transform.position = position
+  }
 }
 
 go.AddComponent(Runner)

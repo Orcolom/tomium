@@ -14,7 +14,7 @@
 			bool isNull = valueType == ValueType.Null;
 			if (slot.GetValueType() == type || (isNull && canBeNull)) return true;
 
-			AbortException(vm, "invalid-type");
+			AbortException(vm, $"slot {slot.Index}: invalid-type");
 			return false;
 		}
 

@@ -2,6 +2,18 @@
 
 namespace Wrench.Builder
 {
+	[AttributeUsage(AttributeTargets.Class)]
+	public class WrenchImport : System.Attribute
+	{
+		public readonly Type Type;
+
+		public WrenchImport(Type type)
+		{
+			Type = type;
+		}
+	}
+
+	[AttributeUsage(AttributeTargets.Class)]
 	public class WrenchModuleAttribute : System.Attribute
 	{
 		public readonly string Path;
@@ -12,6 +24,7 @@ namespace Wrench.Builder
 		}
 	}
 
+	[AttributeUsage(AttributeTargets.Class)]
 	public class WrenchClassAttribute : System.Attribute
 	{
 		public readonly string Name;
@@ -28,6 +41,7 @@ namespace Wrench.Builder
 		}
 	}
 
+	[AttributeUsage(AttributeTargets.Method)]
 	public class WrenchMethodAttribute : System.Attribute
 	{
 		public readonly MethodType MethodType;
@@ -39,6 +53,7 @@ namespace Wrench.Builder
 		}
 	}
 
+	[AttributeUsage(AttributeTargets.Method)]
 	public class WrenchExpectAttribute : System.Attribute
 	{
 		public readonly Type Type;

@@ -12,6 +12,7 @@ namespace Wrench.CodeGen.Processors
 		public string Path;
 		public TypeDefinition ModuleType;
 		public ILProcessor InitializerBody;
+		public List<TypeDefinition> Imports = new List<TypeDefinition>();
 	}
 
 	public class ModuleProcessor
@@ -48,6 +49,37 @@ namespace Wrench.CodeGen.Processors
 					$"`{input.FullName}` wants to be weaved with `{nameof(WrenchModuleAttribute)}` but doesn't derive from type `{nameof(Builder.Module)}`",
 					input);
 				return false;
+			}
+
+
+			// implements attribute and has valid arguments
+			if (input.HasAttributes<WrenchImport>(out var attributes))
+			{
+				for (int i = 0; i < attributes.Count; i++)
+				{
+					var import = attributes[i];
+
+					if (import.HasConstructorArguments == false
+						|| import.ConstructorArguments[0].Value is not TypeDefinition importType)
+					{
+						weaver.Logger.Error(
+							$"`{nameof(WrenchImport)}` on {input} is invalid",
+							input);
+						return false;
+					}
+
+					bool isClass = importType.IsDerivedFrom<Class>();
+					bool isModule = importType.IsDerivedFrom<Module>();
+					if (isClass == false && isModule == false)
+					{
+						weaver.Logger.Error(
+							$"`{nameof(WrenchImport)}` on {input} type is not module or class",
+							input);
+						return false;
+					}
+
+					data.Imports.Add(importType);
+				}
 			}
 
 			// create initializer method
@@ -94,23 +126,26 @@ namespace Wrench.CodeGen.Processors
 				var instruction = constructor.Body.Instructions[i];
 				if (foundBaseCall == false)
 				{
-					if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference method 
+					if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference method
 						&& method.FullName.Contains("::.ctor"))
 					{
 						foundBaseCall = true;
 					}
+
 					continue;
 				}
-				
+
 				instructions.Add(constructor.Body.Instructions[i]);
 			}
+
 			constructor.Body.Instructions.Clear();
-			
+
 			VariableDefinition[] variables = new VariableDefinition[constructor.Body.Variables.Count];
 			for (int i = 0; i < constructor.Body.Variables.Count; i++)
 			{
 				variables[i] = constructor.Body.Variables[i];
 			}
+
 			constructor.Body.Variables.Clear();
 
 			var il = constructor.Body.GetILProcessor();
@@ -131,7 +166,7 @@ namespace Wrench.CodeGen.Processors
 			{
 				constructor.Body.Variables.Add(variables[i]);
 			}
-			
+
 			if (instructions.Count != 0)
 			{
 				for (int i = 0; i < instructions.Count; i++)
@@ -152,6 +187,71 @@ namespace Wrench.CodeGen.Processors
 				moduleData.InitializerBody.Body.Variables.Clear();
 
 				var il = moduleData.InitializerBody.Body.GetILProcessor();
+
+				Dictionary<string, List<WrenchClassDefinition>> imports = new Dictionary<string, List<WrenchClassDefinition>>();
+				for (int j = 0; j < moduleData.Imports.Count; j++)
+				{
+					var importType = moduleData.Imports[j];
+					var classData = classProcessor.Classes.Find(definition => definition.ClassType.Is(importType));
+					if (classData == null)
+					{
+						weaver.Logger.Error($"coul dnot find `{importType.FullName}`");
+						return;
+					}
+
+					if (imports.TryGetValue(classData.ModuleType.FullName, out var list) == false)
+					{
+						list = new List<WrenchClassDefinition>();
+						var importModuleData = Modules.Find(definition => definition.ModuleType.Is(classData.ModuleType));
+						if (importModuleData == null)
+						{
+							weaver.Logger.Error($"could not find `{importType.FullName}`");
+							return;
+						}
+
+						imports.Add(importModuleData.Path, list);
+					}
+
+					if (list.Contains(classData))
+					{
+						weaver.Logger.Error($"trying to add multiple imports of the same type");
+						return;
+					}
+
+					list.Add(classData);
+				}
+
+				foreach (var pair in imports)
+				{
+					il.Emit(OpCodes.Ldarg_0);
+					il.Emit(OpCodes.Ldstr, pair.Key);
+
+					if (pair.Value.Count == 0)
+					{
+						il.Emit(OpCodes.Ldnull);
+					}
+					else
+					{
+						il.Emit(OpCodes.Ldc_I4, pair.Value.Count);
+						il.Emit(OpCodes.Newarr, weaver.Imports.ImportVariable);
+
+						for (int j = 0; j < pair.Value.Count; j++)
+						{
+							var import = pair.Value[j];
+							il.Emit(OpCodes.Dup);
+							il.Emit(OpCodes.Ldc_I4, j);
+							il.Emit(OpCodes.Ldstr, import.Name);
+							il.Emit(OpCodes.Ldnull);
+							il.Emit(OpCodes.Newobj, weaver.Imports.ImportVariable_ctor__string_string);
+							il.Emit(OpCodes.Stelem_Ref);
+						}
+					}
+
+					il.Emit(OpCodes.Newobj, weaver.Imports.Import_ctor__string_ImportVariableArray);
+					il.Emit(OpCodes.Call, weaver.Imports.Module_Add__IModuleScoped);
+					il.DEBUG_EmitNop();
+				}
+
 
 				for (int j = 0; j < classProcessor.Classes.Count; j++)
 				{

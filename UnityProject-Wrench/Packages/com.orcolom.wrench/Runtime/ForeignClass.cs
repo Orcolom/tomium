@@ -86,10 +86,9 @@ namespace Wrench
 			}
 		}
 
-		public void InvokeFinalizer()
+		public void InvokeFinalizer(IntPtr intPtr)
 		{
-			Debug.LogError("throw new NotImplementedException()");
-			// throw new NotImplementedException();
+			Managed.ForeignObjects.Remove(intPtr);
 		}
 	}
 }

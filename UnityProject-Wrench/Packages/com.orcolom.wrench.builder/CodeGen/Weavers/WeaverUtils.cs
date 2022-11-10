@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using Mono.Cecil;
@@ -46,6 +47,20 @@ namespace Wrench.Weaver
 			}
 
 			return false;
+		}
+		
+		public static bool HasAttributes<T>(this ICustomAttributeProvider td, out List<CustomAttribute> attributes)
+		{
+			attributes = new List<CustomAttribute>();
+			if (td.HasCustomAttributes == false) return false;
+
+			for (int i = 0; i < td.CustomAttributes.Count; i++)
+			{
+				var attribute = td.CustomAttributes[i];
+				if (attribute.AttributeType.Is<T>()) attributes.Add(attribute);
+			}
+
+			return attributes.Count > 0;
 		}
 		
 		public static bool Is<T>(this TypeReference td) => Is(td, typeof(T));

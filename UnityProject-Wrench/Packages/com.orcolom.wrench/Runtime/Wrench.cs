@@ -274,11 +274,11 @@ namespace Wrench
 #if ENABLE_IL2CPP
 		[AOT.MonoPInvokeCallback(typeof(NativeForeignMethodDelegate))]
 #endif
-		private static void OnWrenCallForeignFinalizer(IntPtr vmPtr, IntPtr userData)
+		private static void OnWrenCallForeignFinalizer(IntPtr data, IntPtr userData)
 		{
 			var foreignClass = ForeignClass.FromAllocPtr(userData);
 			if (foreignClass.IsValid == false) return;
-			foreignClass.InvokeFinalizer();
+			foreignClass.InvokeFinalizer(data);
 		}
 
 		#endregion
