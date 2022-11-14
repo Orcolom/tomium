@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using Mono.Cecil.Rocks;
 using Wrench.Builder;
 using Wrench.Weaver;
 
@@ -13,6 +12,7 @@ namespace Wrench.CodeGen.Processors
 		public TypeDefinition ModuleType;
 		public ILProcessor InitializerBody;
 		public List<TypeDefinition> Imports = new List<TypeDefinition>();
+		public MethodDefinition CtorMethod;
 	}
 
 	public class ModuleProcessor
@@ -28,59 +28,9 @@ namespace Wrench.CodeGen.Processors
 				ModuleType = input,
 			};
 
-			// implements attribute and has valid arguments
-			if (input.HasAttribute<WrenchModuleAttribute>(out var attribute) == false) return false;
-			if (attribute.HasConstructorArguments == false
-				|| attribute.ConstructorArguments[0].Value is not string str
-				|| string.IsNullOrEmpty(str))
-			{
-				weaver.Logger.Error(
-					$"`{input.FullName}` wants to be weaved with `{nameof(WrenchModuleAttribute)}` but doesnt have a valid `{nameof(WrenchModuleAttribute.Path)}`",
-					input);
-				return false;
-			}
-
-			data.Path = str;
-
-			// derives from module class
-			if (input.IsDerivedFrom<Module>() == false)
-			{
-				weaver.Logger.Error(
-					$"`{input.FullName}` wants to be weaved with `{nameof(WrenchModuleAttribute)}` but doesn't derive from type `{nameof(Builder.Module)}`",
-					input);
-				return false;
-			}
-
-
-			// implements attribute and has valid arguments
-			if (input.HasAttributes<WrenchImport>(out var attributes))
-			{
-				for (int i = 0; i < attributes.Count; i++)
-				{
-					var import = attributes[i];
-
-					if (import.HasConstructorArguments == false
-						|| import.ConstructorArguments[0].Value is not TypeDefinition importType)
-					{
-						weaver.Logger.Error(
-							$"`{nameof(WrenchImport)}` on {input} is invalid",
-							input);
-						return false;
-					}
-
-					bool isClass = importType.IsDerivedFrom<Class>();
-					bool isModule = importType.IsDerivedFrom<Module>();
-					if (isClass == false && isModule == false)
-					{
-						weaver.Logger.Error(
-							$"`{nameof(WrenchImport)}` on {input} type is not module or class",
-							input);
-						return false;
-					}
-
-					data.Imports.Add(importType);
-				}
-			}
+			if (CanValidateAttribute(weaver, input, data) == false) return false;
+			if (CanValidateImports(weaver, input, data) == false) return false;
+			if (CanValidateMethod(weaver, input, data) == false) return false;
 
 			// create initializer method
 			var md = new MethodDefinition(InitializerMethodName,
@@ -90,6 +40,63 @@ namespace Wrench.CodeGen.Processors
 			data.InitializerBody = md.Body.GetILProcessor();
 			data.InitializerBody.Emit(OpCodes.Nop);
 			data.InitializerBody.Emit(OpCodes.Ret);
+
+			WeaveInitMethodOnConstructor(weaver, data.CtorMethod, data);
+
+			Modules.Add(data);
+			weaver.Logger.Log($"extracted module: {input}");
+			return true;
+		}
+
+		private bool CanValidateAttribute(WrenchWeaver weaver, TypeDefinition input, WrenchModuleDefinition data)
+		{
+			using var log = weaver.Logger.ErrorGroup($"extract {input} CanValidateAttribute");
+
+			// implements attribute and has valid arguments
+			if (input.HasAttribute<WrenchModuleAttribute>(out var attribute) == false) return false;
+			if (attribute.HasConstructorArguments == false) log.Error("attribute has no constructor arguments");
+			else if (attribute.ConstructorArguments[0].Value is not string str) log.Error("arg0 should be string");
+			else if (string.IsNullOrEmpty(str)) log.Error("arg0 can not be null or empty");
+			else data.Path = str;
+
+			return log.HasIssues == false;
+		}
+
+		private bool CanValidateImports(WrenchWeaver weaver, TypeDefinition input, WrenchModuleDefinition data)
+		{
+			// implements attribute and has valid arguments
+			if (input.HasAttributes<WrenchImport>(out var attributes) == false) return true;
+
+			bool hasIssues = false;
+			for (int i = 0; i < attributes.Count; i++)
+			{
+				using var log = weaver.Logger.ErrorGroup($"extract {input} CanValidateImport");
+
+				var import = attributes[i];
+
+				if (import.HasConstructorArguments == false) log.Error("attribute has no constructor arguments");
+				if (import.ConstructorArguments[0].Value is not TypeDefinition importType) log.Error("arg0 should be Type");
+				else
+				{
+					var importTypeRef = weaver.MainModule.ImportReference(importType);
+					bool isClass = importTypeRef.IsDerivedFrom(weaver.Imports.Class);
+					bool isModule = importTypeRef.IsDerivedFrom(weaver.Imports.Module);
+					if (isClass == false && isModule == false) log.Error("type is not module or class");
+					data.Imports.Add(importType);
+				}
+
+				hasIssues |= log.HasIssues;
+			}
+
+			return hasIssues == false;
+		}
+
+		private bool CanValidateMethod(WrenchWeaver weaver, TypeDefinition input, WrenchModuleDefinition data)
+		{
+			using var log = weaver.Logger.ErrorGroup($"extract {input} CanValidateMethod");
+
+			// derives from module class
+			if (input.IsDerivedFrom<Module>() == false) log.Error("type does not derive from Module");
 
 			// weave the initializer in the constructors
 			for (int i = 0; i < input.Methods.Count; i++)
@@ -101,54 +108,22 @@ namespace Wrench.CodeGen.Processors
 				// allow an default constructor
 				if (method.HasParameters == false)
 				{
-					WeaveInitMethodOnConstructor(weaver, method, data);
+					data.CtorMethod = method;
 					continue;
 				}
 
-				weaver.Logger.Error(
-					$"`{input.FullName}` has constructors. this is not supported at the moment",
-					method);
+				log.Error("has non-default constructors. this is not supported at the moment");
 				return false;
 			}
 
-			Modules.Add(data);
-			return true;
+			return log.HasIssues == false;
 		}
+
 
 		private static void WeaveInitMethodOnConstructor(WrenchWeaver weaver, MethodDefinition constructor,
 			WrenchModuleDefinition module)
 		{
-			// store original il code and clear it
-			bool foundBaseCall = false;
-			List<Instruction> instructions = new List<Instruction>(constructor.Body.Instructions.Count);
-			for (int i = 0; i < constructor.Body.Instructions.Count; i++)
-			{
-				var instruction = constructor.Body.Instructions[i];
-				if (foundBaseCall == false)
-				{
-					if (instruction.OpCode == OpCodes.Call && instruction.Operand is MethodReference method
-						&& method.FullName.Contains("::.ctor"))
-					{
-						foundBaseCall = true;
-					}
-
-					continue;
-				}
-
-				instructions.Add(constructor.Body.Instructions[i]);
-			}
-
-			constructor.Body.Instructions.Clear();
-
-			VariableDefinition[] variables = new VariableDefinition[constructor.Body.Variables.Count];
-			for (int i = 0; i < constructor.Body.Variables.Count; i++)
-			{
-				variables[i] = constructor.Body.Variables[i];
-			}
-
-			constructor.Body.Variables.Clear();
-
-			var il = constructor.Body.GetILProcessor();
+			using var _ = new ConstructorInjector(constructor, out var il);
 
 			// base..ctor({Path});
 			il.Emit(OpCodes.Ldarg_0);
@@ -160,25 +135,12 @@ namespace Wrench.CodeGen.Processors
 			il.Emit(OpCodes.Ldarg_0);
 			il.Emit(OpCodes.Call, module.InitializerBody.Body.Method);
 			il.Emit(OpCodes.Nop);
-
-			// // add back original il code
-			for (int i = 0; i < variables.Length; i++)
-			{
-				constructor.Body.Variables.Add(variables[i]);
-			}
-
-			if (instructions.Count != 0)
-			{
-				for (int i = 0; i < instructions.Count; i++)
-				{
-					constructor.Body.Instructions.Add(instructions[i]);
-				}
-			}
-			else il.Emit(OpCodes.Ret);
 		}
 
 		public void Process(WrenchWeaver weaver, ClassProcessor classProcessor)
 		{
+			using var _ = weaver.Logger.Sample("Weave.ModuleProcessor.Process");
+
 			for (int i = 0; i < Modules.Count; i++)
 			{
 				var moduleData = Modules[i];
@@ -192,10 +154,12 @@ namespace Wrench.CodeGen.Processors
 				for (int j = 0; j < moduleData.Imports.Count; j++)
 				{
 					var importType = moduleData.Imports[j];
+					using var log = weaver.Logger.ErrorGroup($"Process import {importType} on {moduleData.ModuleType}");
+
 					var classData = classProcessor.Classes.Find(definition => definition.ClassType.Is(importType));
-					if (classData == null)
+					if (classData == null) 
 					{
-						weaver.Logger.Error($"coul dnot find `{importType.FullName}`");
+						log.Error("could not find class data");
 						return;
 					}
 
@@ -205,7 +169,7 @@ namespace Wrench.CodeGen.Processors
 						var importModuleData = Modules.Find(definition => definition.ModuleType.Is(classData.ModuleType));
 						if (importModuleData == null)
 						{
-							weaver.Logger.Error($"could not find `{importType.FullName}`");
+							log.Error($"could not find `{importType.FullName}`");
 							return;
 						}
 
@@ -214,7 +178,7 @@ namespace Wrench.CodeGen.Processors
 
 					if (list.Contains(classData))
 					{
-						weaver.Logger.Error($"trying to add multiple imports of the same type");
+						log.Error($"trying to add multiple imports of the same type");
 						return;
 					}
 
@@ -251,7 +215,6 @@ namespace Wrench.CodeGen.Processors
 					il.Emit(OpCodes.Call, weaver.Imports.Module_Add__IModuleScoped);
 					il.DEBUG_EmitNop();
 				}
-
 
 				for (int j = 0; j < classProcessor.Classes.Count; j++)
 				{

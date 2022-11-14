@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Unity.CompilationPipeline.Common.ILPostProcessing;
-using ConditionalAttribute = System.Diagnostics.ConditionalAttribute;
 
 namespace Wrench.Weaver
 {
@@ -18,118 +16,64 @@ namespace Wrench.Weaver
 	/// </para>
 	/// </summary>
 	public abstract class AWeaver<TImports>
-		where TImports : Imports, new()
+		where TImports : WeaverImporter, new()
 	{
 		protected internal TImports Imports { get; private set; }
 		protected internal WeaverLogger Logger { get; }
-		protected WeaverDiagnosticsTimer Timer { get; }
 
 		protected internal AssemblyDefinition CurrentAssembly { get; private set; }
 		protected internal ModuleDefinition MainModule { get; private set; }
 
-		[Conditional("WEAVER_DEBUG_LOGS")]
-		public static void DebugLog(TypeDefinition td, string message)
-		{
-			Console.WriteLine($"Weaver[{td.Name}]{message}");
-		}
-
-		static void Log(string msg)
-		{
-			Console.WriteLine($"[Weaver] {msg}");
-		}
-
-		public AWeaver(WeaverLogger logger)
+		protected AWeaver(WeaverLogger logger)
 		{
 			Logger = logger;
-			Timer = new WeaverDiagnosticsTimer() {writeToFile = true};
 		}
 
 		protected abstract void Weave();
+
 		public AssemblyDefinition DoWeave(ICompiledAssembly compiledAssembly)
 		{
-			Log($"Starting weaver on {compiledAssembly.Name}");
+			Logger.Start(GetType().Name, compiledAssembly.Name);
+
 			try
 			{
-				Timer.Start(compiledAssembly.Name);
-
-				using (Timer.Sample("AssemblyDefinitionFor"))
+				using (Logger.Sample("AssemblyDefinitionFor"))
 				{
 					CurrentAssembly = AssemblyDefinitionFor(compiledAssembly);
-					
-					// foreach (string reference in compiledAssembly.References)
-						// Logger.Log($"{compiledAssembly.Name} references {reference}");
 				}
 
 				MainModule = CurrentAssembly.MainModule;
 				Imports = new TImports();
-				
-				if (Imports.Populate(Logger, MainModule))
+
+				bool hasImports;
+				using (Logger.Sample("Predefined Imports"))
 				{
-					Weave();
+					hasImports = Imports.Populate(Logger, MainModule);
 				}
-				
-				// readers = new Readers(module, logger);
-				// writers = new Writers(module, logger);
-				// propertySiteProcessor = new PropertySiteProcessor();
-				// var rwProcessor = new ReaderWriterProcessor(module, readers, writers);
-				//
-				// var modified = false;
-				// using (timer.Sample("ReaderWriterProcessor"))
-				// {
-				// 	modified = rwProcessor.Process();
-				// }
-				//
-				// var foundTypes = FindAllClasses(module);
-				//
-				// using (timer.Sample("AttributeProcessor"))
-				// {
-				// 	var attributeProcessor = new AttributeProcessor(module, logger);
-				// 	modified |= attributeProcessor.ProcessTypes(foundTypes);
-				// }
-				//
-				// using (timer.Sample("WeaveNetworkBehavior"))
-				// {
-				// 	foreach (var foundType in foundTypes)
-				// 	{
-				// 		if (foundType.IsNetworkBehaviour)
-				// 			modified |= WeaveNetworkBehavior(foundType);
-				// 	}
-				// }
-				//
-				//
-				// if (modified)
-				// {
-				// 	using (timer.Sample("propertySiteProcessor"))
-				// 	{
-				// 		propertySiteProcessor.Process(module);
-				// 	}
-				//
-				// 	using (timer.Sample("InitializeReaderAndWriters"))
-				// 	{
-				// 		rwProcessor.InitializeReaderAndWriters();
-				// 	}
-				// }
+
+				if (hasImports)
+				{
+					using (Logger.Sample("Weave"))
+					{
+						Weave();
+					}
+				}
 
 				return CurrentAssembly;
 			}
 			catch (Exception e)
 			{
-				StringBuilder stringBuilder = new StringBuilder();
-
-				Logger.Error("Exception :" + e +  e.StackTrace);
-				// write line too because the error about doesn't show stacktrace
-				Console.WriteLine("[WeaverException] :" + e);
+				Logger.Exception(e);
 				return null;
 			}
 			finally
 			{
-				Log($"Finished weaver on {compiledAssembly.Name}");
 				// end in finally incase it return early
-				Timer?.End();
+				Logger.End();
 			}
 		}
 
-		public static AssemblyDefinition AssemblyDefinitionFor(ICompiledAssembly compiledAssembly)
+		private static AssemblyDefinition AssemblyDefinitionFor(ICompiledAssembly compiledAssembly)
 		{
 			var assemblyResolver = new PostProcessorAssemblyResolver(compiledAssembly);
 			var readerParameters = new ReaderParameters
@@ -152,106 +96,15 @@ namespace Wrench.Weaver
 
 			return assemblyDefinition;
 		}
-
-		private IReadOnlyList<FoundType> FindAllClasses(ModuleDefinition module)
-		{
-			using (Timer.Sample("FindAllClasses"))
-			{
-				var foundTypes = new List<FoundType>();
-				foreach (var type in module.Types)
-				{
-					ProcessType(type, foundTypes);
-
-					foreach (var nested in type.NestedTypes)
-					{
-						ProcessType(nested, foundTypes);
-					}
-				}
-
-				return foundTypes;
-			}
-		}
-
-		private void ProcessType(TypeDefinition type, List<FoundType> foundTypes)
-		{
-			if (!type.IsClass) return;
-
-			var parent = type.BaseType;
-			var isNetworkBehaviour = false;
-			var isMonoBehaviour = false;
-			while (parent != null)
-			{
-				// if (parent.Is<NetworkBehaviour>())
-				// {
-				// 	isNetworkBehaviour = true;
-				// 	isMonoBehaviour = true;
-				// 	break;
-				// }
-				//
-				// if (parent.Is<MonoBehaviour>())
-				// {
-				// 	isMonoBehaviour = true;
-				// 	break;
-				// }
-				//
-				// parent = parent.TryResolveParent();
-			}
-
-			foundTypes.Add(new FoundType(type, isNetworkBehaviour, isMonoBehaviour));
-		}
-
-		private bool WeaveNetworkBehavior(FoundType foundType)
-		{
-			var behaviourClasses = FindAllBaseTypes(foundType);
-
-			var modified = false;
-			// process this and base classes from parent to child order
-			for (var i = behaviourClasses.Count - 1; i >= 0; i--)
-			{
-				// var behaviour = behaviourClasses[i];
-				// if (NetworkBehaviourProcessor.WasProcessed(behaviour))
-				// {
-				// 	continue;
-				// }
-				//
-				// modified |= new NetworkBehaviourProcessor(behaviour, readers, writers, propertySiteProcessor, logger).Process();
-			}
-
-			return modified;
-		}
-
-		/// <summary>
-		/// Returns all base types that are between the type and NetworkBehaviour
-		/// </summary>
-		/// <param name="foundType"></param>
-		/// <returns></returns>
-		private static List<TypeDefinition> FindAllBaseTypes(FoundType foundType)
-		{
-			var behaviourClasses = new List<TypeDefinition>();
-
-			var type = foundType.TypeDefinition;
-			while (type != null)
-			{
-				// if (type.Is<NetworkBehaviour>())
-				// {
-				// 	break;
-				// }
-				//
-				// behaviourClasses.Add(type);
-				// type = type.BaseType.TryResolve();
-			}
-
-			return behaviourClasses;
-		}
 	}
 
 
-	public class Imports
+	public class WeaverImporter
 	{
 		public TypeReference Void;
 		public TypeReference String;
 		public TypeReference Bool;
-		
+
 		public virtual bool Populate(WeaverLogger logger, ModuleDefinition moduleDefinition)
 		{
 			Void = moduleDefinition.ImportReference(typeof(void));
@@ -260,28 +113,109 @@ namespace Wrench.Weaver
 			return true;
 		}
 	}
-	
-	public class FoundType
+
+	public struct ImportHelper : IDisposable
 	{
-		public readonly TypeDefinition TypeDefinition;
+		private WeaverLogger.GroupScope _log;
+		private readonly ModuleDefinition _module;
 
-		/// <summary>
-		/// Is Derived From NetworkBehaviour
-		/// </summary>
-		public readonly bool IsNetworkBehaviour;
-
-		public readonly bool IsMonoBehaviour;
-
-		public FoundType(TypeDefinition typeDefinition, bool isNetworkBehaviour, bool isMonoBehaviour)
+		public ImportHelper(WeaverLogger logger, ModuleDefinition module, string errorMessage)
 		{
-			TypeDefinition = typeDefinition;
-			IsNetworkBehaviour = isNetworkBehaviour;
-			IsMonoBehaviour = isMonoBehaviour;
+			_log = logger.ErrorGroup(errorMessage);
+			_module = module;
 		}
 
-		public override string ToString()
+		public bool HasIssues => _log.HasIssues;
+
+		public void Dispose()
 		{
-			return TypeDefinition.ToString();
+			_log.Dispose();
+		}
+
+		public bool ImportType<TType>(out TypeReference reference) => ImportType(typeof(TType), out reference);
+
+		public bool ImportType(Type t, out TypeReference reference)
+		{
+			reference = default;
+			using var _ = _log.Logger.Sample($"import type {t}");
+
+			try
+			{
+				reference = _module.ImportReference(t);
+				if (reference == null) _log.Error($"{t} not found");
+				return reference != null;
+			}
+			catch (Exception e)
+			{
+				_log.Error($"{t} has exception {e}");
+				return false;
+			}
+		}
+
+		public void ImportField(TypeDefinition definition, string name, out FieldReference field,
+			Func<FieldDefinition, bool> action)
+		{
+			field = default;
+
+			using var _ = _log.Logger.Sample($"import field `{definition.Name}.{name}`");
+
+			try
+			{
+				bool found = false;
+				for (int i = 0; i < definition.Fields.Count; i++)
+				{
+					var search = definition.Fields[i];
+					if (action.Invoke(search) == false) continue;
+					if (found)
+					{
+						_log.Error($"`found multiple fields that fit in the constrains for `{definition.Name}.{name}`");
+						return;
+					}
+
+					found = true;
+					field = _module.ImportReference(search);
+				}
+
+				if (found) return;
+				_log.Error($"`{definition.Name}.{name}` not found");
+			}
+			catch (Exception e)
+			{
+				_log.Error($"`{definition.Name}.{name}` has exception {e}");
+			}
+		}
+
+		public void ImportMethod(TypeDefinition definition, string name, out MethodReference method,
+			Func<MethodDefinition, bool> action)
+		{
+			method = default;
+
+			using var _ = _log.Logger.Sample($"import method `{definition.Name}.{name}`");
+
+			try
+			{
+				bool found = false;
+				for (int i = 0; i < definition.Methods.Count; i++)
+				{
+					var searchMethod = definition.Methods[i];
+					if (action.Invoke(searchMethod) == false) continue;
+					if (found)
+					{
+						_log.Error($"found multiple methods that fit in the constrains of `{definition.Name}.{name}`");
+						return;
+					}
+
+					found = true;
+					method = _module.ImportReference(searchMethod);
+				}
+
+				if (found) return;
+				_log.Error($"`{definition.Name}.{name}` not found");
+			}
+			catch (Exception e)
+			{
+				_log.Error($"`{definition.Name}.{name}` has exception {e}");
+			}
 		}
 	}
 }

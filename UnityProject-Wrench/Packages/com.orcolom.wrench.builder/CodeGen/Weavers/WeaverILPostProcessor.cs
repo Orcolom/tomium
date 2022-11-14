@@ -11,93 +11,69 @@ using Wrench.CodeGen;
 
 namespace Wrench.Weaver
 {
-    public class WeaverILPostProcessor : ILPostProcessor
-    {
-        public const string RuntimeAssemblyName = "Wrench";
+	public class WeaverILPostProcessor : ILPostProcessor
+	{
+		public const string RuntimeAssemblyName = "Wrench";
 
-        public override ILPostProcessor GetInstance() => this;
+		public override ILPostProcessor GetInstance() => this;
 
-        private static void Log(string msg)
-        {
-            Console.WriteLine($"[WEAVER] {msg}");
-        }
+		private static void Log(string msg)
+		{
+			Console.WriteLine($"[WEAVER] {msg}");
+		}
 
-        public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
-        {
-            var willProcess = WillProcess(compiledAssembly);
-            var logText = willProcess ? "Processing" : "Skipping";
-            Log($"{logText} {compiledAssembly.Name}");
-            if (!willProcess)
-                return null;
+		public override ILPostProcessResult Process(ICompiledAssembly compiledAssembly)
+		{
+			var willProcess = WillProcess(compiledAssembly);
+			var logText = willProcess ? "Processing" : "Skipping";
+			Log($"{logText} {compiledAssembly.Name}");
+			if (!willProcess)
+				return null;
 
-            var enableTrace = compiledAssembly.Defines.Contains("WEAVER_DEBUG_LOGS");
-            var logger = new WeaverLogger(enableTrace);
-            
-            // ---
-            
-            var weaver = new WrenchWeaver(logger);
+			var verboseLogging = compiledAssembly.Defines.Contains("WEAVER_DEBUG_LOGS");
+			var logger = new WeaverLogger(verboseLogging);
 
-            // ---
-            
-            var assemblyDefinition = weaver.DoWeave(compiledAssembly);
+			// ---
 
-            // write
-            var pe = new MemoryStream();
-            var pdb = new MemoryStream();
+			var weaver = new WrenchWeaver(logger);
 
-            var writerParameters = new WriterParameters
-            {
-                SymbolWriterProvider = new PortablePdbWriterProvider(),
-                SymbolStream = pdb,
-                WriteSymbols = true
-            };
+			// ---
 
-            assemblyDefinition?.Write(pe, writerParameters);
+			var assemblyDefinition = weaver.DoWeave(compiledAssembly);
 
-            logText = assemblyDefinition != null ? "Success" : "Failed";
-            Log($"{logText} {compiledAssembly.Name}");
-            return new ILPostProcessResult(new InMemoryAssembly(pe.ToArray(), pdb.ToArray()), ProcessDiagnostics(logger, compiledAssembly));
-        }
+			// write
+			var pe = new MemoryStream();
+			var pdb = new MemoryStream();
 
-        private List<DiagnosticMessage> ProcessDiagnostics(WeaverLogger logger, ICompiledAssembly compiledAssembly)
-        {
-            var diag = logger.Diagnostics;
-            var errorCount = diag.Where(x => x.DiagnosticType == DiagnosticType.Error).Count();
-            if (errorCount > 0)
-            {
-                var defineMsg = ArrayMessage("Defines", compiledAssembly.Defines);
-                var refMsg = ArrayMessage("References", compiledAssembly.References);
-                var msg = $"[Weaver] Failed with {errorCount} errors on {compiledAssembly.Name}. See Editor log for full details.\n{defineMsg}\n{refMsg}";
+			try
+			{
+				var writerParameters = new WriterParameters
+				{
+					SymbolWriterProvider = new PortablePdbWriterProvider(),
+					SymbolStream = pdb,
+					WriteSymbols = true,
+				};
 
+				assemblyDefinition?.Write(pe, writerParameters);
+			}
+			catch (Exception e)
+			{
+				logger.Exception(e);
+			}
 
-                // if fail
-                // insert debug info for weaver as first message,
-                diag.Insert(0, new DiagnosticMessage
-                {
-                    DiagnosticType = DiagnosticType.Error,
-                    MessageData = msg
-                });
-            }
+			logger.Close();
+			return new ILPostProcessResult(new InMemoryAssembly(pe.ToArray(), pdb.ToArray()), logger.Messages);
+		}
 
-            return diag;
-
-            string ArrayMessage(string prefix, string[] array)
-            {
-                return array.Length == 0
-                    ? $"{prefix}:[]"
-                    : $"{prefix}:[\n  {string.Join("\n  ", array)}\n]";
-            }
-        }
-
-        /// <summary>
-        /// Process when assembly that references Mirage
-        /// </summary>
-        /// <param name="compiledAssembly"></param>
-        /// <returns></returns>
-        public override bool WillProcess(ICompiledAssembly compiledAssembly)
-        {
-            return compiledAssembly.Name.Contains("Wrench") == false && compiledAssembly.References.Any(filePath =>
-                Path.GetFileNameWithoutExtension(filePath) == RuntimeAssemblyName);
-        }
-    }
+		/// <summary>
+		/// Process when assembly that references Mirage
+		/// </summary>
+		/// <param name="compiledAssembly"></param>
+		/// <returns></returns>
+		public override bool WillProcess(ICompiledAssembly compiledAssembly)
+		{
+			return compiledAssembly.Name.Contains("Wrench") == false && compiledAssembly.References.Any(filePath =>
+				Path.GetFileNameWithoutExtension(filePath) == RuntimeAssemblyName);
+		}
+	}
 }

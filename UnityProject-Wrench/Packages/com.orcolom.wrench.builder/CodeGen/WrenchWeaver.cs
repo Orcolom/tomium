@@ -1,15 +1,11 @@
-﻿using System.Collections.Generic;
-using Mono.Cecil;
-using UnityEngine;
+﻿using Mono.Cecil;
 using Wrench.Builder;
 using Wrench.CodeGen.Processors;
 using Wrench.Weaver;
-using Class = Wrench.Builder.Class;
-using Imports = Wrench.Weaver.Imports;
 
 namespace Wrench.CodeGen
 {
-	public class WrenchWeaver : AWeaver<WrenchImports>
+	public class WrenchWeaver : AWeaver<WrenchImporter>
 	{
 		public const string Prefix = "Wrench__";
 
@@ -23,40 +19,53 @@ namespace Wrench.CodeGen
 			var classProcessor = new ClassProcessor();
 			var methodProcessor = new MethodProcessor();
 
-			for (int i = 0; i < MainModule.AssemblyReferences.Count; i++)
+			using (var _ = Logger.Sample("Weave.SearchModuleForTypes"))
 			{
-				var assembly = MainModule.AssemblyResolver.Resolve(MainModule.AssemblyReferences[i]);
-
-				for (int j = 0; j < assembly.Modules.Count; j++)
+				for (int i = 0; i < MainModule.AssemblyReferences.Count; i++)
 				{
-					var module = assembly.Modules[j];
-					SearchModuleForTypes(module, expectProcessor);
+					var assembly = MainModule.AssemblyResolver.Resolve(MainModule.AssemblyReferences[i]);
+
+					for (int j = 0; j < assembly.Modules.Count; j++)
+					{
+						var module = assembly.Modules[j];
+						SearchModuleForTypes(module, expectProcessor);
+					}
+				}
+
+				SearchModuleForTypes(MainModule, expectProcessor);
+			}
+
+			using (var _ = Logger.Sample("Weave.TryExtract"))
+			{
+				// collect all info
+				for (int i = 0; i < MainModule.Types.Count; i++)
+				{
+					var input = MainModule.Types[i];
+
+					if (moduleProcessor.TryExtract(this, input)) continue;
+					bool foundClass = classProcessor.TryExtract(this, input, out var classDefinition);
+
+					for (int j = 0; j < input.Methods.Count; j++)
+					{
+						if (foundClass) methodProcessor.TryExtract(this, classDefinition, input.Methods[j]);
+					}
 				}
 			}
 
-			SearchModuleForTypes(MainModule, expectProcessor);
-
-			// collect all info
-			for (int i = 0; i < MainModule.Types.Count; i++)
+			using (var _ = Logger.Sample("Weave.Process"))
 			{
-				var input = MainModule.Types[i];
-
-				if (moduleProcessor.TryExtract(this, input)) continue;
-				bool foundClass = classProcessor.TryExtract(this, input, out var classDefinition);
-
-				for (int j = 0; j < input.Methods.Count; j++)
-				{
-					if (foundClass) methodProcessor.TryExtract(this, classDefinition, input.Methods[j]);
-				}
+				methodProcessor.Process(this, expectProcessor);
+				classProcessor.Process(this);
+				moduleProcessor.Process(this, classProcessor);
 			}
-
-			methodProcessor.Process(this, expectProcessor);
-			classProcessor.Process(this);
-			moduleProcessor.Process(this, classProcessor);
 		}
 
 		private void SearchModuleForTypes(ModuleDefinition module, ExpectProcessor expectProcessor)
 		{
+			using var _ = Logger.Sample($"Weave.SearchModuleForTypes.{module.Name}");
+			if (module.Name == "netstandard.dll") return;
+			if (module.Name.StartsWith("UnityEngine")) return;
+
 			for (int k = 0; k < module.Types.Count; k++)
 			{
 				var type = module.Types[k];
@@ -71,11 +80,14 @@ namespace Wrench.CodeGen
 		}
 	}
 
-	public class WrenchImports : Imports
+	public class WrenchImporter : WeaverImporter
 	{
+		// the naming is very intentional to descriptive what method it imports
+		// by using {class}_{MethodName}__{parameters}
+		// ReSharper disable InconsistentNaming
+
 		public TypeReference Vm;
-		public ByReferenceType VmByRef;
-		public FieldReference[] Vm_Slots = new FieldReference[17];
+		public readonly FieldReference[] Vm_Slots = new FieldReference[17];
 		public TypeReference Slot;
 		public MethodReference VmUtils_EnsureSlots__VM_int;
 
@@ -103,188 +115,169 @@ namespace Wrench.CodeGen
 		public TypeReference ImportVariable;
 		public MethodReference ImportVariable_ctor__string_string;
 
+		// ReSharper restore InconsistentNaming
+
 		public override bool Populate(WeaverLogger logger, ModuleDefinition moduleDefinition)
 		{
 			if (base.Populate(logger, moduleDefinition) == false) return false;
 
-			ForeignClass = moduleDefinition.ImportReference(typeof(ForeignClass));
-			var foreignClass = ForeignClass.Resolve();
-			for (int i = 0; i < foreignClass.Methods.Count; i++)
-			{
-				var method = foreignClass.Methods[i];
+			using var helper = new ImportHelper(logger, moduleDefinition, "predefined imports issues");
 
-				if (method.IsStatic == false) continue;
-				if (method.Name != nameof(global::Wrench.ForeignClass.DefaultAlloc)) continue;
-				ForeignClass_DefaultAlloc__T = method;
+			if (helper.ImportType<ForeignClass>(out ForeignClass))
+			{
+				var foreignClass = ForeignClass.Resolve();
+
+				helper.ImportMethod(foreignClass, nameof(ForeignClass_DefaultAlloc__T),
+					out ForeignClass_DefaultAlloc__T, definition =>
+						definition.IsStatic
+						&& definition.Name == nameof(global::Wrench.ForeignClass.DefaultAlloc));
 			}
 
-			ForeignObject = moduleDefinition.ImportReference(typeof(ForeignObject<>));
-			var foreignObject = ForeignObject.Resolve();
-			for (int i = 0; i < foreignObject.Methods.Count; i++)
+			if (helper.ImportType(typeof(ForeignObject<>), out ForeignObject))
 			{
-				var method = foreignObject.Methods[i];
+				var foreignClass = ForeignObject.Resolve();
 
-				if (method.IsStatic) continue;
-				if (method.Name != nameof(ForeignObject<int>.As)) continue; // int is just placeholder
-				ForeignObject_As__T = method;
+				helper.ImportMethod(foreignClass, nameof(ForeignObject_As__T), out ForeignObject_As__T, definition =>
+					definition.IsStatic == false
+					&& definition.Name == nameof(ForeignObject<int>.As)); // int is just placeholder
 			}
 
-			Slot = moduleDefinition.ImportReference(typeof(Slot));
+			helper.ImportType<Slot>(out Slot);
 
 			// import vm
-			Vm = moduleDefinition.ImportReference(typeof(Vm));
-			VmByRef = new ByReferenceType(Vm);
-			var vm = Vm.Resolve();
-			for (int i = 0; i < vm.Fields.Count; i++)
+			if (helper.ImportType<Vm>(out Vm))
 			{
-				var field = vm.Fields[i];
+				var vm = Vm.Resolve();
 
-				if (field.FieldType.Is<Slot>() == false) continue;
-				if (field.Name.StartsWith("Slot") == false) continue;
-
-				if (int.TryParse(field.Name.Substring("Slot".Length), out int value))
+				for (int i = 0; i < Vm_Slots.Length; i++)
 				{
-					Vm_Slots[value] = moduleDefinition.ImportReference(field);
+					string name = $"Slot{i}";
+
+					helper.ImportField(vm, name, out var slot, definition =>
+						definition.FieldType.Is<Slot>()
+						&& definition.Name == name);
+
+					Vm_Slots[i] = slot;
 				}
 			}
 
-			var vmUtils = moduleDefinition.ImportReference(typeof(VmUtils)).Resolve();
-			for (int i = 0; i < vmUtils.Methods.Count; i++)
+			if (helper.ImportType(typeof(VmUtils), out var utilsRef))
 			{
-				var method = vmUtils.Methods[i];
-				if (method.Name != nameof(VmUtils.EnsureSlots)) continue;
-				VmUtils_EnsureSlots__VM_int = moduleDefinition.ImportReference(method);
-				break;
+				var utils = utilsRef.Resolve();
+				helper.ImportMethod(utils, nameof(VmUtils_EnsureSlots__VM_int), out VmUtils_EnsureSlots__VM_int, definition =>
+					definition.Name == nameof(VmUtils.EnsureSlots));
 			}
 
-			// import Module
-			Module = moduleDefinition.ImportReference(typeof(Module));
-			var module = Module.Resolve();
-
-			for (int i = 0; i < module.Methods.Count; i++)
+			if (helper.ImportType<Module>(out Module))
 			{
-				var method = module.Methods[i];
+				var module = Module.Resolve();
+				helper.ImportMethod(module, nameof(Module_ctor__string), out Module_ctor__string, definition =>
+					definition.IsConstructor
+					&& definition.HasParameters
+					&& definition.Parameters.Count == 1
+					&& definition.Parameters[0].ParameterType.Is<string>());
 
-				if (method.IsConstructor && method.Parameters.Count == 1 && method.Parameters[0].ParameterType.Is<string>())
-				{
-					Module_ctor__string = moduleDefinition.ImportReference(method);
-				}
-
-				if (method.Name == nameof(Builder.Module.Add) && method.Parameters.Count == 1
-					&& method.Parameters[0].ParameterType.Is<IModuleScoped>())
-				{
-					Module_Add__IModuleScoped = moduleDefinition.ImportReference(method);
-				}
+				helper.ImportMethod(module, nameof(Module_Add__IModuleScoped), out Module_Add__IModuleScoped, definition =>
+					definition.Name == nameof(Builder.Module.Add)
+					&& definition.HasParameters
+					&& definition.Parameters.Count == 1
+					&& definition.Parameters[0].ParameterType.Is<IModuleScoped>());
 			}
 
-			if (Module_ctor__string == null)
+			if (helper.ImportType<ImportVariable>(out ImportVariable))
 			{
-				logger.Error($"could not find {nameof(Module_ctor__string)}");
-				return false;
-			}
+				var importVariable = ImportVariable.Resolve();
+				var importVariableArr = new ArrayType(ImportVariable);
 
-			// import ImportVariable
-			ImportVariable = moduleDefinition.ImportReference(typeof(ImportVariable));
-			var importVariable = ImportVariable.Resolve();
-			for (int i = 0; i < importVariable.Methods.Count; i++)
-			{
-				var method = importVariable.Methods[i];
+				helper.ImportMethod(importVariable, nameof(ImportVariable_ctor__string_string),
+					out ImportVariable_ctor__string_string, definition =>
+						definition.IsConstructor
+						&& definition.HasParameters
+						&& definition.Parameters.Count == 2
+						&& definition.Parameters[0].ParameterType.Is<string>()
+						&& definition.Parameters[1].ParameterType.Is<string>());
 
-				if (method.IsConstructor && method.HasParameters && method.Parameters.Count == 2 
-					&& method.Parameters[0].ParameterType.Is<string>() 
-					&& method.Parameters[1].ParameterType.Is<string>())
+				// import Import
+				if (helper.ImportType<Import>(out var importRef))
 				{
-					ImportVariable_ctor__string_string = moduleDefinition.ImportReference(method);
-				}
-			}
-			
-			// import Import
-			var import = moduleDefinition.ImportReference(typeof(Import)).Resolve();
-			for (int i = 0; i < import.Methods.Count; i++)
-			{
-				var method = import.Methods[i];
-
-				if (method.IsConstructor && method.HasParameters && method.Parameters.Count == 2 
-					&& method.Parameters[0].ParameterType.Is<string>() 
-					&& method.Parameters[1].ParameterType.Is(new ArrayType(ImportVariable)))
-				{
-					Import_ctor__string_ImportVariableArray = moduleDefinition.ImportReference(method);
+					var import = importRef.Resolve();
+					helper.ImportMethod(import, nameof(Import_ctor__string_ImportVariableArray),
+						out Import_ctor__string_ImportVariableArray, definition =>
+							definition.IsConstructor
+							&& definition.HasParameters
+							&& definition.Parameters.Count == 2
+							&& definition.Parameters[0].ParameterType.Is<string>()
+							&& definition.Parameters[1].ParameterType.Is(importVariableArr));
 				}
 			}
 
-			// import Class
-			Class = moduleDefinition.ImportReference(typeof(Class));
-			var @class = Class.Resolve();
-
-			for (int i = 0; i < @class.Methods.Count; i++)
+			if (helper.ImportType<Class>(out Class))
 			{
-				var method = @class.Methods[i];
+				var @class = Class.Resolve();
 
-				if (method.IsConstructor && method.HasParameters
-					&& method.Parameters[0].ParameterType.Is<Attributes>()
-					&& method.Parameters[1].ParameterType.Is<string>()
-					&& method.Parameters[2].ParameterType.Is<string>()
-					&& method.Parameters[3].ParameterType.Is<ForeignClass>()
-					&& method.Parameters[4].ParameterType.Is<ClassBody>())
-				{
-					Class_ctor__Attributes_string_string_ForeignClass_ClassBody = moduleDefinition.ImportReference(method);
-				}
+				helper.ImportMethod(@class, nameof(Class_ctor__Attributes_string_string_ForeignClass_ClassBody),
+					out Class_ctor__Attributes_string_string_ForeignClass_ClassBody, definition =>
+						definition.IsConstructor
+						&& definition.HasParameters
+						&& definition.Parameters.Count == 5
+						&& definition.Parameters[0].ParameterType.Is<Attributes>()
+						&& definition.Parameters[1].ParameterType.Is<string>()
+						&& definition.Parameters[2].ParameterType.Is<string>()
+						&& definition.Parameters[3].ParameterType.Is<ForeignClass>()
+						&& definition.Parameters[4].ParameterType.Is<ClassBody>());
 
-				if (method.IsStatic == false && method.Name == nameof(Builder.Class.Add) && method.HasParameters
-					&& method.Parameters[0].ParameterType.Is<IClassScoped>())
-				{
-					Class_Add__IClassScoped = moduleDefinition.ImportReference(method);
-				}
+				helper.ImportMethod(@class, nameof(Class_Add__IClassScoped),
+					out Class_Add__IClassScoped, definition =>
+						definition.Name == nameof(Builder.Class.Add)
+						&& definition.HasParameters
+						&& definition.Parameters.Count == 1
+						&& definition.Parameters[0].ParameterType.Is<IClassScoped>());
 			}
 
-			// import signature
-			var signature = moduleDefinition.ImportReference(typeof(Signature)).Resolve();
-			for (int i = 0; i < signature.Methods.Count; i++)
+			if (helper.ImportType<Signature>(out var signatureRef))
 			{
-				var method = signature.Methods[i];
-				if (method.Name == nameof(Signature.Create))
-				{
-					Signature_Create__MethodType_string_int = moduleDefinition.ImportReference(method);
-				}
+				var signature = signatureRef.Resolve();
+
+				helper.ImportMethod(signature, nameof(Signature_Create__MethodType_string_int),
+					out Signature_Create__MethodType_string_int, definition =>
+						definition.Name == nameof(Signature.Create));
 			}
 
-			// import foreign action
-			var foreignAction = moduleDefinition.ImportReference(typeof(ForeignAction)).Resolve();
-			for (int i = 0; i < foreignAction.Methods.Count; i++)
+			if (helper.ImportType<ForeignAction>(out var foreignActionRef))
 			{
-				var method = foreignAction.Methods[i];
-				if (method.IsConstructor)
-				{
-					ForeignAction_ctor = moduleDefinition.ImportReference(method);
-				}
+				var foreignAction = foreignActionRef.Resolve();
+
+				helper.ImportMethod(foreignAction, nameof(ForeignAction_ctor), out ForeignAction_ctor, definition =>
+					definition.IsConstructor);
 			}
 
-			// import foreign method
-			var foreignMethod = moduleDefinition.ImportReference(typeof(ForeignMethod)).Resolve();
-			for (int i = 0; i < foreignMethod.Methods.Count; i++)
+			if (helper.ImportType<ForeignMethod>(out var foreignMethodRef))
 			{
-				var method = foreignMethod.Methods[i];
-				if (method.IsStatic == false && method.IsConstructor && method.HasParameters)
-				{
-					ForeignMethod_ctor__ForeignAction_String = moduleDefinition.ImportReference(method);
-				}
+				var foreignMethod = foreignMethodRef.Resolve();
+
+				helper.ImportMethod(foreignMethod, nameof(ForeignMethod_ctor__ForeignAction_String),
+					out ForeignMethod_ctor__ForeignAction_String, definition =>
+						definition.IsConstructor
+						&& definition.HasParameters
+						&& definition.Parameters.Count == 2
+						&& definition.Parameters[0].ParameterType.Is<ForeignAction>()
+						&& definition.Parameters[1].ParameterType.Is<string>());
 			}
 
-			// import method
-			var builder_method = moduleDefinition.ImportReference(typeof(Method)).Resolve();
-			for (int i = 0; i < builder_method.Methods.Count; i++)
+			if (helper.ImportType<Method>(out var methodRef))
 			{
-				var method = builder_method.Methods[i];
-				if (method.IsStatic == false && method.IsConstructor && method.HasParameters && method.Parameters.Count == 2
-					&& method.Parameters[0].ParameterType.Is<Signature>() &&
-					method.Parameters[1].ParameterType.Is<ForeignMethod>())
-				{
-					Method_ctor__Signature_ForeignMethod = moduleDefinition.ImportReference(method);
-				}
+				var method = methodRef.Resolve();
+
+				helper.ImportMethod(method, nameof(Method_ctor__Signature_ForeignMethod),
+					out Method_ctor__Signature_ForeignMethod, definition =>
+						definition.IsConstructor
+						&& definition.HasParameters
+						&& definition.Parameters.Count == 2
+						&& definition.Parameters[0].ParameterType.Is<Signature>()
+						&& definition.Parameters[1].ParameterType.Is<ForeignMethod>());
 			}
 
-			logger.Log("Found all imports");
-			return true;
+			return helper.HasIssues == false;
 		}
 	}
 }

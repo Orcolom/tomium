@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
-using UnityEditor.TerrainTools;
 using Wrench.Builder;
 using Wrench.Weaver;
 
@@ -14,98 +11,106 @@ namespace Wrench.CodeGen.Processors
 		public MethodReference Method;
 		public TypeReference ForType;
 		public bool UseForChildren;
-		public bool UsesForeignObject;
 	}
 
 	public class ExpectProcessor
 	{
-		private List<WrenchExpectDefinition> Definitions = new List<WrenchExpectDefinition>();
+		private readonly List<WrenchExpectDefinition> _definitions = new List<WrenchExpectDefinition>();
 
 		public bool TryExtract(WrenchWeaver weaver, MethodDefinition input)
 		{
-			var data = new WrenchExpectDefinition()
-				{ };
+			var data = new WrenchExpectDefinition();
 
-			if (input.HasAttribute<WrenchExpectAttribute>(out var attribute) == false) return false;
-
-			if (attribute.HasConstructorArguments == false ||
-				attribute.ConstructorArguments[0].Value is not TypeReference forType ||
-				attribute.ConstructorArguments[1].Value is not bool useForChildren)
-			{
-				return false;
-			}
-
-			data.Method = weaver.MainModule.ImportReference(input);
-			data.ForType = forType;
-			data.UseForChildren = useForChildren;
-
-			var existingData = Definitions.Find(definition => definition.ForType.Is(forType));
-			
-			if (existingData != null)
-			{
-				weaver.Logger.Error($"found multiple {nameof(WrenchExpectAttribute)} for type {forType.FullName}");
-				return false;
-			}
-
+			if (CanValidateAttribute(weaver, input, data) == false) return false;
 			if (CanValidateMethod(weaver, input, data) == false) return false;
 
-			data.UsesForeignObject = false;
-
-			Definitions.Add(data);
+			_definitions.Add(data);
+			weaver.Logger.Log($"extracted expect: {input}");
 			return true;
 		}
 
-		private bool CanValidateMethod(WrenchWeaver weaver, MethodDefinition method, WrenchExpectDefinition expect)
+		private bool CanValidateAttribute(WrenchWeaver weaver, MethodDefinition input, WrenchExpectDefinition data)
 		{
-			StringBuilder sb = new StringBuilder();
-			if (method.IsPublic == false) sb.AppendLine("- Method is not public");
-			if (method.IsStatic == false) sb.AppendLine("- Method is not static");
-			if (method.ReturnType.Is<bool>() == false) sb.AppendLine("- Return value should be bool");
-			if (method.Parameters.Count != 3) sb.AppendLine("- wrong parameter count");
+			using var log = weaver.Logger.ErrorGroup($"extract {input} CanValidateAttribute");
+			
+			if (input.HasAttribute<WrenchExpectAttribute>(out var attribute) == false) return false;
+			if (attribute.HasConstructorArguments == false) log.Error("attribute has no constructor arguments");
+
+			if (attribute.ConstructorArguments[0].Value is not TypeReference forType) log.Error("arg 0 is not a Type");
+			else data.ForType = weaver.MainModule.ImportReference(forType);
+
+			if (attribute.ConstructorArguments[1].Value is not bool useForChildren) log.Error("arg 1 is not a bool");
+			else data.UseForChildren = useForChildren;
+
+			var existingData = _definitions.Find(definition => definition.ForType.Is(data.ForType));
+			if (existingData != null)
+			{
+				log.Error($"found multiple {nameof(WrenchExpectAttribute)} for type {data.ForType.FullName}");
+				return false;
+			}
+			
+			return log.HasIssues == false;
+		}
+
+		private bool CanValidateMethod(WrenchWeaver weaver, MethodDefinition input, WrenchExpectDefinition data)
+		{
+			using var log =
+				weaver.Logger.ErrorGroup(
+					$"extract {input} CanValidateMethod expects a method with signature `public static bool MethodName(in Vm vm, in Slot slot, out {data.ForType.Name} value)`");
+
+			data.Method = weaver.MainModule.ImportReference(input);
+			
+			if (input.IsPublic == false) log.Error("Method is not public");
+			if (input.IsStatic == false) log.Error("Method is not static");
+			if (input.ReturnType.Is<bool>() == false) log.Error("Return value should be bool");
+			if (input.Parameters.Count != 3) log.Error("wrong parameter count");
 			else
 			{
-				var param0 = method.Parameters[0];
-				if (param0.ParameterType.Is<Vm>() == false) sb.AppendLine("- Parameter 0 should be Vm");
-				if (param0.IsIn || param0.IsOut || param0.IsOptional) sb.AppendLine("- Parameter 0 can not be `in`, `out` or `ref`");
+				var param0 = input.Parameters[0];
+				if (param0.ParameterType.Is<Vm>() == false) log.Error("Parameter 0 should be Vm");
+				if (param0.IsIn || param0.IsOut || param0.IsOptional)
+					log.Error("Parameter 0 can not be `in`, `out` or `ref`");
 
-				var param1 = method.Parameters[1];
-				if (param1.ParameterType.Is<Slot>() == false) sb.AppendLine("- Parameter 1 should be Slot");
-				if (param1.IsIn || param1.IsOut || param1.IsOptional) sb.AppendLine("- Parameter 1 can not be `in`, `out` or `ref`");
+				var param1 = input.Parameters[1];
+				if (param1.ParameterType.Is<Slot>() == false) log.Error("Parameter 1 should be Slot");
+				if (param1.IsIn || param1.IsOut || param1.IsOptional)
+					log.Error("Parameter 1 can not be `in`, `out` or `ref`");
 
-				var param2 = method.Parameters[2];
-				if (param2.IsIn || param2.IsOut == false || param2.IsOptional) sb.AppendLine("- Parameter 2 can not be `in` or `ref` and should be `out`");
+				var param2 = input.Parameters[2];
+				if (param2.IsIn || param2.IsOut == false || param2.IsOptional)
+					log.Error("Parameter 2 can not be `in` or `ref` and should be `out`");
 
-				if (expect.ForType.IsGenericInstance || method.HasGenericParameters || param2.ParameterType.ContainsGenericParameter)
+				if (data.ForType.IsGenericInstance || input.HasGenericParameters ||
+					param2.ParameterType.ContainsGenericParameter)
 				{
-					var attributeType = (expect.ForType as GenericInstanceType)?.GenericArguments[0];
-					var methodParameter = method.HasGenericParameters ? method.GenericParameters[0] : null;
+					var attributeType = (data.ForType as GenericInstanceType)?.GenericArguments[0];
+					var methodParameter = input.HasGenericParameters ? input.GenericParameters[0] : null;
 					var methodConstraint = (methodParameter?.HasConstraints ?? false) ? methodParameter.Constraints[0] : null;
-					
-					TypeReference dereffedParameter = param2.ParameterType is ByReferenceType t ? t.ElementType : param2.ParameterType;
+
+					TypeReference dereffedParameter =
+						param2.ParameterType is ByReferenceType t ? t.ElementType : param2.ParameterType;
 					var parameterType = (dereffedParameter as GenericInstanceType)?.GenericArguments[0];
+					parameterType = weaver.MainModule.ImportReference(parameterType);
 
 					if (dereffedParameter.Is(weaver.Imports.ForeignObject, true) == false)
 					{
-						sb.AppendLine("- generic doesnt derive from ForeignObject");
+						log.Error("generic doesnt derive from ForeignObject");
 					}
-					else if (attributeType == null) sb.AppendLine("- no valid attribute type");
-					else if (parameterType == null) sb.AppendLine("- invalid parameter type");
+					else if (attributeType == null) log.Error("no valid attribute type");
+					else if (parameterType == null) log.Error("invalid parameter type");
 					else if (methodConstraint != null && attributeType.Is(methodConstraint) == false)
 					{
-						sb.AppendLine("- constraints do not equal");
+						log.Error("constraints do not equal");
 					}
 				}
 
-				if (param2.ParameterType.Is(expect.ForType, true) == false)
+				if (param2.ParameterType.Is(data.ForType, true) == false)
 				{
-					sb.AppendLine("- Parameter 2 should be same as attribute");
+					log.Error("Parameter 2 should be same as attribute");
 				}
 			}
 
-			if (sb.Length == 0) return true;
-			weaver.Logger.Error(
-				$"{nameof(WrenchExpectAttribute)} expects to be on a method with signature `public static bool MethodName(in Vm vm, in Slot slot, out {expect.ForType.Name} value)`. {sb}");
-			return false;
+			return log.HasIssues == false;
 		}
 
 		public bool EmitExpectIl(WrenchWeaver weaver, MethodDefinition method, ILProcessor il, TypeReference forType,
@@ -134,7 +139,7 @@ namespace Wrench.CodeGen.Processors
 				il.Emit(OpCodes.Call, genericMethod);
 			}
 			else il.Emit(OpCodes.Call, existingData.Method);
-			
+
 			il.Emit(OpCodes.Ldc_I4_0);
 			il.Emit(OpCodes.Ceq);
 			il.Emit(OpCodes.Stloc_S, localBool);
@@ -144,24 +149,25 @@ namespace Wrench.CodeGen.Processors
 			return true;
 		}
 
-		public Dictionary<string, WrenchExpectDefinition> _cachedFinds = new();
-		public WrenchExpectDefinition FindDefinition(WrenchWeaver weaver, TypeReference type)
+		private readonly Dictionary<string, WrenchExpectDefinition> _cachedFinds = new();
+
+		private WrenchExpectDefinition FindDefinition(WrenchWeaver weaver, TypeReference type)
 		{
 			if (_cachedFinds.TryGetValue(type.FullName, out var value)) return value;
-			
+
 			var normalizedType = type;
 			if (type is GenericInstanceType g) normalizedType = g.GenericArguments[0];
-			
+
 			int foundDepth = int.MaxValue;
 			WrenchExpectDefinition found = null;
-			for (int i = 0; i < Definitions.Count; i++)
+			for (int i = 0; i < _definitions.Count; i++)
 			{
 				int currentDepth = 0;
-				var definition = Definitions[i];
+				var definition = _definitions[i];
 
 				var forType = definition.ForType;
 				if (definition.ForType is GenericInstanceType genericType) forType = genericType.GenericArguments[0];
-				
+
 				if (normalizedType.IsDerivedFrom(forType, ref currentDepth) == false) continue;
 				if (currentDepth < foundDepth) found = definition;
 			}

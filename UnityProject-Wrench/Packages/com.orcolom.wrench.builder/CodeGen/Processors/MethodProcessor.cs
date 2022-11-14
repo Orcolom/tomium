@@ -17,10 +17,9 @@ namespace Wrench.CodeGen.Processors
 		public MethodDefinition UserMethod;
 	}
 
-
 	public class MethodProcessor
 	{
-		public List<WrenchMethodDefinition> Methods = new List<WrenchMethodDefinition>();
+		private readonly List<WrenchMethodDefinition> _methods = new List<WrenchMethodDefinition>();
 
 		public void TryExtract(WrenchWeaver weaver, WrenchClassDefinition @class, MethodDefinition input)
 		{
@@ -29,67 +28,55 @@ namespace Wrench.CodeGen.Processors
 				Parameters = new List<TypeReference>(),
 			};
 
+			if (CanValidateAttribute(weaver, input, data) == false) return;
+			if (CanValidateMethod(weaver, input, data) == false) return;
+
+			CreateWrapperMethod(weaver, data);
+
+			@class.AddMethod(data);
+			weaver.Logger.Log($"extracted method: {input}");
+			_methods.Add(data);
+		}
+
+		private bool CanValidateAttribute(WrenchWeaver weaver, MethodDefinition input, WrenchMethodDefinition data)
+		{
+			using var log = weaver.Logger.ErrorGroup($"extract {input} CanValidateAttribute");
+
 			// implements attribute and has valid arguments
-			if (input.HasAttribute<WrenchMethodAttribute>(out var attribute) == false) return;
-			if (attribute.HasConstructorArguments == false
-				|| attribute.ConstructorArguments[0].Value is not int intValue)
-			{
-				weaver.Logger.Error(
-					$"`{input.FullName}` wants to be weaved with `{nameof(WrenchMethodAttribute)}` but doesnt have a valid `{nameof(WrenchMethodAttribute.MethodType)}`",
-					input);
-				return;
-			}
+			if (input.HasAttribute<WrenchMethodAttribute>(out var attribute) == false) return false;
+			if (attribute.HasConstructorArguments == false) log.Error("attribute has no constructor arguments");
+			if (attribute.ConstructorArguments[0].Value is not int intValue) log.Error("Arg0 is expected to be an int");
+			else data.MethodType = (MethodType) intValue;
 
-			data.MethodType = (MethodType) intValue;
+			return log.HasIssues == false;
+		}
 
-			if (input.IsConstructor)
-			{
-				weaver.Logger.Error($"`{input.FullName}` is an constructor and not an method", input);
-				return;
-			}
+		private bool CanValidateMethod(WrenchWeaver weaver, MethodDefinition input, WrenchMethodDefinition data)
+		{
+			using var log = weaver.Logger.ErrorGroup($"extract {input} CanValidateMethod");
 
-			if (input.IsVirtual)
+			if (input.IsConstructor) log.Error("is an constructor not an method");
+			if (input.IsVirtual) log.Error("is a virtual method");
+			if (input.IsAbstract) log.Error("is an abstract method");
+			if (input.HasParameters == false) log.Error("has no parameters. first should be `Vm`");
+			else
 			{
-				weaver.Logger.Error($"`{input.FullName}` is virtual method and not an basic method", input);
-				return;
-			}
+				if (input.Parameters[0].ParameterType.Is<Vm>() == false) log.Error("param 0 should be `Vm`");
+				if (input.Parameters.Count > 18) log.Error("can have a maximum of 17 parameters");
 
-			if (input.IsAbstract)
-			{
-				weaver.Logger.Error($"`{input.FullName}` is an abstract method and not an basic method", input);
-				return;
-			}
-
-			if (input.HasParameters == false ||
-				input.Parameters[0].ParameterType.Is<Vm>() == false)
-			{
-				weaver.Logger.Error($"`{input.FullName}` does not implement {nameof(Vm)} as it's first parameter", input);
-				return;
-			}
-
-			if (input.Parameters.Count > 18)
-			{
-				weaver.Logger.Error($"`{input.FullName}` has to many parameters max 17. current:{input.Parameters.Count}",
-					input);
-				return;
-			}
-
-			for (int i = 0; i < input.Parameters.Count; i++)
-			{
-				var param = input.Parameters[i];
-				if (param.IsIn || param.IsOut || param.IsOptional)
+				for (int i = 0; i < input.Parameters.Count; i++)
 				{
-					weaver.Logger.Error($"`{input.FullName}` is not allwed to have any `in`, `out` or `ref` parameters",
-						input);
-					return;
+					var param = input.Parameters[i];
+					if (param.IsIn || param.IsOut || param.IsOptional)
+					{
+						log.Error("parameters can be `in`, `out`, or `ref`");
+						break;
+					}
 				}
 			}
 
 			data.UserMethod = input;
-			CreateWrapperMethod(weaver, data);
-
-			@class.AddMethod(data);
-			Methods.Add(data);
+			return log.HasIssues == false;
 		}
 
 		private void CreateWrapperMethod(WrenchWeaver weaver, WrenchMethodDefinition data)
@@ -116,9 +103,11 @@ namespace Wrench.CodeGen.Processors
 
 		public void Process(WrenchWeaver weaver, ExpectProcessor expectProcessor)
 		{
-			for (int i = 0; i < Methods.Count; i++)
+			using var _ = weaver.Logger.Sample("Weave.MethodProcessor.Process");
+
+			for (int i = 0; i < _methods.Count; i++)
 			{
-				var methodData = Methods[i];
+				var methodData = _methods[i];
 				var method = methodData.WrapperMethod;
 				var body = method.Body;
 
@@ -130,7 +119,7 @@ namespace Wrench.CodeGen.Processors
 
 				// ensure slot size
 				il.Emit_Ldarg_x(1, method);
-				il.Emit(OpCodes.Ldc_I4_S, (sbyte)methodData.Parameters.Count);
+				il.Emit(OpCodes.Ldc_I4_S, (sbyte) methodData.Parameters.Count);
 				il.Emit(OpCodes.Call, weaver.Imports.VmUtils_EnsureSlots__VM_int);
 				il.DEBUG_EmitNop();
 
@@ -161,8 +150,10 @@ namespace Wrench.CodeGen.Processors
 					}
 					else
 					{
-						expectProcessor.EmitExpectIl(weaver, method, il, forType, j, methodData.UserMethod, localVar, slot, lastInstruction);
+						expectProcessor.EmitExpectIl(weaver, method, il, forType, j, methodData.UserMethod, localVar, slot,
+							lastInstruction);
 					}
+
 					il.DEBUG_EmitNop();
 				}
 

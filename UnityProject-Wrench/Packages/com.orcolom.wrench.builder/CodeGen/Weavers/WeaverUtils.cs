@@ -31,10 +31,11 @@ namespace Wrench.Weaver
 				{
 					hash = (hash * 31) + text[i];
 				}
-				return (uint)hash;
+
+				return (uint) hash;
 			}
 		}
-		
+
 		public static bool HasAttribute<T>(this ICustomAttributeProvider td, out CustomAttribute attribute)
 		{
 			attribute = default;
@@ -48,7 +49,7 @@ namespace Wrench.Weaver
 
 			return false;
 		}
-		
+
 		public static bool HasAttributes<T>(this ICustomAttributeProvider td, out List<CustomAttribute> attributes)
 		{
 			attributes = new List<CustomAttribute>();
@@ -62,7 +63,7 @@ namespace Wrench.Weaver
 
 			return attributes.Count > 0;
 		}
-		
+
 		public static bool Is<T>(this TypeReference td) => Is(td, typeof(T));
 
 		public static bool Is(this TypeReference td, TypeReference t, bool ignoreGeneric = false)
@@ -75,7 +76,7 @@ namespace Wrench.Weaver
 				if (td.GetElementType().FullName != t.GetElementType().FullName) return false;
 			}
 			else if (td.FullName != t.FullName) return false;
-			
+
 			return td.IsArray == t.IsArray;
 		}
 
@@ -107,6 +108,7 @@ namespace Wrench.Weaver
 		}
 
 		public static bool IsDerivedFrom<T>(this TypeDefinition td) => IsDerivedFrom(td, typeof(T));
+
 		public static bool IsDerivedFrom(this TypeDefinition td, Type t)
 		{
 			if (td == null) return false;
@@ -123,7 +125,7 @@ namespace Wrench.Weaver
 
 			return false;
 		}
-		
+
 		public static bool CanBeResolved(this TypeReference parent)
 		{
 			while (parent != null)
@@ -148,14 +150,15 @@ namespace Wrench.Weaver
 					return false;
 				}
 			}
+
 			return true;
 		}
-		
+
 		public static bool TryResolve(this TypeReference type, out TypeDefinition typeDef)
 		{
 			typeDef = null;
 			if (type.Scope.Name == "Windows") return false;
-			
+
 			try
 			{
 				typeDef = type.Resolve();
@@ -165,17 +168,6 @@ namespace Wrench.Weaver
 			{
 				return false;
 			}
-		}
-
-		public static bool HasEmptyBody(this MethodDefinition method)
-		{
-			var instructions = method.Body.Instructions;
-			if (instructions.Count != 4) return false;
-			if (instructions[0].OpCode != OpCodes.Ldarg_0) return false;
-			if (instructions[1].OpCode != OpCodes.Call) return false;
-			if (instructions[2].OpCode != OpCodes.Nop) return false;
-			if (instructions[3].OpCode != OpCodes.Ret) return false;
-			return true;
 		}
 
 		public static void DEBUG_EmitNop(this ILProcessor il)
@@ -201,6 +193,74 @@ namespace Wrench.Weaver
 			if (op == OpCodes.Nop) return;
 			il.Emit(op);
 			return;
+		}
+	}
+
+	public struct ConstructorInjector : IDisposable
+	{
+		private readonly MethodDefinition _definition;
+		private readonly List<Instruction> _instructions;
+		private readonly ILProcessor _il;
+		private VariableDefinition[] _variables;
+
+		public ConstructorInjector(MethodDefinition definition, out ILProcessor il)
+		{
+			_definition = definition;
+
+			// we want to inject our own code in a default constructor and override the base call
+			// we search the il list until we find the base call. (should be first call)
+			// we safe keep all the other instruction and will re-add them at the end
+			bool foundBase = false;
+			_instructions = new List<Instruction>(definition.Body.Instructions.Count);
+			for (int i = 0; i < definition.Body.Instructions.Count; i++)
+			{
+				var instruction = definition.Body.Instructions[i];
+				if (foundBase == false)
+				{
+					if (instruction.OpCode == OpCodes.Call
+						&& instruction.Operand is MethodReference methodReference
+						&& methodReference.FullName.Contains("::.ctor"))
+					{
+						foundBase = true;
+					}
+
+					continue;
+				}
+
+				_instructions.Add(instruction);
+			}
+
+			definition.Body.Instructions.Clear();
+
+			// save all the variables
+			// its possible some of the se wont be needed anymore. TODO: is this an issue?
+			_variables = new VariableDefinition[definition.Body.Variables.Count];
+			for (int i = 0; i < definition.Body.Variables.Count; i++)
+			{
+				_variables[i] = definition.Body.Variables[i];
+			}
+
+			definition.Body.Variables.Clear();
+
+			il = _il = definition.Body.GetILProcessor();
+		}
+
+		public void Dispose()
+		{
+			// add back original il code
+			for (int i = 0; i < _variables.Length; i++)
+			{
+				_definition.Body.Variables.Add(_variables[i]);
+			}
+
+			if (_instructions.Count != 0)
+			{
+				for (int i = 0; i < _instructions.Count; i++)
+				{
+					_definition.Body.Instructions.Add(_instructions[i]);
+				}
+			}
+			else _il.Emit(OpCodes.Ret);
 		}
 	}
 }
