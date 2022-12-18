@@ -8,11 +8,17 @@ namespace Wrench.CodeGen
 {
 	public static class DebugPrinter
 	{
-		public static string Encoded(Action<StringBuilder> action)
+		public static string String(Action<StringBuilder> action)
 		{
 			StringBuilder sb = new StringBuilder();
 			action?.Invoke(sb);
-			return sb.ToString().Replace(Environment.NewLine,"%0A").Replace("\t","%09");
+			return sb.ToString();
+		}
+
+		public static string Encoded(Action<StringBuilder> action)
+		{
+			string printed = String(action);
+			return printed.Replace(Environment.NewLine, "%0A").Replace("\t", "%09");
 		}
 
 		private static void Tabbed(this StringBuilder sb, int depth, string msg)
@@ -20,12 +26,12 @@ namespace Wrench.CodeGen
 			sb.Tabs(depth);
 			sb.AppendLine(msg);
 		}
-		
+
 		private static void Tabs(this StringBuilder sb, int depth)
 		{
 			for (int i = 0; i < depth; i++) sb.Append("\t");
 		}
-		
+
 		private static void Open(this StringBuilder sb, string name, ref int depth, int? count = null)
 		{
 			sb.Tabs(depth);
@@ -35,13 +41,13 @@ namespace Wrench.CodeGen
 			depth++;
 		}
 
-		
+
 		private static void Close(this StringBuilder sb, ref int depth)
 		{
 			depth--;
 			sb.Tabbed(depth, "}");
 		}
-		
+
 		public static void Print(StringBuilder sb, int d, MethodReference method)
 		{
 			switch (method)
@@ -57,10 +63,10 @@ namespace Wrench.CodeGen
 
 					var defMethod = method.Resolve();
 					Print(sb, d, defMethod.CustomAttributes);
-					
+
 					Print(sb, d, method.Parameters);
 					Print(sb, d, method.GenericParameters);
-					
+
 					sb.Close(ref d);
 					break;
 			}
@@ -74,7 +80,7 @@ namespace Wrench.CodeGen
 
 			sb.Close(ref d);
 		}
-		
+
 		public static void Print(StringBuilder sb, int d, TypeReference type)
 		{
 			switch (type)
@@ -103,9 +109,17 @@ namespace Wrench.CodeGen
 					}
 
 					sb.Open(type.FullName, ref d);
-					
+
+					sb.Tabbed(d, $"IsValueType({type.IsValueType})");
 					Print(sb, d, type.GenericParameters);
+
+					var resolved = type.Resolve();
+					sb.Tabbed(d, $"Attributes({resolved.Attributes})");
+					Print(sb, d, resolved.CustomAttributes, true);
+					sb.Tabbed(d, $"BaseType({resolved.BaseType.FullName})");
 					
+					// sb.Tabbed(d, $"Attributes({resolved.CustomAttributes})");
+
 					sb.Close(ref d);
 					break;
 			}
@@ -155,14 +169,21 @@ namespace Wrench.CodeGen
 			sb.Close(ref d);
 		}
 
-		public static void Print(StringBuilder sb, int d, IList<CustomAttribute> types)
+		public static void Print(StringBuilder sb, int d, IList<CustomAttribute> types, bool trimmed = false)
 		{
 			sb.Open("CustomAttribute", ref d, types.Count);
 
 			for (int i = 0; i < types.Count; i++)
 			{
-				Print(sb, d, types[i].AttributeType);
-				Print(sb, d, types[i].ConstructorArguments);
+				if (trimmed)
+				{
+					sb.Tabbed(d, $"{types[i].AttributeType.FullName} {{ ... }}");
+				}
+				else
+				{
+					Print(sb, d, types[i].AttributeType);
+					Print(sb, d, types[i].ConstructorArguments);
+				}
 			}
 
 			sb.Close(ref d);
@@ -181,7 +202,7 @@ namespace Wrench.CodeGen
 			sb.Close(ref d);
 		}
 
-		
+
 		public static void Print(StringBuilder sb, int d, IList<TypeReference> types, string name = "TypeReferences")
 		{
 			sb.Open(name, ref d, types.Count);

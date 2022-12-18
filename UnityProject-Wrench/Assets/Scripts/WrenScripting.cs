@@ -65,6 +65,7 @@ public class WrenScripting : MonoBehaviour
 
 	private void Update()
 	{
+		if (_vm.IsValid() == false) return;
 		using var handle = _vm.MakeCallHandle("call()");
 		_vm.EnsureSlots(1);
 		_vm.Slot0.SetHandle(_handle);
