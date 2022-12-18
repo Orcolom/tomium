@@ -75,7 +75,7 @@ namespace Wrench.CodeGen.Processors
 			if (attribute.ConstructorArguments[2].Value is TypeReference type)
 			{
 				weaver.Logger.Log(DebugPrinter.String(builder => DebugPrinter.Print(builder, 0, type)));
-				data.ForType = weaver.MainModule.ImportReference(type);
+				data.ForType = weaver.MainModule.ImportReference(type.Resolve());
 			}
 
 			if (attribute.ConstructorArguments[3].Value is string strInherit)
