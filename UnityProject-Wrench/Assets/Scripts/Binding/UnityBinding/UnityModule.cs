@@ -8,6 +8,7 @@ using Wrench.Builder.Tokens;
 using MethodBody = Wrench.Builder.MethodBody;
 using Module = Wrench.Builder.Module;
 using Object = UnityEngine.Object;
+// ReSharper disable InconsistentNaming
 
 namespace Binding
 {
@@ -19,9 +20,10 @@ namespace Binding
 		public static readonly BasicToken f_AddComponentToken = Token.DangerousInsert(@$"
 var isWren = {UtilityBinding.WrenName}.{UtilityBinding.MetaClassDerivesFrom__MetaClass_MetaClass}(arg0, {WrenComponentBinding.WrenName})
 if (isWren) {{
-	var instance = arg0.awake()
+	var instance = arg0.New()
 	instance.SetGameObject_(this)
 	f_RegisterAddComponent(""%(arg0)"", instance)
+	arg0.Awake()
 	return instance
 }} else {{
 	return f_AddComponent(""%(arg0)"")
@@ -99,17 +101,17 @@ if (isWren) {{
 			}));
 		}
 
-		public new static void Name(Vm vm, GameObject self)
+		public static void name(Vm vm, GameObject self)
 		{
 			vm.Slot0.SetString(self.name);
 		}
 
-		public new static void Name(Vm vm, GameObject self, string name)
+		public static void name(Vm vm, GameObject self, string name)
 		{
 			self.name = name;
 		}
 
-		public static void f_GetComponent(Vm vm, GameObject self, string typeId)
+		public static void f_GetComponent_(Vm vm, GameObject self, string typeId)
 		{
 			if (UnityModule.ExpectType(vm, typeId, out var type) == false) return;
 
@@ -145,7 +147,7 @@ if (isWren) {{
 
 			Add(new Method(Signature.Create(MethodType.Method, "GetComponent", 1), new MethodBody
 			{
-				Token.DangerousInsert($"return {nameof(f_GetComponent)}(\"%(arg0)\", arg0 is {WrenComponentBinding.WrenName})"),
+				Token.DangerousInsert($"return {nameof(f_GetComponent_)}(\"%(arg0)\", arg0 is {WrenComponentBinding.WrenName})"),
 			}));
 
 			Add(new Method(Signature.Create(MethodType.Method, "AddComponent", 1), new MethodBody
@@ -167,16 +169,16 @@ if (isWren) {{
 			self.Value = new GameObject(name);
 		}
 
-		[WrenchMethod(MethodType.FieldGetter)]
-		private new void Name(Vm vm, ForeignObject<GameObject> self)
-			=> GameObjectBinding.Name(vm, self.Value);
-
-		[WrenchMethod(MethodType.FieldSetter)]
-		private new void Name(Vm vm, ForeignObject<GameObject> self, string name)
-			=> GameObjectBinding.Name(vm, self.Value, name);
+		[WrenchMethod(MethodType.Method)]
+		private new void name(Vm vm, ForeignObject<GameObject> self)
+			=> GameObjectBinding.name(vm, self.Value);
 
 		[WrenchMethod(MethodType.Method)]
-		private static void f_GetComponent(Vm vm, ForeignObject<GameObject> self, string typeId, bool isWrenComponent)
+		private new void name(Vm vm, ForeignObject<GameObject> self, string name)
+			=> GameObjectBinding.name(vm, self.Value, name);
+
+		[WrenchMethod(MethodType.Method)]
+		private static void f_GetComponent_(Vm vm, ForeignObject<GameObject> self, string typeId, bool isWrenComponent)
 		{
 			if (isWrenComponent)
 			{
@@ -184,7 +186,7 @@ if (isWren) {{
 				return;
 			}
 
-			GameObjectBinding.f_GetComponent(vm, self.Value, typeId);
+			GameObjectBinding.f_GetComponent_(vm, self.Value, typeId);
 		}
 
 		[WrenchMethod(MethodType.Method)]
@@ -212,7 +214,7 @@ if (isWren) {{
 
 			Add(new Method(Signature.Create(MethodType.Method, "GetComponent", 1), new MethodBody
 			{
-				Token.DangerousInsert($"return {nameof(f_GetComponent)}(\"%(arg0)\", arg0 is {WrenComponentBinding.WrenName})"),
+				Token.DangerousInsert($"return {nameof(f_GetComponent_)}(\"%(arg0)\", arg0 is {WrenComponentBinding.WrenName})"),
 			}));
 
 			Add(new Method(Signature.Create(MethodType.Method, "AddComponent", 1), new MethodBody
@@ -221,27 +223,27 @@ if (isWren) {{
 			}));
 		}
 
-		[WrenchMethod(MethodType.FieldGetter)]
-		private new void Name(Vm vm, ForeignObject<WrenGameObject> self)
-			=> GameObjectBinding.Name(vm, self.Value.gameObject);
-
-		[WrenchMethod(MethodType.FieldSetter)]
-		private new void Name(Vm vm, ForeignObject<WrenGameObject> self, string name)
-			=> GameObjectBinding.Name(vm, self.Value.gameObject, name);
+		[WrenchMethod(MethodType.Method)]
+		private new void name(Vm vm, ForeignObject<WrenGameObject> self)
+			=> GameObjectBinding.name(vm, self.Value.gameObject);
 
 		[WrenchMethod(MethodType.Method)]
-		private static void f_GetComponent(Vm vm, ForeignObject<WrenGameObject> self, string typeId, bool isWrenComponent)
+		private new void name(Vm vm, ForeignObject<WrenGameObject> self, string name)
+			=> GameObjectBinding.name(vm, self.Value.gameObject, name);
+
+		[WrenchMethod(MethodType.Method)]
+		private static void f_GetComponent_(Vm vm, ForeignObject<WrenGameObject> self, string typeId, bool isWrenComponent)
 		{
 			if (isWrenComponent) self.Value.f_GetComponent(vm, typeId);
-			else GameObjectBinding.f_GetComponent(vm, self.Value.gameObject, typeId);
+			else GameObjectBinding.f_GetComponent_(vm, self.Value.gameObject, typeId);
 		}
 
 		[WrenchMethod(MethodType.Method)]
-		private static void f_AddComponent(Vm vm, ForeignObject<WrenGameObject> self, string typeId)
+		private static void f_AddComponent_(Vm vm, ForeignObject<WrenGameObject> self, string typeId)
 			=> GameObjectBinding.f_AddComponent(vm, self.Value.gameObject, typeId);
 
 		[WrenchMethod(MethodType.Method)]
-		private static void f_RegisterAddComponent(Vm vm, ForeignObject<WrenGameObject> self, string typeId,
+		private static void f_RegisterAddComponent_(Vm vm, ForeignObject<WrenGameObject> self, string typeId,
 			Handle instance)
 			=> self.Value.RegisterAddComponent(typeId, instance);
 	}
@@ -267,7 +269,7 @@ if (isWren) {{
 		// }
 
 		[WrenchMethod(MethodType.FieldGetter)]
-		public static void GameObject(Vm vm, ForeignObject<Component> self)
+		public static void gameObject(Vm vm, ForeignObject<Component> self)
 		{
 			if (UnityModule.ExpectId(vm, typeof(GameObject), out var typeId) == false) return;
 			UnityModule.SetNewForeign(vm, vm.Slot0, typeId, self.Value.gameObject);
@@ -293,7 +295,7 @@ if (isWren) {{
 // return {ComponentBinding.WrenName}.type"),
 // 			}));
 
-			Add(new Method(Signature.Create(MethodType.FieldGetter, nameof(UnityComponentBinding.GameObject)), new MethodBody
+			Add(new Method(Signature.Create(MethodType.FieldGetter, nameof(UnityComponentBinding.gameObject)), new MethodBody
 			{
 				Token.DangerousInsert("return _gameObject"),
 			}));

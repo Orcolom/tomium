@@ -42,7 +42,11 @@ public class WrenScripting : MonoBehaviour
 		
 		_vm.SetErrorListener((_, type, module, line, message) =>
 			Debug.LogError($"{type}: {module} {line} {message}"));
-		_vm.SetWriteListener((_, text) => Debug.Log(text));
+		_vm.SetWriteListener((_, text) =>
+		{
+			if (text == "\n") return;
+			Debug.Log(text);
+		});
 		_vm.SetLoadModuleListener((vm, path) =>
 		{
 			var str = _modules.LoadModuleHandler(vm, path);

@@ -43,8 +43,8 @@ namespace Binding
 		public void Init(Vm vm)
 		{
 			_vm = vm;
-			_startHandle = vm.MakeCallHandle("start()");
-			_updateHandle = vm.MakeCallHandle("update()");
+			_startHandle = vm.MakeCallHandle("Start()");
+			_updateHandle = vm.MakeCallHandle("Update()");
 		}
 
 		public void f_GetComponent(Vm vm, string typeId)

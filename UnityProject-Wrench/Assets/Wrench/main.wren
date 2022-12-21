@@ -1,34 +1,61 @@
 import "Unity" for GameObject, Transform, WrenComponent
 
 var go = GameObject.New("s")
-go.Name = "from wren"
+go.SetName("from wren")
 
 var transform1 = go.GetComponent(Transform)
-var pos = transform1.position
-pos.X = 10
-transform1.position = pos
+var pos = transform1.GetPosition()
+pos.x = 10
+transform1.SetPosition(pos)
 
 var X = Fn.new {
-  transform1.position.X = transform1.position.X + 0.1
+  transform1.GetPosition().x = transform1.GetPosition().x + 0.1
 }
 
 
 class Runner is WrenComponent {
 
-  construct awake() {
+  construct New(){}
+
+  Awake() {
     System.print("awake")
   }
 
-  start() {
+  Start() {
     System.print("start")
   }
 
-  update() {
-    System.print("update")
-    var transform = this.GameObject.GetComponent(Transform)
+  Update() {
+    var transform = this.gameObject.GetComponent(Transform)
+  }
+
+  OptionA(transform) {
+    var position = transform.GetPosition()
+    position.x = position.x + 1
+    transform.SetPosition(position)
+  }
+  
+  OptionB(transform) {
     var position = transform.position
-    position.X = position.X + 1
+    position.x = position.x + 1
     transform.position = position
+  }
+
+  WontWork(transform) {
+    // wont work, common c# struct and properties issue
+    transform.position.x = transform.position.x + 1
+  }
+
+  OptionC(transform) {
+    var position = transform.getPosition
+    position.x = position.x + 1
+    transform.setPosition = position
+  }
+  
+  OptionD(transform) {
+    var position = transform.position()
+    position.x = position.x + 1
+    transform.position(position)
   }
 }
 

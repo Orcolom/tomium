@@ -2,6 +2,10 @@
 using Wrench;
 using Wrench.Builder;
 
+// ReSharper disable InconsistentNaming
+// ReSharper disable UnusedMember.Local
+// ReSharper disable UnusedParameter.Local
+
 namespace Binding.UnityBinding
 {
 	[WrenchClass(typeof(UnityModule), nameof(Vector3), typeof(Vector3))]
@@ -14,10 +18,10 @@ namespace Binding.UnityBinding
 		}
 
 		[WrenchMethod(MethodType.FieldGetter)]
-		private void X(Vm vm, ForeignObject<Vector3> self) => vm.Slot0.SetFloat(self.Value.x);
+		private void x(Vm vm, ForeignObject<Vector3> self) => vm.Slot0.SetFloat(self.Value.x);
 
 		[WrenchMethod(MethodType.FieldSetter)]
-		private void X(Vm vm, ForeignObject<Vector3> self, float x)
+		private void x(Vm vm, ForeignObject<Vector3> self, float x)
 		{
 			var selfValue = self.Value;
 			selfValue.x = x;
@@ -25,10 +29,10 @@ namespace Binding.UnityBinding
 		}
 
 		[WrenchMethod(MethodType.FieldGetter)]
-		private void Y(Vm vm, ForeignObject<Vector3> self) => vm.Slot0.SetFloat(self.Value.y);
+		private void y(Vm vm, ForeignObject<Vector3> self) => vm.Slot0.SetFloat(self.Value.y);
 
 		[WrenchMethod(MethodType.FieldSetter)]
-		private void Y(Vm vm, ForeignObject<Vector3> self, float y)
+		private void y(Vm vm, ForeignObject<Vector3> self, float y)
 		{
 			var selfValue = self.Value;
 			selfValue.y = y;
@@ -36,10 +40,10 @@ namespace Binding.UnityBinding
 		}
 
 		[WrenchMethod(MethodType.FieldGetter)]
-		private void Z(Vm vm, ForeignObject<Vector3> self) => vm.Slot0.SetFloat(self.Value.z);
+		private void z(Vm vm, ForeignObject<Vector3> self) => vm.Slot0.SetFloat(self.Value.z);
 
 		[WrenchMethod(MethodType.FieldSetter)]
-		private void Z(Vm vm, ForeignObject<Vector3> self, float z)
+		private void z(Vm vm, ForeignObject<Vector3> self, float z)
 		{
 			var selfValue = self.Value;
 			selfValue.z = z;
@@ -63,10 +67,10 @@ namespace Binding.UnityBinding
 		}
 
 		[WrenchMethod(MethodType.FieldGetter)]
-		private void X(Vm vm, ForeignObject<Quaternion> self) => vm.Slot0.SetFloat(self.Value.x);
+		private void x(Vm vm, ForeignObject<Quaternion> self) => vm.Slot0.SetFloat(self.Value.x);
 
 		[WrenchMethod(MethodType.FieldSetter)]
-		private void X(Vm vm, ForeignObject<Quaternion> self, float x)
+		private void x(Vm vm, ForeignObject<Quaternion> self, float x)
 		{
 			var selfValue = self.Value;
 			selfValue.x = x;
@@ -74,10 +78,10 @@ namespace Binding.UnityBinding
 		}
 
 		[WrenchMethod(MethodType.FieldGetter)]
-		private void Y(Vm vm, ForeignObject<Quaternion> self) => vm.Slot0.SetFloat(self.Value.y);
+		private void y(Vm vm, ForeignObject<Quaternion> self) => vm.Slot0.SetFloat(self.Value.y);
 
 		[WrenchMethod(MethodType.FieldSetter)]
-		private void Y(Vm vm, ForeignObject<Quaternion> self, float y)
+		private void y(Vm vm, ForeignObject<Quaternion> self, float y)
 		{
 			var selfValue = self.Value;
 			selfValue.y = y;
@@ -85,10 +89,10 @@ namespace Binding.UnityBinding
 		}
 
 		[WrenchMethod(MethodType.FieldGetter)]
-		private void Z(Vm vm, ForeignObject<Quaternion> self) => vm.Slot0.SetFloat(self.Value.z);
+		private void z(Vm vm, ForeignObject<Quaternion> self) => vm.Slot0.SetFloat(self.Value.z);
 
 		[WrenchMethod(MethodType.FieldSetter)]
-		private void Z(Vm vm, ForeignObject<Quaternion> self, float z)
+		private void z(Vm vm, ForeignObject<Quaternion> self, float z)
 		{
 			var selfValue = self.Value;
 			selfValue.z = z;
@@ -96,10 +100,10 @@ namespace Binding.UnityBinding
 		}
 
 		[WrenchMethod(MethodType.FieldGetter)]
-		private void W(Vm vm, ForeignObject<Quaternion> self) => vm.Slot0.SetFloat(self.Value.w);
+		private void w(Vm vm, ForeignObject<Quaternion> self) => vm.Slot0.SetFloat(self.Value.w);
 
 		[WrenchMethod(MethodType.FieldSetter)]
-		private void W(Vm vm, ForeignObject<Quaternion> self, float w)
+		private void w(Vm vm, ForeignObject<Quaternion> self, float w)
 		{
 			var selfValue = self.Value;
 			selfValue.w = w;
