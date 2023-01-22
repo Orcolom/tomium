@@ -10,6 +10,8 @@ using Module = Wrench.Builder.Module;
 using Object = UnityEngine.Object;
 // ReSharper disable InconsistentNaming
 
+using GoRelay = Binding.UnityGameObjectBinding;
+
 namespace Binding
 {
 	[WrenchModule("Unity"), WrenchImport(typeof(UtilityBinding))]
@@ -23,7 +25,7 @@ if (isWren) {{
 	var instance = arg0.New()
 	instance.SetGameObject_(this)
 	f_RegisterAddComponent(""%(arg0)"", instance)
-	arg0.Awake()
+	instance.Awake()
 	return instance
 }} else {{
 	return f_AddComponent(""%(arg0)"")
@@ -82,7 +84,6 @@ if (isWren) {{
 		}
 	}
 
-
 	[WrenchClass(typeof(UnityModule), nameof(GameObject))]
 	public class GameObjectBinding : Class
 	{
@@ -90,14 +91,39 @@ if (isWren) {{
 
 		public GameObjectBinding()
 		{
-			Add(new Method(Signature.Create(MethodType.StaticMethod, "New"), new MethodBody
+			Add(new Method(Signature.Create(MethodType.StaticMethod, nameof(GoRelay.New)), new MethodBody
 			{
-				Token.DangerousInsert($"return {UnityGameObjectBinding.WrenName}.New()"),
+				Token.DangerousInsert($"return {GoRelay.WrenName}.{nameof(GoRelay.New)}()"),
 			}));
 
-			Add(new Method(Signature.Create(MethodType.StaticMethod, "New", 1), new MethodBody
+			Add(new Method(Signature.Create(MethodType.StaticMethod, nameof(GoRelay.New), 1), new MethodBody
 			{
-				Token.DangerousInsert($"return {UnityGameObjectBinding.WrenName}.New(arg0)"),
+				Token.DangerousInsert($"return {GoRelay.WrenName}.{nameof(GoRelay.New)}(arg0)"),
+			}));
+			
+			Add(new Method(Signature.Create(MethodType.StaticMethod, nameof(GoRelay.CreatePrimitiveCube)), new MethodBody
+			{
+				Token.DangerousInsert($"return {GoRelay.WrenName}.{nameof(GoRelay.CreatePrimitiveCube)}()"),
+			}));
+
+			Add(new Method(Signature.Create(MethodType.StaticMethod, nameof(GoRelay.CreatePrimitiveCapsule)), new MethodBody
+			{
+				Token.DangerousInsert($"return {GoRelay.WrenName}.{nameof(GoRelay.CreatePrimitiveCapsule)}()"),
+			}));
+			
+			Add(new Method(Signature.Create(MethodType.StaticMethod, nameof(GoRelay.CreatePrimitiveCylinder)), new MethodBody
+			{
+				Token.DangerousInsert($"return {GoRelay.WrenName}.{nameof(GoRelay.CreatePrimitiveCylinder)}()"),
+			}));
+			
+			Add(new Method(Signature.Create(MethodType.StaticMethod, nameof(GoRelay.CreatePrimitivePlane)), new MethodBody
+			{
+				Token.DangerousInsert($"return {GoRelay.WrenName}.{nameof(GoRelay.CreatePrimitivePlane)}()"),
+			}));
+			
+			Add(new Method(Signature.Create(MethodType.StaticMethod, nameof(GoRelay.CreatePrimitiveSphere)), new MethodBody
+			{
+				Token.DangerousInsert($"return {GoRelay.WrenName}.{nameof(GoRelay.CreatePrimitiveSphere)}()"),
 			}));
 		}
 
@@ -140,11 +166,6 @@ if (isWren) {{
 
 		public UnityGameObjectBinding()
 		{
-			// Add(new Method(Signature.Create(MethodType.StaticMethod, "type"), new MethodBody
-			// {
-			// 	Token.DangerousInsert($"return {GameObjectBinding.WrenName}.type"),
-			// }));
-
 			Add(new Method(Signature.Create(MethodType.Method, "GetComponent", 1), new MethodBody
 			{
 				Token.DangerousInsert($"return {nameof(f_GetComponent_)}(\"%(arg0)\", arg0 is {WrenComponentBinding.WrenName})"),
@@ -157,24 +178,53 @@ if (isWren) {{
 		}
 
 		[WrenchMethod(MethodType.Construct)]
-		private void New(Vm vm, Slot self)
+		internal static void New(Vm vm, Slot self)
 		{
 			var foreign = self.GetForeign<GameObject>();
 			foreign.Value = new GameObject();
 		}
 
 		[WrenchMethod(MethodType.Construct)]
-		private void New(Vm vm, ForeignObject<GameObject> self, string name)
+		private static void New(Vm vm, ForeignObject<GameObject> self, string name)
 		{
 			self.Value = new GameObject(name);
 		}
 
-		[WrenchMethod(MethodType.Method)]
-		private new void name(Vm vm, ForeignObject<GameObject> self)
+		#region Primitives
+		
+		[WrenchMethod(MethodType.Construct)]
+		internal static void CreatePrimitiveCube(Vm vm, ForeignObject<GameObject> self) =>
+			CreatePrimitive(vm, self, PrimitiveType.Cube);
+		
+		[WrenchMethod(MethodType.Construct)]
+		internal static void CreatePrimitivePlane(Vm vm, ForeignObject<GameObject> self) =>
+			CreatePrimitive(vm, self, PrimitiveType.Plane);
+
+		[WrenchMethod(MethodType.Construct)]
+		internal static void CreatePrimitiveSphere(Vm vm, ForeignObject<GameObject> self) =>
+			CreatePrimitive(vm, self, PrimitiveType.Sphere);
+
+		[WrenchMethod(MethodType.Construct)]
+		internal static void CreatePrimitiveCapsule(Vm vm, ForeignObject<GameObject> self) =>
+			CreatePrimitive(vm, self, PrimitiveType.Capsule);
+
+		[WrenchMethod(MethodType.Construct)]
+		internal static void CreatePrimitiveCylinder(Vm vm, ForeignObject<GameObject> self) =>
+			CreatePrimitive(vm, self, PrimitiveType.Cylinder);
+
+		internal static void CreatePrimitive(Vm vm, ForeignObject<GameObject> self, PrimitiveType type)
+		{
+			self.Value = GameObject.CreatePrimitive(type);
+		}
+
+		#endregion
+
+		[WrenchMethod(MethodType.FieldGetter)]
+		private static void name(Vm vm, ForeignObject<GameObject> self)
 			=> GameObjectBinding.name(vm, self.Value);
 
-		[WrenchMethod(MethodType.Method)]
-		private new void name(Vm vm, ForeignObject<GameObject> self, string name)
+		[WrenchMethod(MethodType.FieldSetter)]
+		private static void name(Vm vm, ForeignObject<GameObject> self, string name)
 			=> GameObjectBinding.name(vm, self.Value, name);
 
 		[WrenchMethod(MethodType.Method)]
@@ -223,12 +273,12 @@ if (isWren) {{
 			}));
 		}
 
-		[WrenchMethod(MethodType.Method)]
-		private new void name(Vm vm, ForeignObject<WrenGameObject> self)
+		[WrenchMethod(MethodType.FieldGetter)]
+		private static void name(Vm vm, ForeignObject<WrenGameObject> self)
 			=> GameObjectBinding.name(vm, self.Value.gameObject);
 
-		[WrenchMethod(MethodType.Method)]
-		private new void name(Vm vm, ForeignObject<WrenGameObject> self, string name)
+		[WrenchMethod(MethodType.FieldSetter)]
+		private static void name(Vm vm, ForeignObject<WrenGameObject> self, string name)
 			=> GameObjectBinding.name(vm, self.Value.gameObject, name);
 
 		[WrenchMethod(MethodType.Method)]
@@ -247,7 +297,6 @@ if (isWren) {{
 			Handle instance)
 			=> self.Value.RegisterAddComponent(typeId, instance);
 	}
-
 
 	[WrenchClass(typeof(UnityModule), WrenName)]
 	public class ComponentBinding : Class

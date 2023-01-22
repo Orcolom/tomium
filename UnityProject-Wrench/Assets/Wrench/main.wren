@@ -1,7 +1,7 @@
 import "Unity" for GameObject, Transform, WrenComponent
 
 var go = GameObject.New("s")
-go.SetName("from wren")
+go.name = "from wren"
 
 var transform1 = go.GetComponent(Transform)
 var pos = transform1.GetPosition()
@@ -9,6 +9,7 @@ pos.x = 10
 transform1.SetPosition(pos)
 
 var X = Fn.new {
+  // wont work
   transform1.GetPosition().x = transform1.GetPosition().x + 0.1
 }
 
@@ -27,6 +28,10 @@ class Runner is WrenComponent {
 
   Update() {
     var transform = this.gameObject.GetComponent(Transform)
+    var position = transform.GetPosition()
+    position.x  = position.x + 1
+    transform.SetPosition(position)
+    transform.gameObject.name = "from wren %(position)"
   }
 
   OptionA(transform) {
