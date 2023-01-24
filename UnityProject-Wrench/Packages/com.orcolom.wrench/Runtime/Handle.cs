@@ -59,7 +59,7 @@ namespace Wrench
 			if (handle.IsValid) return false;
 			
 			throw new ObjectDisposedException("Handle is already disposed");
-			return true;
+			// return true;
 		}
 
 		#region Equality

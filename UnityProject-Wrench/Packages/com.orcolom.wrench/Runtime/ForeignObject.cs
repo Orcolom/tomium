@@ -115,7 +115,7 @@ namespace Wrench
 			if (foreignObject.IsValid) return false;
 			
 			throw new ObjectDisposedException("ForeignObject is already disposed");
-			return true;
+			// return true;
 		}
 	}
 }

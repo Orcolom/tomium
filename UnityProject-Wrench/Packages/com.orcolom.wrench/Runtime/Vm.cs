@@ -129,7 +129,7 @@ namespace Wrench
 			if (IsValid(vmPtr)) return false;
 
 			throw new ObjectDisposedException(nameof(Vm), "Vm is already disposed");
-			return true;
+			// return true;
 		}
 
 		internal static bool ExpectedSameVm(this Vm self, Slot other) => ExpectedSameVm(self.Ptr, other.VmPtr);
@@ -143,7 +143,7 @@ namespace Wrench
 
 			throw new ArgumentOutOfRangeException("ExpectedSameVm",
 				"Not all elements are from the same Vm");
-			return true;
+			// return true;
 		}
 
 		internal static Vm FromPtr(IntPtr ptr)

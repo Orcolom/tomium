@@ -47,7 +47,7 @@ namespace Wrench
 			throw new ArgumentOutOfRangeException(nameof(slot),
 				$"Slot {slot.Index} outside of ensured size {count}");
 
-			return true;
+			// return true;
 		}
 
 		public static bool ExpectedValid(this Slot slot, ValueType typeA, ValueType? typeB = null)
@@ -58,7 +58,7 @@ namespace Wrench
 			if (actualType == typeA || actualType == typeB) return false;
 
 			throw new TypeAccessException($"slot {slot.Index} is of type {actualType} not of types [{typeA}, {typeB}]");
-			return true;
+			// return true;
 		}
 
 		#endregion
