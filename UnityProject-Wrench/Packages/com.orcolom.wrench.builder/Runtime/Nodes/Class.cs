@@ -31,25 +31,7 @@ namespace Wrench.Builder
 
 		protected Class() { }
 		
-		public Class(string name, string inherits = null, ForeignClass foreign = default, ClassBody body = null)
-		{
-			Name = Token.Name(name);
-			InheritClass = Token.Name(inherits, true);
-			Foreign = foreign;
-			Body = body ?? new ClassBody();
-
-			Methods = new List<Method>();
-			for (int i = 0; i < Body.Elements.Count; i++)
-			{
-				if (Body.Elements[i] is Method method)
-				{
-					Methods.Add(method);
-				}
-			}
-		}
-
-		public Class(Attributes attributes, string name, string inherits = null, ForeignClass foreign = default,
-			ClassBody body = null)
+		public Class(string name, string inherits = null, ForeignClass foreign = default, ClassBody body = null, Attributes attributes = null)
 		{
 			Attributes = attributes;
 			Name = Token.Name(name);

@@ -31,10 +31,10 @@ public class WrenScripting : MonoBehaviour
 		PrefModuleCollections.Begin();
 		_modules = new ModuleCollection();
 		// var dModule = new DummyModule();
-		// var uModule = UnityModule.Instance;
+		var uModule = new UnityModule();
 		// _modules.Add(dModule);
-		// _modules.Add(uModule);
-		// _modules.Add(new UtilityModule());
+		_modules.Add(uModule);
+		_modules.Add(new UtilityModule());
 		PrefModuleCollections.End();
 		
 		PrefNew.Begin();
