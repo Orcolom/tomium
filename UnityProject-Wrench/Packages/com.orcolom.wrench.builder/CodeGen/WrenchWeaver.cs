@@ -97,7 +97,7 @@ namespace Wrench.CodeGen
 		public MethodReference Module_Add__IModuleScoped;
 
 		public TypeReference ForeignClass;
-		public MethodReference ForeignClass_DefaultAlloc__T;
+		public MethodReference ForeignClass_DefaultAlloc;
 
 		public TypeReference ForeignObject;
 		public MethodReference ForeignObject_As__T;
@@ -127,8 +127,8 @@ namespace Wrench.CodeGen
 			{
 				var foreignClass = ForeignClass.Resolve();
 
-				helper.ImportMethod(foreignClass, nameof(ForeignClass_DefaultAlloc__T),
-					out ForeignClass_DefaultAlloc__T, definition =>
+				helper.ImportMethod(foreignClass, nameof(ForeignClass_DefaultAlloc),
+					out ForeignClass_DefaultAlloc, definition =>
 						definition.IsStatic
 						&& definition.Name == nameof(global::Wrench.ForeignClass.DefaultAlloc));
 			}

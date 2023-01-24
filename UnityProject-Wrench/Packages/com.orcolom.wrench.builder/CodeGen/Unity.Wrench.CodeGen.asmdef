@@ -1,24 +1,26 @@
-﻿{
-  "name": "Unity.Wrench.CodeGen",
-  "rootNamespace": "Wrench.CodeGen",
-  "references": [
-    "Wrench",
-    "Wrench.Builder"
-  ],
-  "includePlatforms": [
-    "Editor"
-  ],
-  "excludePlatforms": [],
-  "allowUnsafeCode": true,
-  "overrideReferences": true,
-  "precompiledReferences": [
-    "Mono.Cecil.dll",
-    "Mono.Cecil.Rocks.dll",
-    "Mono.Cecil.Mdb.dll",
-    "Mono.Cecil.Pdb.dll"
-  ],
-  "autoReferenced": false,
-  "defineConstraints": [],
-  "versionDefines": [],
-  "noEngineReferences": false
+{
+    "name": "Unity.Wrench.CodeGen",
+    "rootNamespace": "Wrench.CodeGen",
+    "references": [
+        "Wrench",
+        "Wrench.Builder"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Mono.Cecil.dll",
+        "Mono.Cecil.Rocks.dll",
+        "Mono.Cecil.Mdb.dll",
+        "Mono.Cecil.Pdb.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "WRENCH_ENABLE_WEAVER"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if WRENCH_ENABLE_WEAVER
+using System;
 
 namespace Wrench.Builder
 {
@@ -66,3 +67,4 @@ namespace Wrench.Builder
 		}
 	}
 }
+#endif

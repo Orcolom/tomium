@@ -93,7 +93,8 @@ namespace Wrench.CodeGen.Processors
 				weaver.Imports.Void)
 			{
 				// NOTE: Marshal.GetFunctionPointerForDelegate doesn't like il static methods? for ease lets not mimic UserMethods static 
-				IsStatic = false,
+				IsStatic = true,
+				IsHideBySig = true,
 			};
 
 			data.WrapperMethod = wrapperMethod;
@@ -119,55 +120,55 @@ namespace Wrench.CodeGen.Processors
 
 				// ensure slot size
 				il.Emit_Ldarg_x(1, method);
-				il.Emit(OpCodes.Ldc_I4_S, (sbyte) methodData.Parameters.Count);
+				il.Emit(OpCodes.Ldc_I4_S, (sbyte)methodData.Parameters.Count);
 				il.Emit(OpCodes.Call, weaver.Imports.VmUtils_EnsureSlots__VM_int);
 				il.DEBUG_EmitNop();
 
 				// load parameters in local variables 
-				for (int j = 0; j < methodData.Parameters.Count; j++)
-				{
-					var forType = methodData.Parameters[j];
-					bool expectsSlot = forType.Is<Slot>();
-
-					var localVar = new VariableDefinition(expectsSlot ? weaver.Imports.Slot : forType);
-					body.Variables.Add(localVar);
-				}
-
-				// load parameters in local variables 
-				for (int j = 0; j < methodData.Parameters.Count; j++)
-				{
-					var forType = methodData.Parameters[j];
-					bool expectsSlot = forType.Is<Slot>();
-
-					var localVar = body.Variables[j];
-
-					var slot = weaver.Imports.Vm_Slots[j];
-					if (expectsSlot)
-					{
-						il.Emit_Ldarg_x(1, method);
-						il.Emit(OpCodes.Ldfld, slot);
-						il.Emit(OpCodes.Stloc_S, localVar);
-					}
-					else
-					{
-						expectProcessor.EmitExpectIl(weaver, method, il, forType, j, methodData.UserMethod, localVar, slot,
-							lastInstruction);
-					}
-
-					il.DEBUG_EmitNop();
-				}
-
-				// load all local variables
-				if (methodData.UserMethod.IsStatic == false) il.Emit_Ldarg_x(0, method);
-				il.Emit_Ldarg_x(1, method);
-				for (int j = 0; j < methodData.Parameters.Count; j++)
-				{
-					il.Emit(OpCodes.Ldloc_S, body.Variables[j]);
-				}
-
-				// call method
-				il.Emit(OpCodes.Call, methodData.UserMethod);
-				il.DEBUG_EmitNop();
+				// for (int j = 0; j < methodData.Parameters.Count; j++)
+				// {
+				// 	var forType = methodData.Parameters[j];
+				// 	bool expectsSlot = forType.Is<Slot>();
+				//
+				// 	var localVar = new VariableDefinition(expectsSlot ? weaver.Imports.Slot : forType);
+				// 	body.Variables.Add(localVar);
+				// }
+				//
+				// // load parameters in local variables 
+				// for (int j = 0; j < methodData.Parameters.Count; j++)
+				// {
+				// 	var forType = methodData.Parameters[j];
+				// 	bool expectsSlot = forType.Is<Slot>();
+				//
+				// 	var localVar = body.Variables[j];
+				//
+				// 	var slot = weaver.Imports.Vm_Slots[j];
+				// 	if (expectsSlot)
+				// 	{
+				// 		il.Emit_Ldarg_x(1, method);
+				// 		il.Emit(OpCodes.Ldfld, slot);
+				// 		il.Emit(OpCodes.Stloc_S, localVar);
+				// 	}
+				// 	else
+				// 	{
+				// 		expectProcessor.EmitExpectIl(weaver, method, il, forType, j, methodData.UserMethod, localVar, slot,
+				// 			lastInstruction);
+				// 	}
+				//
+				// 	il.DEBUG_EmitNop();
+				// }
+				//
+				// // load all local variables
+				// if (methodData.UserMethod.IsStatic == false) il.Emit_Ldarg_x(0, method);
+				// il.Emit_Ldarg_x(1, method);
+				// for (int j = 0; j < methodData.Parameters.Count; j++)
+				// {
+				// 	il.Emit(OpCodes.Ldloc_S, body.Variables[j]);
+				// }
+				//
+				// // call method
+				// il.Emit(OpCodes.Call, methodData.UserMethod);
+				// il.DEBUG_EmitNop();
 
 				body.Instructions.Add(lastInstruction);
 			}

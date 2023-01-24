@@ -425,6 +425,20 @@ namespace Wrench
 			return new ForeignObject<T>(ptr);
 		}
 
+		/// <inheritdoc cref="SetNewForeign{T}(Wrench.Slot,in Wrench.Slot,T)"/>>
+		internal static void SetNewForeign(this Slot slot, in Slot @class)
+		{
+			if (ExpectedValid(slot)) return;
+			if (VmUtils.ExpectedValid(slot.VmPtr)) return;
+
+			var ptr = Interop.wrenSetSlotNewForeign(slot.VmPtr, @class.Index, @class.Index, new IntPtr(IntPtr.Size));
+
+			using (ProfilerUtils.AllocScope.Auto())
+			{
+				Managed.ForeignObjects.Add(ptr, null);
+			}
+		}
+
 		
 		public static ForeignObject<T> GetForeign<T>(this Slot slot)
 		{

@@ -137,12 +137,12 @@ namespace Wrench.CodeGen.Processors
 			}
 			else
 			{
-				// ForeignClass.DefaultAlloc<T>()
-				var invokeMethodReferenceInstance = new GenericInstanceMethod(weaver.Imports.ForeignClass_DefaultAlloc__T);
-				invokeMethodReferenceInstance.GenericArguments.Add(module.ForType);
-				var imported = weaver.MainModule.ImportReference(invokeMethodReferenceInstance);
+				// ForeignClass.DefaultAlloc()
+				// var invokeMethodReferenceInstance = new GenericInstanceMethod(weaver.Imports.ForeignClass_DefaultAlloc);
+				// invokeMethodReferenceInstance.GenericArguments.Add(module.ForType);
+				// var imported = weaver.MainModule.ImportReference(invokeMethodReferenceInstance);
 
-				il.Emit(OpCodes.Call, imported);
+				il.Emit(OpCodes.Call, weaver.Imports.ForeignClass_DefaultAlloc);
 			}
 
 			il.Emit(OpCodes.Ldnull);

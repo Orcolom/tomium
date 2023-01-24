@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using AOT;
 using Unity.Burst;
 using UnityEngine;
 
@@ -49,17 +50,22 @@ namespace Wrench
 			ForeignClassStatics.FinToAlloc.Data.Map.TryAdd(_allocPtr, _finPtr);
 		}
 
-		public static ForeignClass DefaultUnmanagedAlloc<T>()
-			where T: unmanaged
+		// public static ForeignClass DefaultUnmanagedAlloc<T>()
+		// 	where T: unmanaged
+		// {
+		// 	return new ForeignClass(vm => vm.Slot0.SetNewForeign<T>(vm.Slot0));
+		// }
+
+		public static ForeignClass DefaultAlloc()
 		{
-			return new ForeignClass(vm => vm.Slot0.SetNewForeign<T>(vm.Slot0));
+			return new ForeignClass(DefaultAllocAction);
 		}
 
-		public static ForeignClass DefaultAlloc<T>()
+		[MonoPInvokeCallback(typeof(ForeignAction))]
+		private static void DefaultAllocAction(Vm vm)
 		{
-			return new ForeignClass(vm => vm.Slot0.SetNewForeign<T>(vm.Slot0));
+			vm.Slot0.SetNewForeign(vm.Slot0);
 		}
-
 		
 		internal static ForeignClass FromAllocPtr(IntPtr ptr)
 		{
