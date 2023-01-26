@@ -1,66 +1,90 @@
-﻿// using UnityEngine;
-// using Wrench;
-// using Wrench.Builder;
-//
-// namespace Binding.UnityBinding
-// {
-// 	[WrenchClass(typeof(UnityModule), nameof(Transform), typeof(Transform), UnityComponentBinding.WrenName)]
-// 	public class TransformBinding : Class
-// 	{
-// 		[WrenchMethod(MethodType.Method)]
-// 		private void GetPosition(Vm vm, ForeignObject<Transform> self)
-// 		{
-// 			if (UnityModule.ExpectId(vm, typeof(Vector3), out var type) == false) return;
-// 			var position = self.Value.position;
-// 			UnityModule.SetNewForeign(vm, vm.Slot0, type, position);
-// 		}
-//
-// 		[WrenchMethod(MethodType.Method)]
-// 		private void SetPosition(Vm vm, ForeignObject<Transform> self, ForeignObject<Vector3> position)
-// 		{
-// 			self.Value.position = position.Value;
-// 		}
-//
-// 		[WrenchMethod(MethodType.Method)]
-// 		private void GetRotation(Vm vm, ForeignObject<Transform> self)
-// 		{
-// 			if (UnityModule.ExpectId(vm, typeof(Quaternion), out var type) == false) return;
-// 			var rotation = self.Value.rotation;
-// 			UnityModule.SetNewForeign(vm, vm.Slot0, type, rotation);
-// 		}
-//
-// 		[WrenchMethod(MethodType.Method)]
-// 		private void SetRotation(Vm vm, ForeignObject<Transform> self, ForeignObject<Quaternion> rotation)
-// 		{
-// 			self.Value.rotation = rotation.Value;
-// 		}
-// 		
-// 		[WrenchMethod(MethodType.Method)]
-// 		private void SetPositionAndRotation(Vm vm, ForeignObject<Transform> self, ForeignObject<Vector3> position, ForeignObject<Quaternion> rotation)
-// 		{
-// 			self.Value.SetPositionAndRotation(position.Value, rotation.Value);
-// 		}
-// 		
-// 		[WrenchMethod(MethodType.Method)]
-// 		private void GetPositionAndRotation(Vm vm, ForeignObject<Transform> self)
-// 		{
-// 			vm.EnsureSlots(3);
-// 			
-// 			if (UnityModule.ExpectId(vm, typeof(Vector3), out var vectorType) == false) return;
-// 			if (UnityModule.ExpectId(vm, typeof(Quaternion), out var quadType) == false) return;
-//
-// 			var rotation = self.Value.rotation;
-// 			UnityModule.SetNewForeign(vm, vm.Slot1, quadType, rotation);
-// 			
-// 			var position = self.Value.position;
-// 			UnityModule.SetNewForeign(vm, vm.Slot2, vectorType, position);
-// 			
-// 			vm.Slot0.SetNewList();
-// 			vm.Slot0.AddToList(vm.Slot1);
-// 			vm.Slot0.AddToList(vm.Slot2);
-// 		}
-// 	}
-//
+﻿using UnityEngine;
+using Wrench;
+using Wrench.Builder;
+
+namespace Binding.UnityBinding
+{
+	public class TransformBinding : UnityModule.Class
+	{
+		public TransformBinding() : base(nameof(Transform), UnityComponentBinding.WrenName, typeof(Transform))
+		{
+			Add(new Method(Signature.Create(MethodType.Method, nameof(GetPosition)), new ForeignMethod(GetPosition)));
+			Add(new Method(Signature.Create(MethodType.Method, nameof(SetPosition), 1), new ForeignMethod(SetPosition)));
+			
+			Add(new Method(Signature.Create(MethodType.Method, nameof(GetRotation)), new ForeignMethod(GetRotation)));
+			Add(new Method(Signature.Create(MethodType.Method, nameof(SetRotation), 1), new ForeignMethod(SetRotation)));
+			
+			Add(new Method(Signature.Create(MethodType.Method, nameof(GetPositionAndRotation)), new ForeignMethod(GetPositionAndRotation)));
+			Add(new Method(Signature.Create(MethodType.Method, nameof(SetPositionAndRotation), 2), new ForeignMethod(SetPositionAndRotation)));
+		}
+		
+		private void GetPosition(Vm vm)
+		{
+			vm.EnsureSlots(1);
+			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (UnityModule.ExpectId(vm, typeof(Vector3), out var type) == false) return;
+			
+			var position = self.Value.position;
+			UnityModule.SetNewForeign(vm, vm.Slot0, type, position);
+		}
+
+		private void SetPosition(Vm vm)
+		{
+			vm.EnsureSlots(2);
+			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (Vector3Binding.Expect(vm, vm.Slot1, out var position) == false) return;
+			
+			self.Value.position = position.Value;
+		}
+
+		private void GetRotation(Vm vm)
+		{
+			vm.EnsureSlots(1);
+			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (UnityModule.ExpectId(vm, typeof(Quaternion), out var type) == false) return;
+			
+			var rotation = self.Value.rotation;
+			UnityModule.SetNewForeign(vm, vm.Slot0, type, rotation);
+		}
+
+		private void SetRotation(Vm vm)
+		{
+			vm.EnsureSlots(2);
+			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (QuaternionBinding.Expect(vm, vm.Slot1, out var rotation) == false) return;
+			
+			self.Value.rotation = rotation.Value;
+		}
+		
+		private void SetPositionAndRotation(Vm vm)
+		{
+			vm.EnsureSlots(3);
+			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (Vector3Binding.Expect(vm, vm.Slot1, out var position) == false) return;
+			if (QuaternionBinding.Expect(vm, vm.Slot1, out var rotation) == false) return;
+
+			self.Value.SetPositionAndRotation(position.Value, rotation.Value);
+		}
+		
+		private void GetPositionAndRotation(Vm vm)
+		{
+			vm.EnsureSlots(3);
+			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (UnityModule.ExpectId(vm, typeof(Vector3), out var vectorType) == false) return;
+			if (UnityModule.ExpectId(vm, typeof(Quaternion), out var quadType) == false) return;
+
+			var rotation = self.Value.rotation;
+			UnityModule.SetNewForeign(vm, vm.Slot1, quadType, rotation);
+			
+			var position = self.Value.position;
+			UnityModule.SetNewForeign(vm, vm.Slot2, vectorType, position);
+			
+			vm.Slot0.SetNewList();
+			vm.Slot0.AddToList(vm.Slot1);
+			vm.Slot0.AddToList(vm.Slot2);
+		}
+	}
+
 // 	[WrenchClass(typeof(UnityModule), nameof(MeshFilter), typeof(MeshFilter), UnityComponentBinding.WrenName)]
 // 	public class MeshFilterBinding : Class
 // 	{
@@ -113,4 +137,4 @@
 // 			}
 // 		}
 // 	}
-// }
+}

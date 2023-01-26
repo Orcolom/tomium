@@ -4,6 +4,7 @@ using System.Threading;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
+using UnityEngine;
 using Wrench.Native;
 
 namespace Wrench
@@ -56,6 +57,7 @@ namespace Wrench
 
 		public void Dispose()
 		{
+			Debug.Log($"Disposed: {_ptr}");
 			if (this.IsValid() == false) return;
 
 			Interop.wrenFreeVM(_ptr);
@@ -82,6 +84,8 @@ namespace Wrench
 			// store data
 			VmUtils.Vms.Data.Map.Add(ptr, vm);
 			Managed.ManagedClasses.Add(ptr, new Managed()); // store *managed* events separately 
+
+			Debug.Log($"Created: {vm._ptr}");
 
 			return vm;
 		}

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Binding.UnityBinding;
 using UnityEngine;
 using Wrench;
 using Wrench.Builder;
@@ -17,14 +18,16 @@ namespace Binding
 	{
 		public class Class : Wrench.Builder.Class
 		{
+			public readonly Type ValueType;
+			
 			protected Class(string name, string inherits = null, Type type = null, ClassBody body = null,
 				Attributes attributes = null)
 				: base(name, inherits, type != null ? ForeignClass.DefaultAlloc() : default, body, attributes)
 			{
 				if (type == null) return;
-				
-				TypesById.Add(name, type);
-				IdByType.Add(type, name);
+				ValueType = type;
+				TypesById.Add(name, this);
+				IdByType.Add(type, this);
 			}
 		}
 		
@@ -47,9 +50,8 @@ if (isWren) {{
 			return true;
 		}
 
-		public static UnityModule Instance;
-		private static readonly Dictionary<string, Type> TypesById = new Dictionary<string, Type>();
-		private static readonly Dictionary<Type, string> IdByType = new Dictionary<Type, string>();
+		private static readonly Dictionary<string, UnityModule.Class> TypesById = new Dictionary<string, UnityModule.Class>();
+		private static readonly Dictionary<Type, UnityModule.Class> IdByType = new Dictionary<Type, UnityModule.Class>();
 
 		public UnityModule() : base("Unity")
 		{
@@ -60,9 +62,12 @@ if (isWren) {{
 			Add(new ComponentBinding());
 			Add(new UnityComponentBinding());
 			Add(new WrenComponentBinding());
+			Add(new Vector3Binding());
+			Add(new QuaternionBinding());
+			Add(new TransformBinding());
 		}
 
-		public static bool ExpectId(Vm vm, Type type, out string id)
+		public static bool ExpectId(Vm vm, Type type, out UnityModule.Class id)
 		{
 			if (IdByType.TryGetValue(type, out id)) return true;
 
@@ -71,18 +76,18 @@ if (isWren) {{
 			return false;
 		}
 
-		public static bool ExpectType(Vm vm, string id, out Type type)
+		public static bool ExpectType(Vm vm, string id, out UnityModule.Class type)
 		{
 			if (TypesById.TryGetValue(id, out type)) return true;
-
+			
 			vm.Slot0.SetString($"{id} is not a component");
 			vm.Abort(vm.Slot0);
 			return false;
 		}
 
-		public static void SetNewForeign<T>(Vm vm, Slot slot, string type, T data = default)
+		public static void SetNewForeign<T>(Vm vm, Slot slot, UnityModule.Class type, T data = default)
 		{
-			slot.GetVariable(Instance.Path, type); // TODO: does this work for external types? 
+			slot.GetVariable(type.Module.Path, type.Name.Text); // TODO: does this work for external types? 
 			slot.SetNewForeign(slot, data);
 		}
 	}
@@ -143,21 +148,21 @@ if (isWren) {{
 		{
 			if (UnityModule.ExpectType(vm, typeId, out var type) == false) return;
 
-			if (self.TryGetComponent(type, out var component) == false)
+			if (self.TryGetComponent(type.ValueType, out var component) == false)
 			{
 				vm.Slot0.SetNull();
 				return;
 			}
 
-			UnityModule.SetNewForeign(vm, vm.Slot0, typeId, component);
+			UnityModule.SetNewForeign(vm, vm.Slot0, type, component);
 		}
 
 		public static void f_AddComponent(Vm vm, GameObject self, string typeId)
 		{
 			if (UnityModule.ExpectType(vm, typeId, out var type) == false) return;
-			var component = self.AddComponent(type);
+			var component = self.AddComponent(type.ValueType);
 
-			UnityModule.SetNewForeign(vm, vm.Slot0, typeId, component);
+			UnityModule.SetNewForeign(vm, vm.Slot0, type, component);
 		}
 	}
 
@@ -210,7 +215,7 @@ if (isWren) {{
 		{
 			vm.EnsureSlots(2);
 			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<GameObject> self) == false) return;
-			if (ExpectValue.ExpectString(vm, vm.Slot0, out var name) == false) return;
+			if (ExpectValue.ExpectString(vm, vm.Slot1, out var name) == false) return;
 
 			self.Value = new GameObject(name);
 		}
