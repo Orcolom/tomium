@@ -1,0 +1,16 @@
+{
+    "name": "Wrench.Samples.HelloWorld",
+    "rootNamespace": "",
+    "references": [
+        "GUID:76acb78479c2219438fb4d7a893fc6b0"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
