@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using AOT;
 using Unity.Burst;
@@ -8,6 +9,14 @@ namespace Wrench
 {
 	internal static class ForeignClassStatics
 	{
+		static ForeignClassStatics()
+		{
+			// needs to happen here, il2pcc will strip the static constructor from ForeignClass. (guess: cause it doesn't have any statics itself?)
+			// these statics are separate because mono.cecil weaver doesn't like to weave classes that have unity collections objects as statics 
+			Classes.Data.Init(16);
+			FinToAlloc.Data.Init(16);
+		}
+		
 		internal static readonly SharedStatic<StaticMap<ForeignClass>> Classes =
 			SharedStatic<StaticMap<ForeignClass>>.GetOrCreate<ForeignClass>();
 
@@ -17,12 +26,6 @@ namespace Wrench
 
 	public struct ForeignClass
 	{
-		static ForeignClass()
-		{
-			ForeignClassStatics.Classes.Data.Init(16);
-			ForeignClassStatics.FinToAlloc.Data.Init(16);
-		}
-		
 		private IntPtr _allocPtr;
 		private IntPtr _finPtr;
 
@@ -34,7 +37,11 @@ namespace Wrench
 
 		public ForeignClass(ForeignAction alloc)
 		{
-			//TODO: IL2CPP static && MonoPInvokeCallback check
+#if UNITY_EDITOR
+			// TODO: only do this if il2cpp backend is selected
+			if (alloc.Method.IsStatic == false) Debug.LogWarning("Alloc methods have to be static for il2cpp");
+			if (alloc.Method.GetCustomAttribute<MonoPInvokeCallbackAttribute>() == null) Debug.LogWarning("Alloc method needs to have `#if ENABLE_IL2CPP [MonoPInvokeCallback(typeof(ForeignAction))] #endif` above it");
+#endif
 			
 			_allocPtr = Marshal.GetFunctionPointerForDelegate(alloc);
 			_finPtr = IntPtr.Zero;

@@ -33,7 +33,9 @@ namespace Wrench.Samples
 		{
 			Debug.Log($"-- Finished sample");
 			if (_active == null) return;
-			SceneManager.LoadScene(++_currentScene);
+			_currentScene++;
+			if (_currentScene < SceneManager.sceneCountInBuildSettings) 
+			SceneManager.LoadScene(_currentScene);
 		}
 	}
 }
