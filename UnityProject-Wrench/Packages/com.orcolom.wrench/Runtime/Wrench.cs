@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using UnityEngine;
 using Wrench.Native;
 
 [assembly: InternalsVisibleTo("Wrench.Editor")]
@@ -217,7 +218,7 @@ namespace Wrench
 					AllocateFn = ForeignAllocCallbackPtr,
 					AllocateUserData = foreignClass.AllocPtr,
 					FinalizeFn = ForeignFinCallbackPtr,
-					FinalizeUserData = foreignClass.FinPtr,
+					FinalizeUserData = foreignClass.AllocPtr, 
 				};
 			}
 

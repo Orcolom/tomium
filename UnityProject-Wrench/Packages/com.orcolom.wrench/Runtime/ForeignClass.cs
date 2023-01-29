@@ -27,7 +27,6 @@ namespace Wrench
 		private IntPtr _finPtr;
 
 		internal IntPtr AllocPtr => _allocPtr;
-		internal IntPtr FinPtr => _allocPtr;
 
 		public bool IsValid => _allocPtr != IntPtr.Zero || _finPtr != IntPtr.Zero;
 
@@ -35,6 +34,8 @@ namespace Wrench
 
 		public ForeignClass(ForeignAction alloc)
 		{
+			//TODO: IL2CPP static && MonoPInvokeCallback check
+			
 			_allocPtr = Marshal.GetFunctionPointerForDelegate(alloc);
 			_finPtr = IntPtr.Zero;
 			Managed.Actions.TryAdd(_allocPtr, alloc);
@@ -61,7 +62,9 @@ namespace Wrench
 			return new ForeignClass(DefaultAllocAction);
 		}
 
+#if ENABLE_IL2CPP
 		[MonoPInvokeCallback(typeof(ForeignAction))]
+#endif
 		private static void DefaultAllocAction(Vm vm)
 		{
 			vm.Slot0.SetNewForeign(vm.Slot0);

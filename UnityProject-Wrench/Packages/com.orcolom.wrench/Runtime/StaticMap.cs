@@ -4,7 +4,7 @@ using Unity.Collections.LowLevel.Unsafe;
 
 namespace Wrench
 {
-	public struct StaticMap<T>
+	public struct StaticMap<T> : IDisposable
 		where T : struct
 	{
 		public UnsafeHashMap<IntPtr, T> Map;
@@ -12,6 +12,11 @@ namespace Wrench
 		public void Init(int alloc)
 		{
 			Map = new UnsafeHashMap<IntPtr, T>(alloc, AllocatorManager.Persistent);
+		}
+
+		public void Dispose()
+		{
+			Map.Dispose();
 		}
 	}
 }

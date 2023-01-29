@@ -132,7 +132,7 @@ namespace Wrench
 		{
 			if (IsValid(vmPtr)) return false;
 
-			throw new ObjectDisposedException(nameof(Vm), "Vm is already disposed");
+			throw new ObjectDisposedException(nameof(Vm), $"Vm {vmPtr} is already disposed");
 			// return true;
 		}
 

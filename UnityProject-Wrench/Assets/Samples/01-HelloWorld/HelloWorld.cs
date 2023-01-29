@@ -1,23 +1,42 @@
 using System;
+using System.Text;
 using UnityEngine;
 
 namespace Wrench.Samples
 {
 	public class HelloWorld : MonoBehaviour
 	{
-		private void Awake()
+		private void Start()
 		{
 			var vm = Vm.New();
 			vm.SetWriteListener((_, text) => Debug.Log(text));
 			vm.SetErrorListener((_, type, module, line, message) =>
 			{
-				Debug.LogError($"type:{type} module:{module} line:{line} message:{message}");
+				string str = type switch
+				{
+					ErrorType.CompileError => $"[{module} line {line}] {message}",
+					ErrorType.RuntimeError => message,
+					ErrorType.StackTrace => $"[{module} line {line}] in {message}",
+					_ => string.Empty,
+				};
+				Debug.LogError(str);
 			});
 			
+			Debug.Log("Works");
 			var result = vm.Interpret("<main>", "System.print(\"Hello World\")");
 			Debug.Log($"result:{result}");
-			
+
+			Debug.Log("Compile Errors");
+			result = vm.Interpret("<main>", "Sys.print(\"Hello World\")");
+			Debug.Log($"result:{result}");
+
+			Debug.Log("Runtime Errors");
+			result = vm.Interpret("<main>", "System.do(\"Hello World\")");
+			Debug.Log($"result:{result}");
+
 			vm.Dispose();
+
+			SampleRunner.NextSample();
 		}
 	}
 }

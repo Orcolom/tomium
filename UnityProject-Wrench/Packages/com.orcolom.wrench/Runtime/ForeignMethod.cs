@@ -35,9 +35,21 @@ namespace Wrench
 
 		public ForeignMethod(ForeignAction action, string marker = null)
 		{
-			// NOTE: marshalling can just crash the editor, GetFunctionPointer throws an error instead. it also compiles the method, aka first call initialization
-			// _ptr = Marshal.GetFunctionPointerForDelegate(action);
-			_ptr = action.Method.MethodHandle.GetFunctionPointer(); // force compile method
+			try
+			{
+				// While this also returns a pointer, this isn't the same pointer as Marshal.GetFunctionPointerForDelegate
+				// and will return invalid methods when trying to use it.
+				// Marshalling can just crash the editor when getting an invalid method, GetFunctionPointer throws an error instead. it also compiles the method, aka first call initialization
+				var ptr = action.Method.MethodHandle.GetFunctionPointer();
+			}
+			catch
+			{
+				_profilerMarker = default;
+				_ptr = default;
+				return;
+			}
+
+			_ptr = Marshal.GetFunctionPointerForDelegate(action);
 			
 			_profilerMarker = ProfilerUtils.Create(marker ?? action.Method.Name);
 			
