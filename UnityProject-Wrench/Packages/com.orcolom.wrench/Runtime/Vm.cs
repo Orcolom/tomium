@@ -60,6 +60,13 @@ namespace Wrench
 			Debug.Log($"Disposed: {_ptr}");
 			if (this.IsValid() == false) return;
 
+			var callHandles = Managed.ManagedClasses[_ptr].CallHandles;
+			Debug.Assert(callHandles.Count == 0, "Created CallHandles should have been disposed before the vm get disposed.");
+			for (int i = callHandles.Count - 1; i >= 0; i--)
+			{
+				Handle.FromPtr(callHandles[i]).Dispose();
+			}
+			
 			Interop.wrenFreeVM(_ptr);
 			Managed.ManagedClasses.Remove(_ptr);
 			VmUtils.Vms.Data.Map.Remove(_ptr);
@@ -205,7 +212,7 @@ namespace Wrench
 
 		public static Handle MakeCallHandle(this Vm vm, string signature)
 		{
-			return Handle.New(vm.Ptr, signature);
+			return Handle.New(vm, signature);
 		}
 
 		public static bool HasModuleAndVariable(this Vm vm, string module, string variable)

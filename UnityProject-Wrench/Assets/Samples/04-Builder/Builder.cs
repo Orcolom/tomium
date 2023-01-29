@@ -10,6 +10,8 @@ namespace Wrench.Samples
 	public class Builder : MonoBehaviour
 	{
 		private readonly StringBuilder _writeBuffer = new StringBuilder();
+		private readonly StringBuilder _errorBuffer = new StringBuilder();
+		
 		private void Start()
 		{
 			ModuleCollection collection = new ModuleCollection();
@@ -34,7 +36,14 @@ namespace Wrench.Samples
 					ErrorType.StackTrace => $"[{module} line {line}] in {message}",
 					_ => string.Empty,
 				};
-				Debug.LogError(str);
+				
+				if (type == ErrorType.CompileError) Debug.LogError(str);
+				else if (type == ErrorType.StackTrace)
+				{
+					_errorBuffer.AppendLine(str);
+					Debug.LogError(_errorBuffer);
+					if (message == "(script)") _errorBuffer.Clear();
+				} else _errorBuffer.AppendLine(str);
 			});
 
 
@@ -55,9 +64,26 @@ var time = DateTime.Now()
 System.print(time)
 
 System.print(DateTime.Today())
+
+var fn = Fn.new {
+  System.prnt(""I won't get printed"")
+}
+
+var fn2 = Fn.new {
+  fn.call()
+}
+
+fn2.call()
 ");
 
-
+			vm.EnsureSlots(1);
+			vm.Slot0.GetVariable("<main>", "fn2");
+			Debug.Log("call()");
+			using (var handle = vm.MakeCallHandle("call()"))
+			{
+				vm.Call(handle);
+			}
+			
 			vm.Dispose();
 
 			SampleRunner.NextSample();

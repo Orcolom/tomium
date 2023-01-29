@@ -27,16 +27,26 @@ namespace Wrench
 		{
 			_ptr = ptr;
 			_vmPtr = vmPtr;
-			Handles.Data.Map.Add(_ptr, this);
+
+			using (ProfilerUtils.AllocScope.Auto())
+			{
+				Handles.Data.Map.Add(_ptr, this);
+			}
 		}
 
-		internal static Handle New(in IntPtr vmPtr, string signature)
+		internal static Handle New(Vm vm, string signature)
 		{
-			if (VmUtils.ExpectedValid(vmPtr)) return new Handle();
+			if (vm.ExpectedValid()) return new Handle();
 
-			IntPtr handlePtr = Interop.wrenMakeCallHandle(vmPtr, signature);
-			var handle = new Handle(vmPtr, handlePtr);
-			Handles.Data.Map.Add(handlePtr, handle);
+			IntPtr handlePtr = Interop.wrenMakeCallHandle(vm.Ptr, signature);
+			var handle = new Handle(vm.Ptr, handlePtr);
+
+			using (ProfilerUtils.AllocScope.Auto())
+			{
+				Handles.Data.Map.Add(handlePtr, handle);
+				Managed.ManagedClasses[vm.Ptr].CallHandles.Add(handlePtr);
+			}
+			
 			return handle;
 		}
 
@@ -50,6 +60,7 @@ namespace Wrench
 			if (IsValid == false) return;
 			Interop.wrenReleaseHandle(_vmPtr, _ptr);
 			Handles.Data.Map.Remove(_ptr);
+			Managed.ManagedClasses[_vmPtr].CallHandles.Remove(_ptr);
 			_ptr = IntPtr.Zero;
 		}
 

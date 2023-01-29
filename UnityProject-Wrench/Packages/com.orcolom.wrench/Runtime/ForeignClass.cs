@@ -39,22 +39,29 @@ namespace Wrench
 		{
 #if UNITY_EDITOR
 			// TODO: only do this if il2cpp backend is selected
-			if (alloc.Method.IsStatic == false) Debug.LogWarning("Alloc methods have to be static for il2cpp and needs to have `#if ENABLE_IL2CPP [MonoPInvokeCallback(typeof(ForeignAction))] #endif` above it");
+			if (alloc.Method.IsStatic == false) Debug.LogWarning("Alloc methods have to be static for il2cpp");
 #endif
 			
-			_allocPtr = Marshal.GetFunctionPointerForDelegate(alloc);
+			_allocPtr = new IntPtr(alloc.Method.MetadataToken);
 			_finPtr = IntPtr.Zero;
-			Managed.Actions.TryAdd(_allocPtr, alloc);
-			ForeignClassStatics.Classes.Data.Map.TryAdd(_allocPtr, this);
+			using (ProfilerUtils.AllocScope.Auto())
+			{
+				Managed.Actions.TryAdd(_allocPtr, alloc);
+				ForeignClassStatics.Classes.Data.Map.TryAdd(_allocPtr, this);
+			}
 		}
-		
+
 		public ForeignClass(ForeignAction alloc, ForeignAction fin)
 		{
-			_allocPtr = Marshal.GetFunctionPointerForDelegate(alloc);
-			_finPtr = Marshal.GetFunctionPointerForDelegate(fin);
-			Managed.Actions.TryAdd(_allocPtr, alloc);
-			ForeignClassStatics.Classes.Data.Map.TryAdd(_allocPtr, this);
-			ForeignClassStatics.FinToAlloc.Data.Map.TryAdd(_allocPtr, _finPtr);
+			_allocPtr = new IntPtr(alloc.Method.MetadataToken);
+			_finPtr = new IntPtr(fin.Method.MetadataToken);
+
+			using (ProfilerUtils.AllocScope.Auto())
+			{
+				Managed.Actions.TryAdd(_allocPtr, alloc);
+				ForeignClassStatics.Classes.Data.Map.TryAdd(_allocPtr, this);
+				ForeignClassStatics.FinToAlloc.Data.Map.TryAdd(_allocPtr, _finPtr);
+			}
 		}
 
 		// public static ForeignClass DefaultUnmanagedAlloc<T>()
@@ -68,9 +75,6 @@ namespace Wrench
 			return new ForeignClass(DefaultAllocAction);
 		}
 
-#if ENABLE_IL2CPP
-		[MonoPInvokeCallback(typeof(ForeignAction))]
-#endif
 		private static void DefaultAllocAction(Vm vm)
 		{
 			vm.Slot0.SetNewForeign(vm.Slot0);
@@ -92,7 +96,7 @@ namespace Wrench
 		{
 			try
 			{
-				var action = Marshal.GetDelegateForFunctionPointer<ForeignAction>(_allocPtr);
+				var action = Managed.Actions[_allocPtr];
 				action.Invoke(vm);
 			}
 			catch(Exception e)
