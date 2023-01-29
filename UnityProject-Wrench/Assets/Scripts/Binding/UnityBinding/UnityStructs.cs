@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using Wrench;
-using Wrench.Builder;
+using Tomia;
+using Tomia.Builder;
 
 namespace Binding.UnityBinding
 {
@@ -371,40 +371,40 @@ namespace Binding.UnityBinding
 	// 	}
 	// }
 	//
-	// [WrenchClass(typeof(UnityModule), nameof(Material), typeof(Material))]
+	// [TomiaClass(typeof(UnityModule), nameof(Material), typeof(Material))]
 	// public class MaterialBinding : Class
 	// {
-	// 	[WrenchExpect(typeof(ForeignObject<Material>))]
+	// 	[TomiaExpect(typeof(ForeignObject<Material>))]
 	// 	public static bool Expect(Vm vm, Slot slot, out ForeignObject<Material> value)
 	// 	{
 	// 		return ExpectValue.ExpectForeign(vm, slot, out value);
 	// 	}
 	//
-	// 	[WrenchMethod(MethodType.FieldGetter)]
+	// 	[TomiaMethod(MethodType.FieldGetter)]
 	// 	private static void name(Vm vm, ForeignObject<Material> self)
 	// 	{
 	// 		vm.Slot0.SetString(self.Value.name);
 	// 	}
 	//
-	// 	[WrenchMethod(MethodType.FieldSetter)]
+	// 	[TomiaMethod(MethodType.FieldSetter)]
 	// 	private static void name(Vm vm, ForeignObject<Material> self, string name)
 	// 	{
 	// 		self.Value.name = name;
 	// 	}
 	//
-	// 	[WrenchMethod(MethodType.ToString)]
+	// 	[TomiaMethod(MethodType.ToString)]
 	// 	private static void ToString(Vm vm, ForeignObject<Material> self)
 	// 	{
 	// 		vm.Slot0.SetString(self.Value.ToString());
 	// 	}
 	// 	
-	// 	[WrenchMethod(MethodType.Method)]
+	// 	[TomiaMethod(MethodType.Method)]
 	// 	private static void SetColor(Vm vm, ForeignObject<Material> self, int nameID, ForeignObject<Color> color)
 	// 	{
 	// 		self.Value.SetColor(nameID, color.Value);
 	// 	}
 	// 	
-	// 	[WrenchMethod(MethodType.Method)]
+	// 	[TomiaMethod(MethodType.Method)]
 	// 	private static void GetColor(Vm vm, ForeignObject<Material> self, int nameID)
 	// 	{
 	// 		if (UnityModule.ExpectId(vm, typeof(Color), out var type) == false) return;
@@ -413,10 +413,10 @@ namespace Binding.UnityBinding
 	// 	}
 	// }
 	//
-	// [WrenchClass(typeof(UnityModule), nameof(Shader), typeof(Shader))]
+	// [TomiaClass(typeof(UnityModule), nameof(Shader), typeof(Shader))]
 	// public class ShaderBinding : Class
 	// {
-	// 	[WrenchMethod(MethodType.StaticMethod)]
+	// 	[TomiaMethod(MethodType.StaticMethod)]
 	// 	private static void PropertyToID(Vm vm, string name)
 	// 	{
 	// 		vm.Slot0.SetInt(Shader.PropertyToID(name));

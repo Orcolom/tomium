@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using Wrench;
-using Wrench.Builder;
+using Tomia;
+using Tomia.Builder;
 
 namespace Binding.UnityBinding
 {
@@ -85,27 +85,27 @@ namespace Binding.UnityBinding
 		}
 	}
 
-// 	[WrenchClass(typeof(UnityModule), nameof(MeshFilter), typeof(MeshFilter), UnityComponentBinding.WrenName)]
+// 	[TomiaClass(typeof(UnityModule), nameof(MeshFilter), typeof(MeshFilter), UnityComponentBinding.WrenName)]
 // 	public class MeshFilterBinding : Class
 // 	{
-// 		[WrenchMethod(MethodType.FieldGetter)]
+// 		[TomiaMethod(MethodType.FieldGetter)]
 // 		private static void mesh(Vm vm, ForeignObject<MeshFilter> self)
 // 		{
 // 			if (UnityModule.ExpectId(vm, typeof(Mesh), out var type) == false) return;
 // 			UnityModule.SetNewForeign(vm, vm.Slot0, type, self.Value.mesh);
 // 		}
 // 		
-// 		[WrenchMethod(MethodType.FieldSetter)]
+// 		[TomiaMethod(MethodType.FieldSetter)]
 // 		private static void mesh(Vm vm, ForeignObject<MeshFilter> self, ForeignObject<Mesh> mesh)
 // 		{
 // 			self.Value.mesh = mesh.Value;
 // 		}
 // 	}
 // 	
-// 	[WrenchClass(typeof(UnityModule), nameof(MeshRenderer), typeof(MeshRenderer), UnityComponentBinding.WrenName)]
+// 	[TomiaClass(typeof(UnityModule), nameof(MeshRenderer), typeof(MeshRenderer), UnityComponentBinding.WrenName)]
 // 	public class MeshRendererBinding : Class
 // 	{
-// 		[WrenchMethod(MethodType.FieldGetter)]
+// 		[TomiaMethod(MethodType.FieldGetter)]
 // 		private static void materials(Vm vm, ForeignObject<MeshRenderer> self)
 // 		{
 // 			vm.EnsureSlots(2);
@@ -120,7 +120,7 @@ namespace Binding.UnityBinding
 // 			}
 // 		}
 // 		
-// 		[WrenchMethod(MethodType.FieldSetter)]
+// 		[TomiaMethod(MethodType.FieldSetter)]
 // 		private static void materials(Vm vm, ForeignObject<MeshRenderer> self, Slot materialList)
 // 		{
 // 			vm.EnsureSlots(3);

@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.orcolom.wrench": {
+    "com.orcolom.tomia": {
       "version": "file:com.orcolom.wrench",
       "depth": 0,
       "source": "embedded",
@@ -8,12 +8,12 @@
         "com.unity.collections": "1.2.3"
       }
     },
-    "com.orcolom.wrench.builder": {
+    "com.orcolom.tomia.builder": {
       "version": "file:com.orcolom.wrench.builder",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.orcolom.wrench": "0.4.0",
+        "com.orcolom.tomia": "0.4.0",
         "com.unity.nuget.mono-cecil": "1.10.2"
       }
     },

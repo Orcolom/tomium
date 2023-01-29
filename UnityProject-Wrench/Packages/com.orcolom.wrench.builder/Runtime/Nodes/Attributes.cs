@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Wrench.Builder.Tokens;
-using Wrench;
+using Tomia.Builder.Tokens;
+using Tomia;
 
-namespace Wrench.Builder
+namespace Tomia.Builder
 {
 	public class Attributes : INode, IEnumerable
 	{

@@ -1,4 +1,4 @@
-﻿namespace Wrench
+﻿namespace Tomia
 {
 	/// <summary>
 	/// types a WrenValue can have

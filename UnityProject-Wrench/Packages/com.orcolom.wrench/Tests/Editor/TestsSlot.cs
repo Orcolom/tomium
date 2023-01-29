@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text;
 using NUnit.Framework;
-using Wrench;
-using ValueType = Wrench.ValueType;
+using Tomia;
+using ValueType = Tomia.ValueType;
 
 namespace Tests
 {

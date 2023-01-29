@@ -5,7 +5,7 @@ using AOT;
 using Unity.Burst;
 using UnityEngine;
 
-namespace Wrench
+namespace Tomia
 {
 	internal static class ForeignClassStatics
 	{

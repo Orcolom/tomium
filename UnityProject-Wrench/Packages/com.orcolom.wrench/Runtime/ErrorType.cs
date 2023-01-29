@@ -1,4 +1,4 @@
-﻿namespace Wrench
+﻿namespace Tomia
 {
 	/// <summary>
 	/// error message type

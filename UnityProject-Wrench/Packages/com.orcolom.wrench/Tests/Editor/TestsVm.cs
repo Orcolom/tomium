@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 using Tests.Helpers;
-using Wrench;
+using Tomia;
 
 namespace Tests
 {
@@ -11,7 +11,7 @@ namespace Tests
 		[Test]
 		public void Wren_IsSupported()
 		{
-			Assert.IsTrue(Wrench.Wrench.IsSupported);
+			Assert.IsTrue(Tomia.Tomia.IsSupported);
 		}
 
 		#endregion

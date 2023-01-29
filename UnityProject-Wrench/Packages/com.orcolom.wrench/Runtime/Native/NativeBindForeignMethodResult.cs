@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Wrench.Native
+namespace Tomia.Native
 {
 	/// <summary>
 	/// interop struct for WrenConfiguration

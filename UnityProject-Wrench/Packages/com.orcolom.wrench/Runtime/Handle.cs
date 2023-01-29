@@ -1,9 +1,9 @@
 ﻿using System;
+using Tomia.Native;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
-using Wrench.Native;
 
-namespace Wrench
+namespace Tomia
 {
 	public struct Handle : IDisposable, IEquatable<Handle>
 	{

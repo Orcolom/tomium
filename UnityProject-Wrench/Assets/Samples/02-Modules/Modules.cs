@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Wrench.Samples
+namespace Tomia.Samples
 {
 	public class Modules : MonoBehaviour
 	{

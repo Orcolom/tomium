@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Wrench.Builder
+namespace Tomia.Builder
 {
 	public class ModuleCollection : IEnumerable
 	{

@@ -1,7 +1,7 @@
 ﻿using System;
-using Wrench.Native;
+using Tomia.Native;
 
-namespace Wrench
+namespace Tomia
 {
 	public struct Config
 	{

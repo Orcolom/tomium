@@ -1,4 +1,4 @@
-﻿namespace Wrench.Builder
+﻿namespace Tomia.Builder
 {
 	public class ExpectValue
 	{
@@ -30,9 +30,6 @@
 			return true;
 		}
 
-#if WRENCH_ENABLE_WEAVER
-		[WrenchExpect(typeof(int))]
-#endif
 		public static bool ExpectInt(Vm vm, Slot slot, out int value)
 		{
 			value = 0;
@@ -42,9 +39,6 @@
 			return true;
 		}
 
-#if WRENCH_ENABLE_WEAVER
-		[WrenchExpect(typeof(float))]
-#endif
 		public static bool ExpectFloat(Vm vm, Slot slot, out float value)
 		{
 			value = 0;
@@ -54,9 +48,6 @@
 			return true;
 		}
 
-#if WRENCH_ENABLE_WEAVER
-		[WrenchExpect(typeof(double))]
-#endif
 		public static bool ExpectDouble(Vm vm, Slot slot, out double value)
 		{
 			value = 0;
@@ -66,9 +57,6 @@
 			return true;
 		}
 
-#if WRENCH_ENABLE_WEAVER
-		[WrenchExpect(typeof(string))]
-#endif
 		public static bool ExpectString(Vm vm, Slot slot, out string value)
 		{
 			value = null;
@@ -78,9 +66,6 @@
 			return true;
 		}
 
-#if WRENCH_ENABLE_WEAVER
-		[WrenchExpect(typeof(byte[]))]
-#endif
 		public static bool ExpectByteArray(Vm vm, Slot slot, out byte[] value)
 		{
 			value = null;
@@ -90,9 +75,6 @@
 			return true;
 		}
 
-#if WRENCH_ENABLE_WEAVER
-		[WrenchExpect(typeof(bool))]
-#endif
 		public static bool ExpectBool(Vm vm, Slot slot, out bool value)
 		{
 			value = false;
@@ -102,9 +84,6 @@
 			return true;
 		}
 		
-#if WRENCH_ENABLE_WEAVER
-		[WrenchExpect(typeof(Handle))]
-#endif
 		public static bool ExpectHandle(Vm vm, Slot slot, out Handle value)
 		{
 			value = slot.GetHandle();

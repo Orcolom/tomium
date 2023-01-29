@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using Binding.UnityBinding;
 using UnityEngine;
-using Wrench;
-using Wrench.Builder;
-using Wrench.Builder.Tokens;
-using MethodBody = Wrench.Builder.MethodBody;
-using Module = Wrench.Builder.Module;
+using Tomia;
+using Tomia.Builder;
+using Tomia.Builder.Tokens;
+using MethodBody = Tomia.Builder.MethodBody;
+using Module = Tomia.Builder.Module;
 using Object = UnityEngine.Object;
 // ReSharper disable InconsistentNaming
 
@@ -16,7 +16,7 @@ namespace Binding
 {
 	public class UnityModule : Module
 	{
-		public class Class : Wrench.Builder.Class
+		public class Class : Tomia.Builder.Class
 		{
 			public readonly Type ValueType;
 			

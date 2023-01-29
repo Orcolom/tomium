@@ -2,11 +2,11 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-[assembly: InternalsVisibleTo("Unity.Wrench.CodeGen")]
+[assembly: InternalsVisibleTo("Unity.Tomia.CodeGen")]
 
-namespace Wrench.Builder
+namespace Tomia.Builder
 {
-	public static class WrenchBuilderUtils
+	public static class TomiaBuilderUtils
 	{
 		public static readonly List<string> ReservedWords = new List<string>()
 		{

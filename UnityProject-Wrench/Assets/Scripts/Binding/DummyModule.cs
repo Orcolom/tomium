@@ -1,6 +1,6 @@
 ﻿// using UnityEngine;
-// using Wrench;
-// using Wrench.Builder;
+// using Tomia;
+// using Tomia.Builder;
 //
 // namespace Binding
 // {
@@ -44,7 +44,7 @@
 // 		}
 //
 // 		
-// 		private static void Wrench__New__1531160386(Vm vm)
+// 		private static void Tomia__New__1531160386(Vm vm)
 // 		{
 // 			vm.EnsureSlots(2);
 // 			Slot slot0 = vm.Slot0;
@@ -52,7 +52,7 @@
 // 			New(vm, slot0, slot1);
 // 		}
 //
-// 		[WrenchMethod(MethodType.Construct)]
+// 		[TomiaMethod(MethodType.Construct)]
 // 		private static void New(Vm vm, Slot self, Slot name)
 // 		{
 // 			var v = self.GetForeign<GameObject>();

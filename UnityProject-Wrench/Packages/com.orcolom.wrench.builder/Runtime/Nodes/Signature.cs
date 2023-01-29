@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using Wrench.Builder.Tokens;
+using Tomia.Builder.Tokens;
 
-namespace Wrench.Builder
+namespace Tomia.Builder
 {
 	public class SignatureStyle
 	{

@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Tomia.Native;
 using UnityEngine;
-using Wrench.Native;
 
-[assembly: InternalsVisibleTo("Wrench.Editor")]
-[assembly: InternalsVisibleTo("Wrench.Tests.Editor")]
-[assembly: InternalsVisibleTo("Wrench.Builder")]
-[assembly: InternalsVisibleTo("Unity.Wrench.Builder.CodeGen")]
+[assembly: InternalsVisibleTo("Tomia.Editor")]
+[assembly: InternalsVisibleTo("Tomia.Tests.Editor")]
+[assembly: InternalsVisibleTo("Tomia.Builder")]
+[assembly: InternalsVisibleTo("Unity.Tomia.Builder.CodeGen")]
 
-namespace Wrench
+namespace Tomia
 {
-	public static class Wrench
+	public static class Tomia
 	{
 		public static readonly bool IsSupported;
 		public static readonly int CurrentWrenVersion;
@@ -20,7 +20,7 @@ namespace Wrench
 		private static readonly int[] WrenMinVersion = {0, 4, 0};
 		private static readonly int[] WrenMaxVersion = {0, 4, -1};
 
-		static Wrench()
+		static Tomia()
 		{
 			CurrentWrenVersion = Interop.wrenGetVersionNumber();
 

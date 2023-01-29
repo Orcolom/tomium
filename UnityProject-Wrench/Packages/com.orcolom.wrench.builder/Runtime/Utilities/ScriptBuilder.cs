@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Wrench.Builder
+namespace Tomia.Builder
 {
 	public class ScriptBuilder
 	{

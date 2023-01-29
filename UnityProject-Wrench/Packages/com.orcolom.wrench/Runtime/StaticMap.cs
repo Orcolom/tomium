@@ -2,7 +2,7 @@
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
-namespace Wrench
+namespace Tomia
 {
 	public struct StaticMap<T> : IDisposable
 		where T : struct

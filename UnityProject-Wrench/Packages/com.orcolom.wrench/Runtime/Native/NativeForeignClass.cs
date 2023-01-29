@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Wrench.Native
+namespace Tomia.Native
 {
 	internal struct NativeForeignClass
 	{

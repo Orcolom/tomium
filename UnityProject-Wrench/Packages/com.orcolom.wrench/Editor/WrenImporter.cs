@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
-namespace Wrench.Editor
+namespace Tomia.Editor
 {
 	[ScriptedImporter(2, "wren")]
 	public class WrenImporter : ScriptedImporter
@@ -13,7 +13,7 @@ namespace Wrench.Editor
 
 		public override void OnImportAsset(AssetImportContext ctx)
 		{
-			var texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.orcolom.wrench/Editor/wren.png");
+			var texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.orcolom.tomia/Editor/wren.png");
 			var text = File.ReadAllText(ctx.assetPath);
 			string scriptName = Path.GetFileName(ctx.assetPath);
 

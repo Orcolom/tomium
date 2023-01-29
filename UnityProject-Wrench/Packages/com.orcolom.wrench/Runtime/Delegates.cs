@@ -1,6 +1,6 @@
-﻿using Wrench.Native;
+﻿using Tomia.Native;
 
-namespace Wrench
+namespace Tomia
 {
 	/// <inheritdoc cref="NativeWriteDelegate"/>
 	public delegate void WriteDelegate(Vm vm, string text);

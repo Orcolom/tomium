@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Wrench.Builder.Tokens
+namespace Tomia.Builder.Tokens
 {
 	public class EolToken : IToken, IModuleScoped, IMethodScoped, IClassScoped
 	{

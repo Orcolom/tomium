@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using AOT;
 using UnityEngine;
 
-namespace Wrench.Samples
+namespace Tomia.Samples
 {
 	public class Foreign : MonoBehaviour
 	{

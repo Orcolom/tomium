@@ -1,7 +1,7 @@
-﻿using Wrench.Builder.Tokens;
+﻿using Tomia.Builder.Tokens;
 
 
-namespace Wrench.Builder
+namespace Tomia.Builder
 {
 	public class AttributeVariable : INode
 	{
@@ -22,7 +22,7 @@ namespace Wrench.Builder
 		public AttributeVariable(string name, string value)
 		{
 			Name = Token.Name(name);
-			Value = WrenchBuilderUtils.IsNameSafe(value) ? Token.Name(value) : Token.String(value);
+			Value = TomiaBuilderUtils.IsNameSafe(value) ? Token.Name(value) : Token.String(value);
 		}
 
 		public AttributeVariable(string name, double value)

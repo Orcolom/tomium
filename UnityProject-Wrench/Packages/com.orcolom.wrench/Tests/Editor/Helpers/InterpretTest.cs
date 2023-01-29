@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using Wrench;
+using Tomia;
 
 namespace Tests.Helpers
 {

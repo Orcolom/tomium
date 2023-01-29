@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Wrench.Native
+namespace Tomia.Native
 {
 	/// <summary>
 	/// result from <see cref="NativeConfig.NativeLoadModule"/> call

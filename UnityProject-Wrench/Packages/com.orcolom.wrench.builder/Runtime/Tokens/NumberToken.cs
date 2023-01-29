@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
 
-namespace Wrench.Builder.Tokens
+namespace Tomia.Builder.Tokens
 {
 	public class NumberToken : IToken, IModuleScoped, IMethodScoped
 	{

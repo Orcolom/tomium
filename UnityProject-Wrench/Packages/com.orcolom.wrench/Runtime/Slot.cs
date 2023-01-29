@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using Tomia.Native;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
-using Wrench.Native;
 
-namespace Wrench
+namespace Tomia
 {
 	public readonly struct Slot : IEquatable<Slot>
 	{
@@ -425,7 +425,7 @@ namespace Wrench
 			return new ForeignObject<T>(ptr);
 		}
 
-		/// <inheritdoc cref="SetNewForeign{T}(Wrench.Slot,in Wrench.Slot,T)"/>>
+		/// <inheritdoc cref="SetNewForeign{T}(Tomia.Slot,in Tomia.Slot,T)"/>>
 		internal static void SetNewForeign(this Slot slot, in Slot @class)
 		{
 			if (ExpectedValid(slot)) return;

@@ -1,11 +1,11 @@
 {
-  "name": "com.orcolom.wrench.builder",
-  "displayName": "WrenC# Builder",
+  "name": "com.orcolom.tomia.builder",
+  "displayName": "Tomia Builder",
   "version": "0.4.0",
   "unity": "2021.3",
-  "description": "WrenC# Tokenized Module Builder",
+  "description": "Tomia's Tokenized Module Builder",
   "dependencies": {
-    "com.orcolom.wrench": "0.4.0",
+    "com.orcolom.tomia": "0.4.0",
     "com.unity.nuget.mono-cecil": "1.10.2"
   }
 }

@@ -1,10 +1,10 @@
 ﻿using System;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
-using Wrench.Native;
+using Tomia.Native;
 using Object = UnityEngine.Object;
 
-namespace Wrench
+namespace Tomia
 {
 	// public static class ForeignObjectUtils
 	// {

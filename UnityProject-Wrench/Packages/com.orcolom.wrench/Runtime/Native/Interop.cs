@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Wrench.Native
+namespace Tomia.Native
 {
 	internal static class Interop
 	{
@@ -17,7 +17,7 @@ namespace Wrench.Native
 		// | <any>*           | IntPtr   |
 		// |				          |					 |
 
-#if WRENCH_DEBUG
+#if TOMIA_DEBUG
 		public const string DllName = "wren_d.dll";
 #else
 		public const string DllName = "wren.dll";

@@ -1,25 +1,23 @@
 {
-    "name": "Unity.Wrench.CodeGen",
-    "rootNamespace": "Wrench.CodeGen",
+    "name": "Tomia.Tests.Editor",
+    "rootNamespace": "",
     "references": [
-        "Wrench",
-        "Wrench.Builder"
+        "GUID:0acc523941302664db1f4e527237feb3",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:76acb78479c2219438fb4d7a893fc6b0"
     ],
     "includePlatforms": [
         "Editor"
     ],
     "excludePlatforms": [],
-    "allowUnsafeCode": true,
+    "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "Mono.Cecil.dll",
-        "Mono.Cecil.Rocks.dll",
-        "Mono.Cecil.Mdb.dll",
-        "Mono.Cecil.Pdb.dll"
+        "nunit.framework.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [
-        "WRENCH_ENABLE_WEAVER"
+        "UNITY_INCLUDE_TESTS"
     ],
     "versionDefines": [],
     "noEngineReferences": false

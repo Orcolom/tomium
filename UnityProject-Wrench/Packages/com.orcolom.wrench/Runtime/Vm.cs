@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using Tomia.Native;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
 using UnityEngine;
-using Wrench.Native;
 
-namespace Wrench
+namespace Tomia
 {
 	public struct Vm : IEquatable<Vm>, IDisposable
 	{
@@ -77,12 +77,12 @@ namespace Wrench
 		{
 			// set config
 			var configuration = Config.ToInterop(config ?? Config.Default);
-			configuration.NativeWrite = Wrench.WriteCallback;
-			configuration.NativeError = Wrench.ErrorCallback;
-			configuration.NativeResolveModule = Wrench.ResolveCallback;
-			configuration.NativeLoadModule = Wrench.LoadCallback;
-			configuration.NativeBindForeignClass = Wrench.BindForeignClassCallback;
-			configuration.NativeBindForeignMethod = Wrench.BindForeignMethodCallback;
+			configuration.NativeWrite = Tomia.WriteCallback;
+			configuration.NativeError = Tomia.ErrorCallback;
+			configuration.NativeResolveModule = Tomia.ResolveCallback;
+			configuration.NativeLoadModule = Tomia.LoadCallback;
+			configuration.NativeBindForeignClass = Tomia.BindForeignClassCallback;
+			configuration.NativeBindForeignMethod = Tomia.BindForeignMethodCallback;
 
 			// get vm ptr
 			IntPtr ptr = Interop.wrenNewVM(configuration);

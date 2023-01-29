@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.UIElements;
 
-namespace Wrench
+namespace Tomia
 {
 	public class WrenScript : ScriptableObject
 	{

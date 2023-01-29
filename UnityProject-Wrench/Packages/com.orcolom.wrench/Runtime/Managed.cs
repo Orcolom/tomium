@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Wrench
+namespace Tomia
 {
 	/// <summary>
 	/// object with managed data from a vm

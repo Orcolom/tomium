@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using Wrench.Builder;
-using Wrench.Builder.Tokens;
+using Tomia.Builder.Tokens;
+using Tomia.Builder;
 
-namespace Wrench.Builder
+namespace Tomia.Builder
 {
 	public class TokenCollector
 	{
