@@ -23,7 +23,17 @@ namespace Tomia.Samples
 			});
 			
 			Debug.Log("Works");
-			var result = vm.Interpret("<main>", "System.print(\"Hello World\")");
+			var result = vm.Interpret("<main>", "var CallMe = Fn.new{|arg|\nSystem.print(\"Hello World %(arg)\")\n}"
+			);
+			
+			vm.EnsureSlots(2);
+			vm.Slot0.GetVariable("<main>", "CallMe");
+			vm.Slot1.SetString("\n-From Tamia");
+			using (var handle = vm.MakeCallHandle("call(_)"))
+			{
+				vm.Call(handle);
+			}
+			
 			Debug.Log($"result:{result}");
 
 			Debug.Log("Compile Errors");

@@ -99,7 +99,7 @@ namespace Tests
 			{
 				test.ExpectResult(InterpretResult.Success);
 
-				var handle = vm.MakeCallHandle("call(_)");
+				using var handle = vm.MakeCallHandle("call(_)");
 				vm.EnsureSlots(2);
 				vm.Slot0.GetVariable("m", "fn");
 				vm.Slot1.SetString("test");
@@ -124,7 +124,7 @@ var fn = Fn.new { fn2.call() }
 			using var test = new InterpretTest();
 			test.ExpectResult(InterpretResult.RuntimeError);
 
-			var handle = vm.MakeCallHandle("call(_,_,_)");
+			using var handle = vm.MakeCallHandle("call(_,_,_)");
 			vm.EnsureSlots(15);
 			vm.Slot0.GetVariable("m", "fn");
 			vm.Slot1.SetString("hello world");
