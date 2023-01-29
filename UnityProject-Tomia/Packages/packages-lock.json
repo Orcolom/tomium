@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.orcolom.tomia": {
-      "version": "file:com.orcolom.wrench",
+      "version": "file:com.orcolom.tomia",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
@@ -9,7 +9,7 @@
       }
     },
     "com.orcolom.tomia.builder": {
-      "version": "file:com.orcolom.wrench.builder",
+      "version": "file:com.orcolom.tomia.builder",
       "depth": 0,
       "source": "embedded",
       "dependencies": {

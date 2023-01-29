@@ -711,7 +711,7 @@ PlayerSettings:
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
   scriptingDefineSymbols:
-    Standalone: WRENCH_DEBUG;WEAVER_DEBUG_TIMER
+    Standalone: TOMIA_DEBUG;WEAVER_DEBUG_TIMER
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
