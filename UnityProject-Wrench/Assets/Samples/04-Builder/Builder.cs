@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 using Wrench.Builder;
 
@@ -8,13 +9,22 @@ namespace Wrench.Samples
 {
 	public class Builder : MonoBehaviour
 	{
+		private readonly StringBuilder _writeBuffer = new StringBuilder();
 		private void Start()
 		{
 			ModuleCollection collection = new ModuleCollection();
 			collection.Add(new TimeDateBuilderModule());
 
 			var vm = Vm.New();
-			vm.SetWriteListener((_, text) => Debug.Log(text));
+			vm.SetWriteListener((_, text) =>
+			{
+				if (text == "\n")
+				{
+					Debug.Log(_writeBuffer);
+					_writeBuffer.Clear();
+				} else _writeBuffer.Append(text);
+			});
+			
 			vm.SetErrorListener((_, type, module, line, message) =>
 			{
 				string str = type switch
@@ -28,7 +38,13 @@ namespace Wrench.Samples
 			});
 
 
-			vm.SetLoadModuleListener(collection.LoadModuleHandler);
+			vm.SetLoadModuleListener((vm, path) =>
+			{
+				var str = collection.LoadModuleHandler(vm, path);
+				Debug.LogWarning($"Load `{path}`\n{str}");
+				return str;
+			});
+			
 			vm.SetBindForeignClassListener(collection.BindForeignClassHandler);
 			vm.SetBindForeignMethodListener(collection.BindForeignMethodHandler);
 

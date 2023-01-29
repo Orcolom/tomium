@@ -100,7 +100,12 @@ foreign class DateTime {
 ";
 		}
 
+		// IL2cpp only allows static methods. this #if is purely as an example. best to only use static methods
+#if ENABLE_IL2CPP
+		private static void NowInstanced(Vm vm)
+#else
 		private void NowInstanced(Vm vm)
+#endif		
 		{
 			var fo = vm.Slot0.GetForeign<DateTime>();
 			fo.Value = DateTime.Now;

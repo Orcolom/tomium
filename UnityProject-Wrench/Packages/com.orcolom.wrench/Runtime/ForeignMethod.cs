@@ -13,17 +13,16 @@ namespace Wrench
 
 	internal static class ForeignMethodStatics
 	{
+		static ForeignMethodStatics()
+		{
+			Methods.Data.Init(16);
+		}
+		
 		internal static readonly SharedStatic<StaticMap<ForeignMethod>> Methods = SharedStatic<StaticMap<ForeignMethod>>.GetOrCreate<ForeignMethod>();
 	}
-	
 
 	public struct ForeignMethod
 	{
-
-		static ForeignMethod()
-		{
-			ForeignMethodStatics.Methods.Data.Init(16);
-		}
 		
 		private ProfilerMarker _profilerMarker;
 
@@ -35,6 +34,7 @@ namespace Wrench
 
 		public ForeignMethod(ForeignAction action, string marker = null)
 		{
+#if ENABLE_IL2CPP == false
 			try
 			{
 				// While this also returns a pointer, this isn't the same pointer as Marshal.GetFunctionPointerForDelegate
@@ -48,8 +48,15 @@ namespace Wrench
 				_ptr = default;
 				return;
 			}
+#endif
+			
+#if UNITY_EDITOR
+			// TODO: only do this if il2cpp backend is selected
+			if (action.Method.IsStatic == false) Debug.LogWarning("il2cpp only allows static methods");
+#endif
 
-			_ptr = Marshal.GetFunctionPointerForDelegate(action);
+			// https://iobservable.net/2013/05/12/introduction-to-clr-metadata/
+			_ptr = new IntPtr(action.Method.MetadataToken);
 			
 			_profilerMarker = ProfilerUtils.Create(marker ?? action.Method.Name);
 			
@@ -67,7 +74,7 @@ namespace Wrench
 		public void Invoke(Vm vm)
 		{
 			using var scope = _profilerMarker.Auto();
-			var action = Marshal.GetDelegateForFunctionPointer<ForeignAction>(_ptr);
+			var action = Managed.Actions[_ptr];
 			action.Invoke(vm);
 		}
 	}

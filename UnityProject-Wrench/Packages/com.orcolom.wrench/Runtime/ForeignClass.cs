@@ -39,8 +39,7 @@ namespace Wrench
 		{
 #if UNITY_EDITOR
 			// TODO: only do this if il2cpp backend is selected
-			if (alloc.Method.IsStatic == false) Debug.LogWarning("Alloc methods have to be static for il2cpp");
-			if (alloc.Method.GetCustomAttribute<MonoPInvokeCallbackAttribute>() == null) Debug.LogWarning("Alloc method needs to have `#if ENABLE_IL2CPP [MonoPInvokeCallback(typeof(ForeignAction))] #endif` above it");
+			if (alloc.Method.IsStatic == false) Debug.LogWarning("Alloc methods have to be static for il2cpp and needs to have `#if ENABLE_IL2CPP [MonoPInvokeCallback(typeof(ForeignAction))] #endif` above it");
 #endif
 			
 			_allocPtr = Marshal.GetFunctionPointerForDelegate(alloc);
