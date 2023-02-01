@@ -23,15 +23,15 @@ namespace Binding.UnityBinding
 			Add(new Method(Signature.Create(MethodType.ToString), new ForeignMethod(ToString)));
 		}
 
-		public static bool Expect(Vm vm, Slot slot, out ForeignObject<Vector3> value)
+		public static bool Expect(Slot slot, out ForeignObject<Vector3> value)
 		{
-			return ExpectValue.ExpectForeign(vm, slot, out value);
+			return ExpectValue.ExpectForeign(slot, out value);
 		}
 
 		private static void GetX(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (Expect(vm, vm.Slot0, out ForeignObject<Vector3> self) == false) return;
+			if (Expect(vm.Slot0, out ForeignObject<Vector3> self) == false) return;
 			
 			vm.Slot0.SetFloat(self.Value.x);
 		}
@@ -39,8 +39,8 @@ namespace Binding.UnityBinding
 		private static void SetX(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (Expect(vm, vm.Slot0, out ForeignObject<Vector3> self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot0, out float x) == false) return;
+			if (Expect(vm.Slot0, out ForeignObject<Vector3> self) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot0, out float x) == false) return;
 			
 			var selfValue = self.Value;
 			selfValue.x = x;
@@ -50,7 +50,7 @@ namespace Binding.UnityBinding
 		private static void GetY(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (Expect(vm, vm.Slot0, out ForeignObject<Vector3> self) == false) return;
+			if (Expect(vm.Slot0, out ForeignObject<Vector3> self) == false) return;
 
 			vm.Slot0.SetFloat(self.Value.y);
 		}
@@ -58,8 +58,8 @@ namespace Binding.UnityBinding
 		private static void SetY(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (Expect(vm, vm.Slot0, out ForeignObject<Vector3> self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot0, out float y) == false) return;
+			if (Expect(vm.Slot0, out ForeignObject<Vector3> self) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot0, out float y) == false) return;
 
 			var selfValue = self.Value;
 			selfValue.y = y;
@@ -69,7 +69,7 @@ namespace Binding.UnityBinding
 		private static void GetZ(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (Expect(vm, vm.Slot0, out ForeignObject<Vector3> self) == false) return;
+			if (Expect(vm.Slot0, out ForeignObject<Vector3> self) == false) return;
 
 			vm.Slot0.SetFloat(self.Value.z);
 		}
@@ -77,8 +77,8 @@ namespace Binding.UnityBinding
 		private static void SetZ(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (Expect(vm, vm.Slot0, out ForeignObject<Vector3> self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot0, out float z) == false) return;
+			if (Expect(vm.Slot0, out ForeignObject<Vector3> self) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot0, out float z) == false) return;
 
 			var selfValue = self.Value;
 			selfValue.z = z;
@@ -88,7 +88,7 @@ namespace Binding.UnityBinding
 		private void ToString(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (Expect(vm, vm.Slot0, out ForeignObject<Vector3> self) == false) return;
+			if (Expect(vm.Slot0, out ForeignObject<Vector3> self) == false) return;
 
 			vm.Slot0.SetString(self.Value.ToString());
 		}
@@ -119,7 +119,7 @@ namespace Binding.UnityBinding
 		
 		public static bool Expect(Vm vm, Slot slot, out ForeignObject<Color> value)
 		{
-			return ExpectValue.ExpectForeign(vm, slot, out value);
+			return ExpectValue.ExpectForeign(slot, out value);
 		}
 
 		private static void GetR(Vm vm)
@@ -134,7 +134,7 @@ namespace Binding.UnityBinding
 		{
 			vm.EnsureSlots(2);
 			if (Expect(vm, vm.Slot0, out var self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot1, out float r) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float r) == false) return;
 
 			var selfValue = self.Value;
 			selfValue.r = r;
@@ -153,7 +153,7 @@ namespace Binding.UnityBinding
 		{
 			vm.EnsureSlots(2);
 			if (Expect(vm, vm.Slot0, out var self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot1, out float g) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float g) == false) return;
 
 			var selfValue = self.Value;
 			selfValue.g = g;
@@ -172,7 +172,7 @@ namespace Binding.UnityBinding
 		{
 			vm.EnsureSlots(2);
 			if (Expect(vm, vm.Slot0, out var self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot1, out float b) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float b) == false) return;
 			
 			var selfValue = self.Value;
 			selfValue.b = b;
@@ -191,7 +191,7 @@ namespace Binding.UnityBinding
 		{
 			vm.EnsureSlots(2);
 			if (Expect(vm, vm.Slot0, out var self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot1, out float a) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float a) == false) return;
 			
 			var selfValue = self.Value;
 			selfValue.a = a;
@@ -230,15 +230,15 @@ namespace Binding.UnityBinding
 			Add(new Method(Signature.Create(MethodType.ToString), new ForeignMethod(ToString)));
 		}
 		
-		public static bool Expect(Vm vm, Slot slot, out ForeignObject<Quaternion> value)
+		public static bool Expect(Slot slot, out ForeignObject<Quaternion> value)
 		{
-			return ExpectValue.ExpectForeign(vm, slot, out value);
+			return ExpectValue.ExpectForeign(slot, out value);
 		}
 
 		private static void GetX(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (Expect(vm, vm.Slot0, out var self) == false) return;
+			if (Expect(vm.Slot0, out var self) == false) return;
 			
 			vm.Slot0.SetFloat(self.Value.x);
 		}
@@ -246,8 +246,8 @@ namespace Binding.UnityBinding
 		private static void SetX(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (Expect(vm, vm.Slot0, out var self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot1, out float x) == false) return;
+			if (Expect(vm.Slot0, out var self) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float x) == false) return;
 
 			var selfValue = self.Value;
 			selfValue.x = x;
@@ -257,7 +257,7 @@ namespace Binding.UnityBinding
 		private static void GetY(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (Expect(vm, vm.Slot0, out var self) == false) return;
+			if (Expect(vm.Slot0, out var self) == false) return;
 			
 			vm.Slot0.SetFloat(self.Value.y);
 		}
@@ -265,8 +265,8 @@ namespace Binding.UnityBinding
 		private static void SetY(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (Expect(vm, vm.Slot0, out var self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot1, out float y) == false) return;
+			if (Expect(vm.Slot0, out var self) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float y) == false) return;
 
 			var selfValue = self.Value;
 			selfValue.y = y;
@@ -276,7 +276,7 @@ namespace Binding.UnityBinding
 		private static void GetZ(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (Expect(vm, vm.Slot0, out var self) == false) return;
+			if (Expect(vm.Slot0, out var self) == false) return;
 			
 			vm.Slot0.SetFloat(self.Value.z);
 		}
@@ -284,8 +284,8 @@ namespace Binding.UnityBinding
 		private static void SetZ(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (Expect(vm, vm.Slot0, out var self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot1, out float z) == false) return;
+			if (Expect(vm.Slot0, out var self) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float z) == false) return;
 			
 			var selfValue = self.Value;
 			selfValue.z = z;
@@ -295,7 +295,7 @@ namespace Binding.UnityBinding
 		private static void GetW(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (Expect(vm, vm.Slot0, out var self) == false) return;
+			if (Expect(vm.Slot0, out var self) == false) return;
 			
 			vm.Slot0.SetFloat(self.Value.w);
 		}
@@ -303,8 +303,8 @@ namespace Binding.UnityBinding
 		private static void SetW(Vm vm)
 		{		
 			vm.EnsureSlots(2);
-			if (Expect(vm, vm.Slot0, out var self) == false) return;
-			if (ExpectValue.ExpectFloat(vm, vm.Slot1, out float w) == false) return;
+			if (Expect(vm.Slot0, out var self) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float w) == false) return;
 
 			var selfValue = self.Value;
 			selfValue.w = w;
@@ -314,7 +314,7 @@ namespace Binding.UnityBinding
 		private static void ToString(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (Expect(vm, vm.Slot0, out var self) == false) return;
+			if (Expect(vm.Slot0, out var self) == false) return;
 			
 			vm.Slot0.SetString(self.Value.ToString());
 		}

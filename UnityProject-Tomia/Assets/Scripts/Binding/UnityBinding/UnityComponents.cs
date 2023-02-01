@@ -21,8 +21,8 @@ namespace Binding.UnityBinding
 		private void GetPosition(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
-			if (UnityModule.ExpectId(vm, typeof(Vector3), out var type) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (UnityModule.TryGetId(vm, typeof(Vector3), out var type) == false) return;
 			
 			var position = self.Value.position;
 			UnityModule.SetNewForeign(vm, vm.Slot0, type, position);
@@ -31,8 +31,8 @@ namespace Binding.UnityBinding
 		private void SetPosition(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
-			if (Vector3Binding.Expect(vm, vm.Slot1, out var position) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (Vector3Binding.Expect(vm.Slot1, out var position) == false) return;
 			
 			self.Value.position = position.Value;
 		}
@@ -40,8 +40,8 @@ namespace Binding.UnityBinding
 		private void GetRotation(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
-			if (UnityModule.ExpectId(vm, typeof(Quaternion), out var type) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (UnityModule.TryGetId(vm, typeof(Quaternion), out var type) == false) return;
 			
 			var rotation = self.Value.rotation;
 			UnityModule.SetNewForeign(vm, vm.Slot0, type, rotation);
@@ -50,8 +50,8 @@ namespace Binding.UnityBinding
 		private void SetRotation(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
-			if (QuaternionBinding.Expect(vm, vm.Slot1, out var rotation) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (QuaternionBinding.Expect(vm.Slot1, out var rotation) == false) return;
 			
 			self.Value.rotation = rotation.Value;
 		}
@@ -59,9 +59,9 @@ namespace Binding.UnityBinding
 		private void SetPositionAndRotation(Vm vm)
 		{
 			vm.EnsureSlots(3);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
-			if (Vector3Binding.Expect(vm, vm.Slot1, out var position) == false) return;
-			if (QuaternionBinding.Expect(vm, vm.Slot1, out var rotation) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (Vector3Binding.Expect(vm.Slot1, out var position) == false) return;
+			if (QuaternionBinding.Expect(vm.Slot1, out var rotation) == false) return;
 
 			self.Value.SetPositionAndRotation(position.Value, rotation.Value);
 		}
@@ -69,9 +69,9 @@ namespace Binding.UnityBinding
 		private void GetPositionAndRotation(Vm vm)
 		{
 			vm.EnsureSlots(3);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Transform> self) == false) return;
-			if (UnityModule.ExpectId(vm, typeof(Vector3), out var vectorType) == false) return;
-			if (UnityModule.ExpectId(vm, typeof(Quaternion), out var quadType) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<Transform> self) == false) return;
+			if (UnityModule.TryGetId(vm, typeof(Vector3), out var vectorType) == false) return;
+			if (UnityModule.TryGetId(vm, typeof(Quaternion), out var quadType) == false) return;
 
 			var rotation = self.Value.rotation;
 			UnityModule.SetNewForeign(vm, vm.Slot1, quadType, rotation);

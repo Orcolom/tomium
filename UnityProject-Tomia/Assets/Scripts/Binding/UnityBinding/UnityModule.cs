@@ -43,9 +43,9 @@ if (isWren) {{
 	return f_AddComponent(""%(arg0)"")
 }}");
 
-		public static bool ExpectObject<T>(Vm vm, Slot slot, out ForeignObject<T> value) where T : Object
+		public static bool ExpectObject<T>(Slot slot, out ForeignObject<T> value) where T : Object
 		{
-			if (ExpectValue.ExpectForeign(vm, slot, out value, true) == false) return false;
+			if (ExpectValue.ExpectForeign(slot, out value, true) == false) return false;
 			// TODO: unity null check?
 			return true;
 		}
@@ -67,7 +67,7 @@ if (isWren) {{
 			Add(new TransformBinding());
 		}
 
-		public static bool ExpectId(Vm vm, Type type, out UnityModule.Class id)
+		public static bool TryGetId(Vm vm, Type type, out UnityModule.Class id)
 		{
 			if (IdByType.TryGetValue(type, out id)) return true;
 
@@ -206,7 +206,7 @@ if (isWren) {{
 		internal static void New(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<GameObject> self) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<GameObject> self) == false) return;
 
 			self.Value = new GameObject();
 		}
@@ -214,8 +214,8 @@ if (isWren) {{
 		private static void New__Name(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<GameObject> self) == false) return;
-			if (ExpectValue.ExpectString(vm, vm.Slot1, out var name) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<GameObject> self) == false) return;
+			if (ExpectValue.ExpectString(vm.Slot1, out var name) == false) return;
 
 			self.Value = new GameObject(name);
 		}
@@ -232,7 +232,7 @@ if (isWren) {{
 		private static void CreatePrimitive(Vm vm, PrimitiveType type)
 		{
 			vm.EnsureSlots(1);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<GameObject> self) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<GameObject> self) == false) return;
 			
 			self.Value = GameObject.CreatePrimitive(type);
 		}
@@ -242,7 +242,7 @@ if (isWren) {{
 		private static void GetName(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<GameObject> self) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<GameObject> self) == false) return;
 			
 			GameObjectBinding.name(vm, self.Value);
 		}
@@ -250,8 +250,8 @@ if (isWren) {{
 		private static void SetName(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<GameObject> self) == false) return;
-			if (ExpectValue.ExpectString(vm, vm.Slot1, out string name) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<GameObject> self) == false) return;
+			if (ExpectValue.ExpectString(vm.Slot1, out string name) == false) return;
 			
 			GameObjectBinding.name(vm, self.Value, name);
 		}
@@ -259,9 +259,9 @@ if (isWren) {{
 		private static void f_GetComponent_(Vm vm)
 		{
 			vm.EnsureSlots(3);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<GameObject> self) == false) return;
-			if (ExpectValue.ExpectString(vm, vm.Slot1, out string typeId) == false) return;
-			if (ExpectValue.ExpectBool(vm, vm.Slot2, out bool isWrenComponent) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<GameObject> self) == false) return;
+			if (ExpectValue.ExpectString(vm.Slot1, out string typeId) == false) return;
+			if (ExpectValue.ExpectBool(vm.Slot2, out bool isWrenComponent) == false) return;
 
 			if (isWrenComponent)
 			{
@@ -275,8 +275,8 @@ if (isWren) {{
 		private static void f_AddComponent_(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<GameObject> self) == false) return;
-			if (ExpectValue.ExpectString(vm, vm.Slot1, out string typeId) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<GameObject> self) == false) return;
+			if (ExpectValue.ExpectString(vm.Slot1, out string typeId) == false) return;
 			
 			GameObjectBinding.f_AddComponent(vm, self.Value, typeId);
 		}
@@ -284,9 +284,9 @@ if (isWren) {{
 		private static void f_RegisterAddComponent_(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<GameObject> self) == false) return;
-			if (ExpectValue.ExpectString(vm, vm.Slot1, out string typeId) == false) return;
-			if (ExpectValue.ExpectHandle(vm, vm.Slot2, out Handle instance) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<GameObject> self) == false) return;
+			if (ExpectValue.ExpectString(vm.Slot1, out string typeId) == false) return;
+			if (ExpectValue.ExpectHandle(vm.Slot2, out Handle instance) == false) return;
 
 			var go = self.Value.AddComponent<WrenGameObject>();
 			go.Init(vm);
@@ -325,7 +325,7 @@ if (isWren) {{
 		private static void GetName(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<WrenGameObject> self) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<WrenGameObject> self) == false) return;
 			
 			GameObjectBinding.name(vm, self.Value.gameObject);
 		}
@@ -333,8 +333,8 @@ if (isWren) {{
 		private static void SetName(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<WrenGameObject> self) == false) return;
-			if (ExpectValue.ExpectString(vm, vm.Slot1, out string name) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<WrenGameObject> self) == false) return;
+			if (ExpectValue.ExpectString(vm.Slot1, out string name) == false) return;
 
 			GameObjectBinding.name(vm, self.Value.gameObject, name);
 		}
@@ -342,9 +342,9 @@ if (isWren) {{
 		private static void f_GetComponent_(Vm vm)
 		{
 			vm.EnsureSlots(3);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<WrenGameObject> self) == false) return;
-			if (ExpectValue.ExpectString(vm, vm.Slot1, out string typeId) == false) return;
-			if (ExpectValue.ExpectBool(vm, vm.Slot2, out bool isWrenComponent) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<WrenGameObject> self) == false) return;
+			if (ExpectValue.ExpectString(vm.Slot1, out string typeId) == false) return;
+			if (ExpectValue.ExpectBool(vm.Slot2, out bool isWrenComponent) == false) return;
 
 			
 			if (isWrenComponent) self.Value.f_GetComponent(vm, typeId);
@@ -354,8 +354,8 @@ if (isWren) {{
 		private static void f_AddComponent_(Vm vm)
 		{
 			vm.EnsureSlots(2);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<WrenGameObject> self) == false) return;
-			if (ExpectValue.ExpectString(vm, vm.Slot1, out string typeId) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<WrenGameObject> self) == false) return;
+			if (ExpectValue.ExpectString(vm.Slot1, out string typeId) == false) return;
 			
 			GameObjectBinding.f_AddComponent(vm, self.Value.gameObject, typeId);
 		}
@@ -363,9 +363,9 @@ if (isWren) {{
 		private static void f_RegisterAddComponent_(Vm vm)
 		{
 			vm.EnsureSlots(3);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<WrenGameObject> self) == false) return;
-			if (ExpectValue.ExpectString(vm, vm.Slot1, out string typeId) == false) return;
-			if (ExpectValue.ExpectHandle(vm, vm.Slot2, out Handle instance) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<WrenGameObject> self) == false) return;
+			if (ExpectValue.ExpectString(vm.Slot1, out string typeId) == false) return;
+			if (ExpectValue.ExpectHandle(vm.Slot2, out Handle instance) == false) return;
 
 			self.Value.RegisterAddComponent(typeId, instance);
 		}
@@ -389,9 +389,9 @@ if (isWren) {{
 		public static void gameObject(Vm vm)
 		{
 			vm.EnsureSlots(1);
-			if (UnityModule.ExpectObject(vm, vm.Slot0, out ForeignObject<Component> self) == false) return;
+			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<Component> self) == false) return;
 			
-			if (UnityModule.ExpectId(vm, typeof(GameObject), out var typeId) == false) return;
+			if (UnityModule.TryGetId(vm, typeof(GameObject), out var typeId) == false) return;
 			UnityModule.SetNewForeign(vm, vm.Slot0, typeId, self.Value.gameObject);
 		}
 	}
