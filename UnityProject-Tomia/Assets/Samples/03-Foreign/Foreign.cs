@@ -23,7 +23,7 @@ namespace Tomia.Samples
 					ErrorType.StackTrace => $"[{module} line {line}] in {message}",
 					_ => string.Empty,
 				};
-				Debug.LogError(str);
+				Debug.LogWarning(str);
 			});
 
 			vm.SetLoadModuleListener((_, module) =>

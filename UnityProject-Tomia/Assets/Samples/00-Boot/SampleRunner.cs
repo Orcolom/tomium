@@ -37,5 +37,7 @@ namespace Tomia.Samples
 			if (_currentScene < SceneManager.sceneCountInBuildSettings) 
 			SceneManager.LoadScene(_currentScene);
 		}
+
+		public static bool HasDoneAllSamples() => _currentScene >= SceneManager.sceneCountInBuildSettings;
 	}
 }

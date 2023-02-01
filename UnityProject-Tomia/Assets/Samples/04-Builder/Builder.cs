@@ -38,11 +38,11 @@ namespace Tomia.Samples
 					_ => string.Empty,
 				};
 				
-				if (type == ErrorType.CompileError) Debug.LogError(str);
+				if (type == ErrorType.CompileError) Debug.LogWarning(str);
 				else if (type == ErrorType.StackTrace)
 				{
 					_errorBuffer.AppendLine(str);
-					Debug.LogError(_errorBuffer);
+					Debug.LogWarning(_errorBuffer);
 					if (message == "(script)") _errorBuffer.Clear();
 				} else _errorBuffer.AppendLine(str);
 			});

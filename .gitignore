@@ -11,10 +11,11 @@ UnityProject-*/[Ll]ogs/
 UnityProject-*/[Mm]emoryCaptures/
 UnityProject-*/[Uu]serSettings/
 UnityProject-*/[Uu]IElementsSchema/
-UnityProject-*/[Cc]odeCoverage
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !UnityProject-*/[Aa]ssets/**/*.meta
+
+UnityProject-*/Assets/InitTestScene*.unity*
 
 # IDE cache directories
 .vs/
@@ -58,3 +59,4 @@ crashlytics-build.properties
 
 # macOS files
 *.DS_Store
+CodeCoverage/Report
