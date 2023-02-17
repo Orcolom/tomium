@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 681a3d9b117fe47459369cec31529798
+guid: b1e63129cc3306c4487fa4ca5d9fa11a
 PluginImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -17,12 +17,12 @@ PluginImporter:
       enabled: 0
       settings:
         Exclude Android: 1
-        Exclude Editor: 0
-        Exclude Linux64: 0
-        Exclude OSXUniversal: 0
+        Exclude Editor: 1
+        Exclude Linux64: 1
+        Exclude OSXUniversal: 1
         Exclude WebGL: 1
-        Exclude Win: 0
-        Exclude Win64: 0
+        Exclude Win: 1
+        Exclude Win64: 1
   - first:
       Android: Android
     second:
@@ -37,40 +37,35 @@ PluginImporter:
   - first:
       Editor: Editor
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: AnyCPU
         DefaultValueInitialized: true
-        OS: Windows
+        OS: AnyOS
   - first:
       Standalone: Linux64
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: None
   - first:
       Standalone: OSXUniversal
     second:
-      enabled: 1
+      enabled: 0
       settings:
-        CPU: None
+        CPU: AnyCPU
   - first:
       Standalone: Win
     second:
-      enabled: 1
+      enabled: 0
       settings:
         CPU: None
   - first:
       Standalone: Win64
     second:
-      enabled: 1
-      settings:
-        CPU: x86_64
-  - first:
-      WebGL: WebGL
-    second:
       enabled: 0
-      settings: {}
+      settings:
+        CPU: None
   userData: 
   assetBundleName: 
   assetBundleVariant: 

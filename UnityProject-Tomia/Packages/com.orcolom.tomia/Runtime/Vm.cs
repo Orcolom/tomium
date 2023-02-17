@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using Tomia.Native;
 using Unity.Burst;
-using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -157,11 +155,22 @@ namespace Tomia
 			// return true;
 		}
 
+		/// <summary>
+		/// Get the true vm object attached to a pointer
+		/// </summary>
+		/// <param name="ptr">pointer behind the vm</param>
+		/// <returns>the "true" vm</returns>
 		internal static Vm FromPtr(IntPtr ptr)
 		{
 			return Vms.Data.Map.TryGetValue(ptr, out var vm) ? vm : new Vm();
 		}
 
+		/// <summary>
+		/// Get the data attached to an ptr
+		/// </summary>
+		/// <param name="ptr">pointer</param>
+		/// <param name="vm">vm attached to the pointer</param>
+		/// <param name="managed">managed class attached to the pointer</param>
 		internal static void GetData(IntPtr ptr, out Vm vm, out Managed managed)
 		{
 			vm = FromPtr(ptr);
@@ -172,6 +181,13 @@ namespace Tomia
 
 		#region Methods
 		
+		/// <summary>
+		/// Runs <paramref name="source"/>, a string of Wren source code, in a new fiber in <paramref name="vm"/> in the context of resolved <paramref name="module"/>.
+		/// </summary>
+		/// <param name="vm">pointer to c vm</param>
+		/// <param name="module">module name</param>
+		/// <param name="source">module source</param>
+		/// <returns>interpret result</returns>
 		public static InterpretResult Interpret(this Vm vm, [DisallowNull] string module, string source)
 		{
 			PrefInterpret.Begin();
@@ -184,37 +200,76 @@ namespace Tomia
 			return result;
 		}
 
-		public static InterpretResult Call(this Vm vm, Handle handle)
+		/// <summary>
+		/// Calls <paramref name="method"/>, using the receiver and arguments previously set up on the stack.
+		///
+		/// <para>
+		/// 	<paramref name="method"/> must have been created by a call to <see cref="MakeCallHandle"/>. The
+		/// 	arguments to the method must be already on the stack. The receiver should be
+		/// 	in slot 0 with the remaining arguments following it, in order. It is an
+		/// 	error if the number of arguments provided does not match the method's
+		/// 	signature.
+		/// </para>
+		///
+		/// <para>
+		///		After this returns, you can access the return value from slot 0 on the stack.
+		/// </para>
+		/// </summary>
+		/// <param name="vm">pointer to c vm</param>
+		/// <param name="method">pointer to c handle</param>
+		/// <returns>interpret result</returns>
+		public static InterpretResult Call(this Vm vm, Handle method)
 		{
 			PrefCall.Begin();
 
 			if (ExpectedValid(vm)) return InterpretResult.CompileError;
-			if (Handle.IfInvalid(handle)) return InterpretResult.CompileError;
-			if (vm.ExpectedSameVm(handle)) return InterpretResult.CompileError;
-			var result = Interop.wrenCall(vm.Ptr, handle.Ptr);
+			if (Handle.IfInvalid(method)) return InterpretResult.CompileError;
+			if (vm.ExpectedSameVm(method)) return InterpretResult.CompileError;
+			var result = Interop.wrenCall(vm.Ptr, method.Ptr);
 
 			PrefCall.End();
 
 			return result;
 		}
 
+		/// <inheritdoc cref="Native.Interop.wrenCollectGarbage"/>
 		public static void Gc(this Vm vm)
 		{
 			if (ExpectedValid(vm)) return;
 			Interop.wrenCollectGarbage(vm.Ptr);
 		}
 
+		/// <inheritdoc cref="Native.Interop.wrenAbortFiber"/>
 		public static void Abort(this Vm vm, in Slot msg)
 		{
 			if (ExpectedValid(vm)) return;
 			Interop.wrenAbortFiber(vm.Ptr, msg.Index);
 		}
 
+		/// <summary>
+		/// Creates a handle that can be used to invoke a method with <paramref name="signature"/> on
+		/// using a receiver and arguments that are set up on the stack.
+		///
+		/// <para>
+		/// 	This handle can be used repeatedly to directly invoke that method from C code using <see cref="Call"/>.
+		/// </para>
+		///
+		/// </summary>
+		/// <param name="vm">pointer to c vm</param>
+		/// <param name="signature">method signature</param>
+		/// <returns>pointer to handle</returns>
 		public static Handle MakeCallHandle(this Vm vm, string signature)
 		{
 			return Handle.New(vm, signature);
 		}
 
+		/// <summary>
+		/// Runs <see cref="HasModule"/> and <see cref="HasVariable"/> sequentially
+		/// </summary>
+		/// <param name="vm">pointer to c vm</param>
+		/// <param name="module"></param>
+		/// <param name="variable"></param>
+		/// <returns></returns>
 		public static bool HasModuleAndVariable(this Vm vm, string module, string variable)
 		{
 			if (vm.HasModule(module) == false) return false;
@@ -227,6 +282,9 @@ namespace Tomia
 		/// returns false if not found. The module must be imported at the time, 
 		/// use <see cref="HasModule"/>  to ensure that before calling.
 		/// </summary>
+		/// <param name="vm">pointer to c vm</param>
+		/// <param name="module">module the variable is part off</param>
+		/// <param name="name">variable to check</param>
 		public static bool HasVariable(this Vm vm, string module, string name)
 		{
 			return Interop.wrenHasVariable(vm.Ptr, module, name);
@@ -235,6 +293,8 @@ namespace Tomia
 		/// <summary>
 		/// Returns true if <paramref name="module"/> has been imported/resolved before, false if not.
 		/// </summary>
+		/// <param name="vm">pointer to c vm</param>
+		/// <param name="module">module to check</param>
 		public static bool HasModule(this Vm vm, string module)
 		{
 			return Interop.wrenHasModule(vm.Ptr, module);

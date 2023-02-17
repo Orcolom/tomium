@@ -17,9 +17,9 @@ namespace Tomia.Native
 		// | <any>*           | IntPtr   |
 		// |				          |					 |
 
-#if TOMIA_DEBUG
-		public const string DllName = "wren_d.dll";
-#else
+#if UNITY_EDITOR == false && (ENABLE_IL2CPP || UNITY_WEBGL)
+		public const string DllName = "__Internal";
+#elif UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
 		public const string DllName = "wren.dll";
 #endif
 
