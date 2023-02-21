@@ -39,7 +39,8 @@ namespace Tomia
 			// if (action.Method.IsStatic == false) Debug.LogError($"il2cpp only allows static methods. {action.Method.Name} is not");
 #endif
 
-			Debug.Log($"x {action.Method.Name}, {action.Method.MethodHandle.Value}");
+			ProfilerUtils.Log($"New {nameof(ForeignMethod)}: {action.Method.Name}({action.Method.MethodHandle.Value})");
+			
 			_ptr = action.Method.MethodHandle.Value;
 			_profilerMarker = ProfilerUtils.Create(marker ?? action.Method.Name);
 			

@@ -11,5 +11,11 @@ namespace Tomia
 		public static ProfilerMarker Create(string name) => new ProfilerMarker(Category, name, MarkerFlags.Script | MarkerFlags.Counter);
 		
 		public static ProfilerMarker AllocScope = Create("Tomia.Alloc");
+
+		[Conditional("TOMIA_DEBUG")]
+		public static void Log(string s)
+		{
+			UnityEngine.Debug.Log($"[TOMIA] {s}");
+		}
 	}
 }

@@ -55,7 +55,8 @@ namespace Tomia
 
 		public void Dispose()
 		{
-			Debug.Log($"Disposed: {_ptr}");
+			ProfilerUtils.Log($"Disposed {nameof(Vm)} : {_ptr}");
+			
 			if (this.IsValid() == false) return;
 
 			var callHandles = Managed.ManagedClasses[_ptr].CallHandles;
@@ -90,7 +91,7 @@ namespace Tomia
 			VmUtils.Vms.Data.Map.Add(ptr, vm);
 			Managed.ManagedClasses.Add(ptr, new Managed()); // store *managed* events separately 
 
-			Debug.Log($"Created: {vm._ptr}");
+			ProfilerUtils.Log($"Created {nameof(Vm)} : {vm._ptr}");
 
 			return vm;
 		}

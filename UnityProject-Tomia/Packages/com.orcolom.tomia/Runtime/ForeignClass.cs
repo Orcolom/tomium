@@ -42,7 +42,8 @@ namespace Tomia
 			// if (alloc.Method.IsStatic == false) Debug.LogError("Alloc methods have to be static for il2cpp");
 #endif
 			
-			Debug.Log($"x {alloc.Method.Name}, {alloc.Method.MethodHandle.Value}");
+			ProfilerUtils.Log($"New {nameof(ForeignClass)}: {alloc.Method.Name}({alloc.Method.MethodHandle.Value}), null");
+
 			_allocPtr = alloc.Method.MethodHandle.Value;
 			_finPtr = IntPtr.Zero;
 			using (ProfilerUtils.AllocScope.Auto())
@@ -54,6 +55,8 @@ namespace Tomia
 
 		public ForeignClass(ForeignAction alloc, ForeignAction fin)
 		{
+			ProfilerUtils.Log($"New {nameof(ForeignClass)}: {alloc.Method.Name}({alloc.Method.MethodHandle.Value}), {fin.Method.Name}({fin.Method.MethodHandle.Value})");
+			
 			_allocPtr = alloc.Method.MethodHandle.Value;
 			_finPtr = fin.Method.MethodHandle.Value;
 
