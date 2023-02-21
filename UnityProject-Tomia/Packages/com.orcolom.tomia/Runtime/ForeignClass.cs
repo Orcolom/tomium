@@ -37,12 +37,13 @@ namespace Tomia
 
 		public ForeignClass(ForeignAction alloc)
 		{
-#if UNITY_EDITOR
-			// TODO: only do this if il2cpp backend is selected
-			if (alloc.Method.IsStatic == false) Debug.LogWarning("Alloc methods have to be static for il2cpp");
+#if UNITY_EDITOR || DEBUG
+			// TO//DO: only do this if il2cpp backend is selected
+			// if (alloc.Method.IsStatic == false) Debug.LogError("Alloc methods have to be static for il2cpp");
 #endif
 			
-			_allocPtr = new IntPtr(alloc.Method.MetadataToken);
+			Debug.Log($"x {alloc.Method.Name}, {alloc.Method.MethodHandle.Value}");
+			_allocPtr = alloc.Method.MethodHandle.Value;
 			_finPtr = IntPtr.Zero;
 			using (ProfilerUtils.AllocScope.Auto())
 			{
@@ -53,8 +54,8 @@ namespace Tomia
 
 		public ForeignClass(ForeignAction alloc, ForeignAction fin)
 		{
-			_allocPtr = new IntPtr(alloc.Method.MetadataToken);
-			_finPtr = new IntPtr(fin.Method.MetadataToken);
+			_allocPtr = alloc.Method.MethodHandle.Value;
+			_finPtr = fin.Method.MethodHandle.Value;
 
 			using (ProfilerUtils.AllocScope.Auto())
 			{
@@ -70,14 +71,14 @@ namespace Tomia
 		// 	return new ForeignClass(vm => vm.Slot0.SetNewForeign<T>(vm.Slot0));
 		// }
 
-		public static ForeignClass DefaultAlloc()
+		public static ForeignClass DefaultAlloc<T>()
 		{
-			return new ForeignClass(DefaultAllocAction);
+			return new ForeignClass(DefaultAllocAction<T>);
 		}
 
-		private static void DefaultAllocAction(Vm vm)
+		private static void DefaultAllocAction<T>(Vm vm)
 		{
-			vm.Slot0.SetNewForeign(vm.Slot0);
+			vm.Slot0.SetNewForeign<T>(vm.Slot0);
 		}
 		
 		internal static ForeignClass FromAllocPtr(IntPtr ptr)

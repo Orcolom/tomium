@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Samples/04-Builder/Builder.unity
     guid: c2adb10e89c453d46881ffc35b717b27
+  - enabled: 1
+    path: Assets/Samples/05-Test/Test.unity
+    guid: 97d777ab068ae0f45b4a67aa261c2e68
   m_configObjects: {}

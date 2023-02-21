@@ -4,9 +4,9 @@ using Tomia.Builder;
 
 namespace Binding.UnityBinding
 {
-	public class Vector3Binding : UnityModule.Class
+	public class Vector3Binding : UnityModule.Class<Vector3>
 	{
-		public Vector3Binding() : base(nameof(Vector3), null, typeof(Vector3))
+		public Vector3Binding() : base(nameof(Vector3))
 		{
 			const string x = "x";
 			Add(new Method(Signature.Create(MethodType.FieldGetter, x), new ForeignMethod(GetX)));
@@ -94,9 +94,9 @@ namespace Binding.UnityBinding
 		}
 	}
 
-	public class ColorBinding : UnityModule.Class
+	public class ColorBinding : UnityModule.Class<Color>
 	{
-		public ColorBinding() : base(nameof(Color), null, typeof(Color))
+		public ColorBinding() : base(nameof(Color))
 		{
 			const string r = "r";
 			Add(new Method(Signature.Create(MethodType.FieldGetter, r), new ForeignMethod(GetR)));
@@ -207,9 +207,9 @@ namespace Binding.UnityBinding
 		}
 	}
 
-	public class QuaternionBinding : UnityModule.Class
+	public class QuaternionBinding : UnityModule.Class<Quaternion>
 	{
-		public QuaternionBinding() : base(nameof(Quaternion), null, typeof(Quaternion))
+		public QuaternionBinding() : base(nameof(Quaternion))
 		{
 			const string x = "x";
 			Add(new Method(Signature.Create(MethodType.FieldGetter, x), new ForeignMethod(GetX)));

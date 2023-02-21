@@ -62,7 +62,7 @@ namespace Tomia.Samples
 import ""Time"" for DateTime 
 
 var time = DateTime.Now()
-System.print(time)
+System.print(""now: %(time)"")
 
 System.print(DateTime.Today())
 
@@ -88,6 +88,14 @@ fn2.call()
 			vm.Dispose();
 
 			SampleRunner.NextSample();
+
+			ForeignClass.DefaultAlloc<Collider>();
+			ForeignClass.DefaultAlloc<Collider>();
+			ForeignClass.DefaultAlloc<BoxCollider>();
+			ForeignClass.DefaultAlloc<BoxCollider>();
+			{
+				ForeignClass.DefaultAlloc<Collider>();
+			}
 		}
 	}
 
@@ -97,7 +105,7 @@ fn2.call()
 
 		public TimeDateBuilderModule() : base("Time")
 		{
-			Add(new Class("DateTime", null, ForeignClass.DefaultAlloc())
+			Add(new Class("DateTime", null, ForeignClass.DefaultAlloc<TimeDateBuilderModule>())
 			{
 				new Method(Signature.Create(MethodType.Construct, "Now"), new ForeignMethod(NowInstanced)),
 				new Method(Signature.Create(MethodType.Construct, "Today"), new ForeignMethod(TodayStatic)),
@@ -108,7 +116,7 @@ fn2.call()
 				})),
 			});
 		}
-
+		
 		private void NowInstanced(Vm vm)
 		{
 			var fo = vm.Slot0.GetForeign<DateTime>();
@@ -121,7 +129,7 @@ fn2.call()
 			fo.Value = DateTime.Today;
 		}
 
-		private void Alloc(Vm vm)
+		private static void Alloc(Vm vm)
 		{
 			vm.Slot0.SetNewForeign(vm.Slot0, new DateTime());
 		}

@@ -19,15 +19,25 @@ namespace Binding
 		public class Class : Tomia.Builder.Class
 		{
 			public readonly Type ValueType;
-			
-			protected Class(string name, string inherits = null, Type type = null, ClassBody body = null,
+
+			protected Class(string name, string inherits = null, Type type = null, ForeignClass @class = default, ClassBody body = null,
 				Attributes attributes = null)
-				: base(name, inherits, type != null ? ForeignClass.DefaultAlloc() : default, body, attributes)
+				: base(name, inherits, @class, body, attributes)
 			{
-				if (type == null) return;
 				ValueType = type;
+			}
+		}
+		
+		public class Class<T> : Class
+		{
+			
+			protected Class(string name, string inherits = null, ClassBody body = null,
+				Attributes attributes = null)
+				: base(name, inherits, typeof(T), ForeignClass.DefaultAlloc<T>(), body, attributes)
+			{
+				if (ValueType == null) return;
 				TypesById.Add(name, this);
-				IdByType.Add(type, this);
+				IdByType.Add(ValueType, this);
 			}
 		}
 		
@@ -166,11 +176,11 @@ if (isWren) {{
 		}
 	}
 
-	public class UnityGameObjectBinding : UnityModule.Class
+	public class UnityGameObjectBinding : UnityModule.Class<GameObject>
 	{
 		public const string WrenName = "UnityGameObject";
 
-		public UnityGameObjectBinding() : base(WrenName, GameObjectBinding.WrenName, typeof(GameObject))
+		public UnityGameObjectBinding() : base(WrenName, GameObjectBinding.WrenName)
 		{
 			Add(new Method(Signature.Create(MethodType.Method, "GetComponent", 1), new MethodBody
 			{

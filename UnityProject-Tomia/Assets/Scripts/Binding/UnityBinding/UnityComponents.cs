@@ -4,9 +4,9 @@ using Tomia.Builder;
 
 namespace Binding.UnityBinding
 {
-	public class TransformBinding : UnityModule.Class
+	public class TransformBinding : UnityModule.Class<Transform>
 	{
-		public TransformBinding() : base(nameof(Transform), UnityComponentBinding.WrenName, typeof(Transform))
+		public TransformBinding() : base(nameof(Transform), UnityComponentBinding.WrenName)
 		{
 			Add(new Method(Signature.Create(MethodType.Method, nameof(GetPosition)), new ForeignMethod(GetPosition)));
 			Add(new Method(Signature.Create(MethodType.Method, nameof(SetPosition), 1), new ForeignMethod(SetPosition)));

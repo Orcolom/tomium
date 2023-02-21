@@ -34,30 +34,13 @@ namespace Tomia
 
 		public ForeignMethod(ForeignAction action, string marker = null)
 		{
-#if ENABLE_IL2CPP == false
-			try
-			{
-				// While this also returns a pointer, this isn't the same pointer as Marshal.GetFunctionPointerForDelegate
-				// and will return invalid methods when trying to use it.
-				// Marshalling can just crash the editor when getting an invalid method, GetFunctionPointer throws an error instead. it also compiles the method, aka first call initialization
-				var ptr = action.Method.MethodHandle.GetFunctionPointer();
-			}
-			catch
-			{
-				_profilerMarker = default;
-				_ptr = default;
-				return;
-			}
-#endif
-			
-#if UNITY_EDITOR
-			// TODO: only do this if il2cpp backend is selected
-			if (action.Method.IsStatic == false) Debug.LogWarning("il2cpp only allows static methods");
+#if UNITY_EDITOR || DEBUG
+			// TO//DO: only do this if il2cpp backend is selected
+			// if (action.Method.IsStatic == false) Debug.LogError($"il2cpp only allows static methods. {action.Method.Name} is not");
 #endif
 
-			// https://iobservable.net/2013/05/12/introduction-to-clr-metadata/
-			_ptr = new IntPtr(action.Method.MetadataToken);
-			
+			Debug.Log($"x {action.Method.Name}, {action.Method.MethodHandle.Value}");
+			_ptr = action.Method.MethodHandle.Value;
 			_profilerMarker = ProfilerUtils.Create(marker ?? action.Method.Name);
 			
 			Managed.Actions.TryAdd(_ptr, action);
