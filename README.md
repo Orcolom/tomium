@@ -24,7 +24,10 @@ A [Wren](https://wren.io/) binding made from the ground up for Unity.
 ```cs
   private void Start()
   {
+    // Create a new vm
     var vm = Vm.New();
+
+    // Add listeners for logs and errors
     vm.SetWriteListener((_, text) => Debug.Log(text));
     vm.SetErrorListener((_, type, module, line, message) =>
     {
@@ -38,9 +41,14 @@ A [Wren](https://wren.io/) binding made from the ground up for Unity.
       Debug.LogError(str);
     });
     
+    // Interpret some code
     var result = vm.Interpret("<main>", "var CallMe = Fn.new{|arg|\nSystem.print(\"Hello World %(arg)\")\n}"
     );
     
+    // Ensure the amount of slots needed
+    // get the `CallMe` variable and store it in slot 0
+    // set a string value to slot 1
+    // make a call handle and run it on `CallMe`
     vm.EnsureSlots(2);
     vm.Slot0.GetVariable("<main>", "CallMe");
     vm.Slot1.SetString("\n-From Tamia");
@@ -48,7 +56,7 @@ A [Wren](https://wren.io/) binding made from the ground up for Unity.
     {
       vm.Call(handle);
     }
-    
+
     vm.Dispose();
   }
 }
@@ -69,27 +77,20 @@ using (ProfilerUtils.AllocScope.Auto())
 
 ## Support
 
-### Scripting Backend
+### Scripting Backend and Platforms
 
-Implement it whatever your scripting backend is.
+|Platform    | |mono |il2cpp | |jobs*|burst |
+|------------|-|-----|-------|-|-----|------|
+|Windows x64 | |x    |x      | |?    |?     |
+|Linux       | |?    |?      | |?    |?     |
+|Mac         | |?    |?      | |?    |?     |
+|Android     | |     |x      | |?    |?     |
+|iOS         | |     |?      | |?    |?     |
+|WebGL       | |     |x      | |?    |?     |
 
-|Version    |Support level |*      |
-|-----------|--------------|-------|
-|Mono       |full support  |       |
-|IL2CPP     |full support* | Il2cpp is stricter with what is allowed and has not been tested on all platforms yet  |
-|Job System |conceptual*   | **Parts of this support is currently disabled** <br> Was structurally build to support it. But not willing to promote this until more tests prove good support.  |
+*x = supported, ? = support unknown*
 
-### Platforms
-
-|Platform    |            |
-|------------|------------|
-|Windows x64 |Planned     |
-|Windows x32 |Not Planned |
-|Windows UWP |Not Planned |
-|Linux       |Planned     |
-|Mac         |Planned     |
-|Android     |Planned     |
-|iOS         |Planned     |
+*Tomia was structurally conceptually to support this. But needs more implementation and testing.
 
 ### Version Compatibility
 
