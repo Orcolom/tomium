@@ -25,7 +25,7 @@ namespace Binding.UnityBinding
 			if (UnityModule.TryGetId(vm, typeof(Vector3), out var type) == false) return;
 			
 			var position = self.Value.position;
-			UnityModule.SetNewForeign(vm, vm.Slot0, type, position);
+			UnityModule.SetNewForeignObject(vm, vm.Slot0, type, position);
 		}
 
 		private void SetPosition(Vm vm)
@@ -44,7 +44,7 @@ namespace Binding.UnityBinding
 			if (UnityModule.TryGetId(vm, typeof(Quaternion), out var type) == false) return;
 			
 			var rotation = self.Value.rotation;
-			UnityModule.SetNewForeign(vm, vm.Slot0, type, rotation);
+			UnityModule.SetNewForeignObject(vm, vm.Slot0, type, rotation);
 		}
 
 		private void SetRotation(Vm vm)
@@ -74,10 +74,10 @@ namespace Binding.UnityBinding
 			if (UnityModule.TryGetId(vm, typeof(Quaternion), out var quadType) == false) return;
 
 			var rotation = self.Value.rotation;
-			UnityModule.SetNewForeign(vm, vm.Slot1, quadType, rotation);
+			UnityModule.SetNewForeignObject(vm, vm.Slot1, quadType, rotation);
 			
 			var position = self.Value.position;
-			UnityModule.SetNewForeign(vm, vm.Slot2, vectorType, position);
+			UnityModule.SetNewForeignObject(vm, vm.Slot2, vectorType, position);
 			
 			vm.Slot0.SetNewList();
 			vm.Slot0.AddToList(vm.Slot1);

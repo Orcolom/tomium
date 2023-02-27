@@ -87,7 +87,7 @@ System.print(DateTime.Today())
 			Today = new ForeignMethod(TodayStatic);
 			ToString = new ForeignMethod(vm =>
 			{
-				var fo = vm.Slot0.GetForeign<DateTime>();
+				var fo = vm.Slot0.GetForeignObject<DateTime>();
 				vm.Slot0.SetString(fo.Value.ToString());
 			});
 
@@ -102,19 +102,19 @@ foreign class DateTime {
 
 		private void NowInstanced(Vm vm)
 		{
-			var fo = vm.Slot0.GetForeign<DateTime>();
+			var fo = vm.Slot0.GetForeignObject<DateTime>();
 			fo.Value = DateTime.Now;
 		}
 		
 		private static void TodayStatic(Vm vm)
 		{
-			var fo = vm.Slot0.GetForeign<DateTime>();
+			var fo = vm.Slot0.GetForeignObject<DateTime>();
 			fo.Value = DateTime.Today;
 		}
 
 		private void Alloc(Vm vm)
 		{
-			vm.Slot0.SetNewForeign(vm.Slot0, new DateTime());
+			vm.Slot0.SetNewForeignObject(vm.Slot0, new DateTime());
 		}
 	}
 }

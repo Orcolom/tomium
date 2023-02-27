@@ -111,7 +111,7 @@ fn2.call()
 				new Method(Signature.Create(MethodType.Construct, "Today"), new ForeignMethod(TodayStatic)),
 				new Method(Signature.Create(MethodType.ToString), new ForeignMethod(vm =>
 				{
-					var fo = vm.Slot0.GetForeign<DateTime>();
+					var fo = vm.Slot0.GetForeignObject<DateTime>();
 					vm.Slot0.SetString(fo.Value.ToString());
 				})),
 			});
@@ -119,19 +119,19 @@ fn2.call()
 		
 		private void NowInstanced(Vm vm)
 		{
-			var fo = vm.Slot0.GetForeign<DateTime>();
+			var fo = vm.Slot0.GetForeignObject<DateTime>();
 			fo.Value = DateTime.Now;
 		}
 
 		private static void TodayStatic(Vm vm)
 		{
-			var fo = vm.Slot0.GetForeign<DateTime>();
+			var fo = vm.Slot0.GetForeignObject<DateTime>();
 			fo.Value = DateTime.Today;
 		}
 
 		private static void Alloc(Vm vm)
 		{
-			vm.Slot0.SetNewForeign(vm.Slot0, new DateTime());
+			vm.Slot0.SetNewForeignObject(vm.Slot0, new DateTime());
 		}
 	}
 }

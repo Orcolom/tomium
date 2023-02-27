@@ -81,7 +81,7 @@ namespace Tomia
 
 		private static void DefaultAllocAction<T>(Vm vm)
 		{
-			vm.Slot0.SetNewForeign<T>(vm.Slot0);
+			vm.Slot0.SetNewForeignObject<T>(vm.Slot0);
 		}
 		
 		internal static ForeignClass FromAllocPtr(IntPtr ptr)
@@ -112,6 +112,8 @@ namespace Tomia
 		public void InvokeFinalizer(IntPtr intPtr)
 		{
 			Managed.ForeignObjects.Remove(intPtr);
+			// TODO: how do we clear the struct data?
+			ForeignTypeMetadata.StaticMap.Data.Map.Remove(intPtr);
 		}
 	}
 }

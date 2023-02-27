@@ -95,10 +95,10 @@ if (isWren) {{
 			return false;
 		}
 
-		public static void SetNewForeign<T>(Vm vm, Slot slot, UnityModule.Class type, T data = default)
+		public static void SetNewForeignObject<T>(Vm vm, Slot slot, UnityModule.Class type, T data = default)
 		{
 			slot.GetVariable(type.Module.Path, type.Name.Text); // TODO: does this work for external types? 
-			slot.SetNewForeign(slot, data);
+			slot.SetNewForeignObject(slot, data);
 		}
 	}
 
@@ -164,7 +164,7 @@ if (isWren) {{
 				return;
 			}
 
-			UnityModule.SetNewForeign(vm, vm.Slot0, type, component);
+			UnityModule.SetNewForeignObject(vm, vm.Slot0, type, component);
 		}
 
 		public static void f_AddComponent(Vm vm, GameObject self, string typeId)
@@ -172,7 +172,7 @@ if (isWren) {{
 			if (UnityModule.ExpectType(vm, typeId, out var type) == false) return;
 			var component = self.AddComponent(type.ValueType);
 
-			UnityModule.SetNewForeign(vm, vm.Slot0, type, component);
+			UnityModule.SetNewForeignObject(vm, vm.Slot0, type, component);
 		}
 	}
 
@@ -402,7 +402,7 @@ if (isWren) {{
 			if (UnityModule.ExpectObject(vm.Slot0, out ForeignObject<Component> self) == false) return;
 			
 			if (UnityModule.TryGetId(vm, typeof(GameObject), out var typeId) == false) return;
-			UnityModule.SetNewForeign(vm, vm.Slot0, typeId, self.Value.gameObject);
+			UnityModule.SetNewForeignObject(vm, vm.Slot0, typeId, self.Value.gameObject);
 		}
 	}
 

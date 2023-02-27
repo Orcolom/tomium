@@ -397,6 +397,12 @@ namespace Tomia
 
 		#endregion
 		
+		internal static IntPtr GetForeignPtr(this Slot slot)
+		{
+			if (ExpectedValid(slot, ValueType.Foreign)) return IntPtr.Zero;
+			return Interop.wrenGetSlotForeign(slot.VmPtr, slot.Index);
+		}
+		
 		#region Managed Foreign Object
 
 		/// <summary>
@@ -410,85 +416,57 @@ namespace Tomia
 		/// </para>
 		/// 
 		/// </summary>
-		public static ForeignObject<T> SetNewForeign<T>(this Slot slot, in Slot @class, T data = default)
+		public static ForeignObject<T> SetNewForeignObject<T>(this Slot slot, in Slot @class, T data = default)
 		{
 			if (ExpectedValid(slot)) return new ForeignObject<T>();
 			if (VmUtils.ExpectedValid(slot.VmPtr)) return new ForeignObject<T>();
 
 			var ptr = Interop.wrenSetSlotNewForeign(slot.VmPtr, @class.Index, @class.Index, new IntPtr(IntPtr.Size));
-
-			using (ProfilerUtils.AllocScope.Auto())
-			{
-				Managed.ForeignObjects.Add(ptr, data);
-			}
+			ForeignObject<T>.Add(ptr, data);
 			
 			return new ForeignObject<T>(ptr);
 		}
 
-		/// <inheritdoc cref="SetNewForeign{T}(Tomia.Slot,in Tomia.Slot,T)"/>>
-		internal static void SetNewForeign(this Slot slot, in Slot @class)
-		{
-			if (ExpectedValid(slot)) return;
-			if (VmUtils.ExpectedValid(slot.VmPtr)) return;
-
-			var ptr = Interop.wrenSetSlotNewForeign(slot.VmPtr, @class.Index, @class.Index, new IntPtr(IntPtr.Size));
-
-			using (ProfilerUtils.AllocScope.Auto())
-			{
-				Managed.ForeignObjects.Add(ptr, null);
-			}
-		}
-
-		
-		public static ForeignObject<T> GetForeign<T>(this Slot slot)
+		public static ForeignObject<T> GetForeignObject<T>(this Slot slot)
 		{
 			var ptr = slot.GetForeignPtr();
 			return ptr == IntPtr.Zero ? new ForeignObject<T>() : ForeignObject<T>.FromPtr(ptr);
 		}
+
+		#endregion
 		
-		internal static IntPtr GetForeignPtr(this Slot slot)
+		#region Unmanaged Foreign Structs
+
+		/// <summary>
+		/// Creates a new instance of the foreign class stored in <paramref name="class"/>
+		/// 
+		/// <para>
+		/// 	This does not invoke the foreign class's constructor on the new instance. If
+		/// 	you need that to happen, call the constructor from Wren, which will then
+		/// 	call the allocator foreign method. In there, call this to create the object
+		/// 	and then the constructor will be invoked when the allocator returns.
+		/// </para>
+		/// 
+		/// </summary>
+		public static ForeignStruct<T> SetNewForeignStruct<T>(this Slot slot, in Slot @class, T data = default)
+			where T : unmanaged
 		{
-			if (ExpectedValid(slot, ValueType.Foreign)) return IntPtr.Zero;
-			return Interop.wrenGetSlotForeign(slot.VmPtr, slot.Index);
+			if (ExpectedValid(slot)) return new ForeignStruct<T>();
+			if (VmUtils.ExpectedValid(slot.VmPtr)) return new ForeignStruct<T>();
+
+			var ptr = Interop.wrenSetSlotNewForeign(slot.VmPtr, @class.Index, @class.Index, new IntPtr(IntPtr.Size));
+			ForeignStruct<T>.Add(ptr, data);
+		
+			return new ForeignStruct<T>(ptr);
+		}
+
+		public static ForeignStruct<T> GetForeignStruct<T>(this Slot slot)
+			where T : unmanaged
+		{
+			var ptr = slot.GetForeignPtr();
+			return ptr == IntPtr.Zero ? new ForeignStruct<T>() : ForeignStruct<T>.FromPtr(ptr);
 		}
 		
 		#endregion
-		
-		// #region Unmanaged Foreign Object
-		//
-		// /// <summary>
-		// /// Creates a new instance of the foreign class stored in <paramref name="class"/>
-		// /// 
-		// /// <para>
-		// /// 	This does not invoke the foreign class's constructor on the new instance. If
-		// /// 	you need that to happen, call the constructor from Wren, which will then
-		// /// 	call the allocator foreign method. In there, call this to create the object
-		// /// 	and then the constructor will be invoked when the allocator returns.
-		// /// </para>
-		// /// 
-		// /// </summary>
-		// public static UnmanagedForeignObject<T> SetNewUnmanagedForeign<T>(this Slot slot, in Slot @class, T data = default)
-		// 	where T : unmanaged
-		// {
-		// 	if (ExpectedValid(slot, ValueType.Foreign)) return new UnmanagedForeignObject<T>();
-		// 	if (VmUtils.ExpectedValid(slot.VmPtr)) return new UnmanagedForeignObject<T>();
-		//
-		// 	var ptr = Interop.wrenSetSlotNewForeign(slot.VmPtr, @class.Index, @class.Index, new IntPtr(IntPtr.Size));
-		//
-		// 	var obj = new UnmanagedForeignObject<T>(ptr);
-		// 	UnmanagedForeignObject<T>.ForeignObjects.Data.Map.TryAdd(ptr, data);
-		//
-		// 	return obj;
-		// }
-		//
-		// public static UnmanagedForeignObject<T> GetUnmanagedForeign<T>(this Slot slot)
-		// 	where T : unmanaged
-		// {
-		// 	if (ExpectedValid(slot, ValueType.Foreign)) return new UnmanagedForeignObject<T>();
-		// 	var ptr = Interop.wrenGetSlotForeign(slot.VmPtr, slot.Index);
-		// 	return UnmanagedForeignObject<T>.FromPtr(ptr);
-		// }
-		//
-		// #endregion
 	}
 }
