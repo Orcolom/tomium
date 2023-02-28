@@ -5,7 +5,7 @@ namespace Tomia
 	public readonly struct ForeignStruct<T>
 		where T : unmanaged
 	{
-		internal static int TypeID { get; } = ForeignMetadata.GetID<T>();
+		internal static int TypeID { get; } = ForeignMetadata.GetTypeID<T>();
 
 		private readonly IntPtr _ptr;
 
@@ -14,33 +14,30 @@ namespace Tomia
 			get
 			{
 				if (ExpectedValid(this)) return default;
-				return ForeignValue<T>.StaticMap.Data.Map.TryGetValue(_ptr, out var value) ? value : default;
+				return ForeignValue<T>.TryGetValue(_ptr, out var value) ? value : default;
 			}
 			set
 			{
 				if (ExpectedValid(this)) return;
-				using (ProfilerUtils.AllocScope.Auto())
-				{
-					ForeignValue<T>.StaticMap.Data.Map[_ptr] = value;
-				}
+				ForeignValue<T>.Set(_ptr, value);
 			}
 		}
 
-		public bool IsValid => ForeignValue<T>.StaticMap.Data.Map.ContainsKey(_ptr);
+		public bool IsValid => ForeignValue<T>.ContainsKey(_ptr);
 
 		internal ForeignStruct(IntPtr ptr)
 		{
 			_ptr = ptr;
 		}
 
-		public static ForeignStruct<T> FromPtr(IntPtr ptr)
+		internal static ForeignStruct<T> FromPtr(IntPtr ptr)
 		{
 			var foreignStruct = new ForeignStruct<T>(ptr);
 			ExpectedValid(foreignStruct);
 			return foreignStruct;
 		}
 
-		internal static bool ExpectedValid(in ForeignStruct<T> foreign)
+		private static bool ExpectedValid(in ForeignStruct<T> foreign)
 		{
 			if (foreign.IsValid) return false;
 
@@ -50,11 +47,8 @@ namespace Tomia
 
 		public static void Add(IntPtr ptr, T data)
 		{
-			using (ProfilerUtils.AllocScope.Auto())
-			{
-				ForeignMetadata.StaticMap.Data.Map.TryAdd(ptr, new ForeignMetadata(ForeignStyle.Struct, TypeID));
-				ForeignValue<T>.StaticMap.Data.Map.TryAdd(ptr, data);
-			}
+			ForeignMetadata.TryAdd(ptr, new ForeignMetadata(ForeignStyle.Struct, TypeID));
+			ForeignValue<T>.TryAdd(ptr, data);
 		}
 	}
 }

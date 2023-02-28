@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using Unity.Burst;
-using Unity.Collections.LowLevel.Unsafe;
-using Tomia.Native;
-using Object = UnityEngine.Object;
 
 namespace Tomia
 {
@@ -12,7 +7,7 @@ namespace Tomia
 		private readonly IntPtr _ptr;
 
 		public bool IsValid => Managed.ForeignObjects.ContainsKey(_ptr);
-		private static int TypeID { get; } = ForeignMetadata.GetID<T>();
+		private static int TypeID { get; } = ForeignMetadata.GetTypeID<T>();
 
 		public T Value
 		{
@@ -36,7 +31,7 @@ namespace Tomia
 			_ptr = ptr;
 		}
 
-		public static ForeignObject<T> FromPtr(IntPtr ptr)
+		internal static ForeignObject<T> FromPtr(IntPtr ptr)
 		{
 			var foreignObject = new ForeignObject<T>(ptr);
 			ExpectedValid(foreignObject);
@@ -48,7 +43,7 @@ namespace Tomia
 			return new ForeignObject<TType>(_ptr);
 		}
 
-		internal static bool ExpectedValid(in ForeignObject<T> foreign)
+		private static bool ExpectedValid(in ForeignObject<T> foreign)
 		{
 			if (foreign.IsValid) return false;
 
@@ -58,11 +53,8 @@ namespace Tomia
 		
 		public static void Add(IntPtr ptr, T data)
 		{
-			using (ProfilerUtils.AllocScope.Auto())
-			{
-				ForeignMetadata.StaticMap.Data.Map.TryAdd(ptr, new ForeignMetadata(ForeignStyle.Object, TypeID));
-				Managed.ForeignObjects.TryAdd(ptr, data);
-			}
+			ForeignMetadata.TryAdd(ptr, new ForeignMetadata(ForeignStyle.Object, TypeID));
+			Managed.ForeignObjects.TryAdd(ptr, data);
 		}
 	}
 }

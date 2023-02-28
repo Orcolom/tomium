@@ -115,15 +115,15 @@ namespace Tomia
 			Managed.ForeignObjects.Remove(intPtr);
 			
 			// remove if struct
-			if (ForeignMetadata.StaticMap.Data.Map.TryGetValue(intPtr, out var metaData) 
+			if (ForeignMetadata.TryGetValue(intPtr, out var metaData) 
 				&& metaData.Style == ForeignStyle.Struct
-				&& ForeignMetadata.TypeIdToRemove.TryGetValue(metaData.ID, out var remove))
+				&& ForeignMetadata.TryGetRemoveAction(metaData.TypeID, out var remove))
 			{
 				remove?.Invoke(intPtr);
 			}
 
 			// remove the type link
-			ForeignMetadata.StaticMap.Data.Map.Remove(intPtr);
+			ForeignMetadata.Remove(intPtr);
 		}
 	}
 }
