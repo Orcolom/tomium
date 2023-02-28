@@ -111,9 +111,19 @@ namespace Tomia
 
 		public void InvokeFinalizer(IntPtr intPtr)
 		{
+			// remove if managed
 			Managed.ForeignObjects.Remove(intPtr);
-			// TODO: how do we clear the struct data?
-			ForeignTypeMetadata.StaticMap.Data.Map.Remove(intPtr);
+			
+			// remove if struct
+			if (ForeignMetadata.StaticMap.Data.Map.TryGetValue(intPtr, out var metaData) 
+				&& metaData.Style == ForeignStyle.Struct
+				&& ForeignMetadata.TypeIdToRemove.TryGetValue(metaData.ID, out var remove))
+			{
+				remove?.Invoke(intPtr);
+			}
+
+			// remove the type link
+			ForeignMetadata.StaticMap.Data.Map.Remove(intPtr);
 		}
 	}
 }
