@@ -67,6 +67,8 @@ namespace Tomia
 
 		public static ValueType GetValueType(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return ValueType.Unknown;
 			return Interop.wrenGetSlotType(slot.VmPtr, slot.Index);
 		}
@@ -76,6 +78,8 @@ namespace Tomia
 		/// </summary>
 		public static void SetNull(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return;
 			Interop.wrenSetSlotNull(slot.VmPtr, slot.Index);
 		}
@@ -85,6 +89,8 @@ namespace Tomia
 		/// </summary>
 		public static void GetVariable(this Slot slot, string module, string variable)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			// TODO: stop referencing vm here
 			if (ExpectedValid(slot)) return;
 			Vm vm = VmUtils.FromPtr(slot.VmPtr);
@@ -100,6 +106,8 @@ namespace Tomia
 		/// </summary>
 		public static bool GetBool(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.Bool)) return false;
 			return Interop.wrenGetSlotBool(slot.VmPtr, slot.Index);
 		}
@@ -109,6 +117,8 @@ namespace Tomia
 		/// </summary>
 		public static void SetBool(this Slot slot, bool value)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return;
 			Interop.wrenSetSlotBool(slot.VmPtr, slot.Index, value);
 		}
@@ -124,6 +134,8 @@ namespace Tomia
 		/// </summary>
 		public static byte[] GetBytes(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.String)) return null;
 
 			IntPtr arrayPtr = Interop.wrenGetSlotBytes(slot.VmPtr, slot.Index, out int length);
@@ -137,6 +149,8 @@ namespace Tomia
 		/// </summary>
 		public static void SetBytes(this Slot slot, byte[] bytes)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return;
 
 			IntPtr arrayPtr = Marshal.AllocHGlobal(bytes.Length);
@@ -152,6 +166,8 @@ namespace Tomia
 		/// </summary>
 		public static string GetString(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.String)) return null;
 
 			IntPtr intPtr = Interop.wrenGetSlotString(slot.VmPtr, slot.Index);
@@ -171,6 +187,8 @@ namespace Tomia
 		/// </summary>
 		public static void SetString(this Slot slot, string value)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return;
 
 			Interop.wrenSetSlotString(slot.VmPtr, slot.Index, value);
@@ -183,24 +201,32 @@ namespace Tomia
 		/// <inheritdoc cref="GetDouble"/>
 		public static float GetFloat(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			return (float) GetDouble(slot);
 		}
 
 		/// <inheritdoc cref="SetDouble"/>
 		public static void SetFloat(this Slot slot, float value)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			SetDouble(slot, value);
 		}
 
 		/// <inheritdoc cref="GetDouble"/>
 		public static int GetInt(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			return (int) Math.Round(GetDouble(slot));
 		}
 
 		/// <inheritdoc cref="SetDouble"/>
 		public static void SetInt(this Slot slot, int value)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			SetDouble(slot, value);
 		}
 
@@ -211,6 +237,8 @@ namespace Tomia
 		/// </summary>
 		public static double GetDouble(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.Number)) return 0;
 			return Interop.wrenGetSlotDouble(slot.VmPtr, slot.Index);
 		}
@@ -220,6 +248,8 @@ namespace Tomia
 		/// </summary>
 		public static void SetDouble(this Slot slot, double value)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return;
 
 			Interop.wrenSetSlotDouble(slot.VmPtr, slot.Index, value);
@@ -237,6 +267,8 @@ namespace Tomia
 		/// </summary>
 		public static Handle GetHandle(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return new Handle();
 
 			var handlePtr = Interop.wrenGetSlotHandle(slot.VmPtr, slot.Index);
@@ -251,6 +283,8 @@ namespace Tomia
 		/// </summary>
 		public static void SetHandle(this Slot slot, Handle handle)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return;
 			if (Handle.IfInvalid(handle)) return;
 
@@ -261,6 +295,8 @@ namespace Tomia
 		
 		public static int GetCount(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.List, ValueType.Map)) return 0;
 
 			var type = Interop.wrenGetSlotType(slot.VmPtr, slot.Index);
@@ -279,6 +315,8 @@ namespace Tomia
 		/// </summary>
 		public static void SetNewList(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return;
 			Interop.wrenSetSlotNewList(slot.VmPtr, slot.Index);
 		}
@@ -289,6 +327,8 @@ namespace Tomia
 		/// </summary>
 		public static void SetListElement(this Slot slot, int index, in Slot element)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.List)) return;
 			if (ExpectedValid(element)) return;
 			if (slot.ExpectedSameVm(element)) return;
@@ -301,6 +341,8 @@ namespace Tomia
 		/// </summary>
 		public static void GetListElement(this Slot slot, int index, in Slot element)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.List)) return;
 			if (ExpectedValid(element)) return;
 			if (slot.ExpectedSameVm(element)) return;
@@ -317,6 +359,8 @@ namespace Tomia
 		/// </summary>
 		public static void InsertInList(this Slot slot, int index, in Slot element)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.List)) return;
 			if (ExpectedValid(element)) return;
 			if (slot.ExpectedSameVm(element)) return;
@@ -326,6 +370,8 @@ namespace Tomia
 
 		public static void AddToList(this Slot slot, in Slot element)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			InsertInList(slot, -1, element);
 		}
 
@@ -338,6 +384,8 @@ namespace Tomia
 		/// </summary>
 		public static void SetNewMap(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return;
 			Interop.wrenSetSlotNewMap(slot.VmPtr, slot.Index);
 		}
@@ -347,6 +395,8 @@ namespace Tomia
 		/// </summary>
 		public static bool MapContainsKey(this Slot slot, in Slot key)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.Map)) return false;
 			if (ExpectedValid(key)) return false;
 			if (slot.ExpectedSameVm(key)) return false;
@@ -360,6 +410,8 @@ namespace Tomia
 		/// </summary>
 		public static void GetMapValue(this Slot slot, in Slot key, in Slot value)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.Map)) return;
 			if (ExpectedValid(key)) return;
 			if (slot.ExpectedSameVm(key)) return;
@@ -373,6 +425,8 @@ namespace Tomia
 		/// </summary>
 		public static void SetMapValue(this Slot slot, in Slot key, in Slot value)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.Map)) return;
 			if (ExpectedValid(key)) return;
 			if (slot.ExpectedSameVm(key)) return;
@@ -388,6 +442,8 @@ namespace Tomia
 		/// </summary>
 		public static void RemoveMapValue(this Slot slot, in Slot key, in Slot removedValue)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot, ValueType.Map)) return;
 			if (ExpectedValid(key)) return;
 			if (slot.ExpectedSameVm(key)) return;
@@ -419,6 +475,8 @@ namespace Tomia
 		/// </summary>
 		public static ForeignObject<T> SetNewForeignObject<T>(this Slot slot, in Slot @class, T data = default)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return new ForeignObject<T>();
 			if (VmUtils.ExpectedValid(slot.VmPtr)) return new ForeignObject<T>();
 
@@ -430,6 +488,8 @@ namespace Tomia
 
 		public static ForeignObject<T> GetForeignObject<T>(this Slot slot)
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			var ptr = slot.GetForeignPtr();
 			return ptr == IntPtr.Zero ? new ForeignObject<T>() : ForeignObject<T>.FromPtr(ptr);
 		}
@@ -452,6 +512,8 @@ namespace Tomia
 		public static ForeignStruct<T> SetNewForeignStruct<T>(this Slot slot, in Slot @class, T data = default)
 			where T : unmanaged
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			if (ExpectedValid(slot)) return new ForeignStruct<T>();
 			if (VmUtils.ExpectedValid(slot.VmPtr)) return new ForeignStruct<T>();
 
@@ -464,6 +526,8 @@ namespace Tomia
 		public static ForeignStruct<T> GetForeignStruct<T>(this Slot slot)
 			where T : unmanaged
 		{
+			using var l = new Lock(slot.VmPtr);
+
 			var ptr = slot.GetForeignPtr();
 			return ptr == IntPtr.Zero ? new ForeignStruct<T>() : ForeignStruct<T>.FromPtr(ptr);
 		}

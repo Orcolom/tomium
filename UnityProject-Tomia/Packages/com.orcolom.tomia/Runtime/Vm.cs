@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using Tomia.Native;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
@@ -71,6 +72,7 @@ namespace Tomia
 			Interop.wrenFreeVM(_ptr);
 			Managed.ManagedClasses.Remove(_ptr);
 			VmUtils.Vms.Data.Map.Remove(_ptr);
+			VmUtils.Thread.Data.Map.Remove(_ptr);
 			_ptr = IntPtr.Zero;
 		}
 
@@ -91,6 +93,7 @@ namespace Tomia
 
 			// store data
 			VmUtils.Vms.Data.Map.Add(ptr, vm);
+			VmUtils.Thread.Data.Map.Add(ptr, 0);
 			Managed.ManagedClasses.Add(ptr, new Managed()); // store *managed* events separately 
 
 			ProfilerUtils.Log($"Created {nameof(Vm)} : {vm._ptr}");
@@ -117,10 +120,12 @@ namespace Tomia
 		private static readonly ProfilerMarker PrefCall = ProfilerUtils.Create($"{nameof(Vm)}.{nameof(Call)}");
 
 		internal static readonly SharedStatic<StaticMap<Vm>> Vms = SharedStatic<StaticMap<Vm>>.GetOrCreate<Vm>();
+		internal static readonly SharedStatic<StaticMap<int>> Thread = SharedStatic<StaticMap<int>>.GetOrCreate<Vm, int>();
 
 		static VmUtils()
 		{
 			Vms.Data.Init(16);
+			Thread.Data.Init(16);
 		}
 
 		#region Expected
@@ -191,6 +196,7 @@ namespace Tomia
 		public static InterpretResult Interpret(this Vm vm, [DisallowNull] string module, string source)
 		{
 			PrefInterpret.Begin();
+			using var l = new Lock(vm.Ptr);
 
 			if (ExpectedValid(vm)) return InterpretResult.CompileError;
 			if (string.IsNullOrEmpty(module)) throw new ArgumentNullException();
@@ -221,6 +227,7 @@ namespace Tomia
 		public static InterpretResult Call(this Vm vm, Handle method)
 		{
 			PrefCall.Begin();
+			using var l = new Lock(vm.Ptr);
 
 			if (ExpectedValid(vm)) return InterpretResult.CompileError;
 			if (Handle.IfInvalid(method)) return InterpretResult.CompileError;
@@ -234,6 +241,8 @@ namespace Tomia
 		/// <inheritdoc cref="Native.Interop.wrenCollectGarbage"/>
 		public static void Gc(this Vm vm)
 		{
+			using var l = new Lock(vm.Ptr);
+
 			if (ExpectedValid(vm)) return;
 			Interop.wrenCollectGarbage(vm.Ptr);
 		}
@@ -241,6 +250,8 @@ namespace Tomia
 		/// <inheritdoc cref="Native.Interop.wrenAbortFiber"/>
 		public static void Abort(this Vm vm, in Slot msg)
 		{
+			using var l = new Lock(vm.Ptr);
+
 			if (ExpectedValid(vm)) return;
 			Interop.wrenAbortFiber(vm.Ptr, msg.Index);
 		}
@@ -258,7 +269,9 @@ namespace Tomia
 		/// <param name="signature">method signature</param>
 		/// <returns>pointer to handle</returns>
 		public static Handle MakeCallHandle(this Vm vm, string signature)
-		{
+		{			
+			using var l = new Lock(vm.Ptr);
+
 			return Handle.New(vm, signature);
 		}
 
@@ -271,6 +284,8 @@ namespace Tomia
 		/// <returns></returns>
 		public static bool HasModuleAndVariable(this Vm vm, string module, string variable)
 		{
+			using var l = new Lock(vm.Ptr);
+
 			if (vm.HasModule(module) == false) return false;
 			if (vm.HasVariable(module, variable) == false) return false;
 			return true;
@@ -286,6 +301,8 @@ namespace Tomia
 		/// <param name="name">variable to check</param>
 		public static bool HasVariable(this Vm vm, string module, string name)
 		{
+			using var l = new Lock(vm.Ptr);
+
 			return Interop.wrenHasVariable(vm.Ptr, module, name);
 		}
 
@@ -296,6 +313,8 @@ namespace Tomia
 		/// <param name="module">module to check</param>
 		public static bool HasModule(this Vm vm, string module)
 		{
+			using var l = new Lock(vm.Ptr);
+
 			return Interop.wrenHasModule(vm.Ptr, module);
 		}
 
@@ -305,12 +324,16 @@ namespace Tomia
 
 		public static int GetSlotCount(this Vm vm)
 		{
+			using var l = new Lock(vm.Ptr);
+
 			if (ExpectedValid(vm)) return 0;
 			return Interop.wrenGetSlotCount(vm.Ptr);
 		}
 
 		public static void EnsureSlots(this Vm vm, int size)
 		{
+			using var l = new Lock(vm.Ptr);
+
 			if (ExpectedValid(vm)) return;
 			Interop.wrenEnsureSlots(vm.Ptr, size);
 		}
@@ -368,5 +391,26 @@ namespace Tomia
 		}
 
 		#endregion
+	}
+
+	struct Lock : IDisposable
+	{
+		private readonly IntPtr _vmPtr;
+
+		public Lock(IntPtr vmPtr)
+		{
+			_vmPtr = vmPtr;
+			
+			var currentThread = Environment.CurrentManagedThreadId;
+			var activeThread = VmUtils.Thread.Data.Map[_vmPtr];
+			
+			if (activeThread != 0 && activeThread != currentThread) throw new AccessViolationException("Tried to use the same Vm on multiple threads at the same time.");
+			VmUtils.Thread.Data.Map[_vmPtr] = currentThread;
+		}
+
+		public void Dispose()
+		{
+			VmUtils.Thread.Data.Map[_vmPtr] = 0;
+		}
 	}
 }
