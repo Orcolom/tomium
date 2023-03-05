@@ -89,5 +89,31 @@ var Value = null
 		{
 			Assert.AreEqual(_vm.Slot0.GetValueType(), ValueType.Null);
 		}
+		
+		
+		[Test]
+		public void Slot_Handle_ValueSharing()
+		{
+			const double value = 123456789d;
+			using var from = Vm.New();
+			using var to = Vm.New();
+			
+			from.EnsureSlots(1);
+			to.EnsureSlots(1);
+			
+			from.Slot0.SetDouble(123456789d);
+			to.Slot0.SetBool(true);
+
+			using var handle = from.Slot0.GetHandle();
+
+			var beforeType = to.Slot0.GetValueType();
+			to.Slot0.SetHandle(handle);
+			var afterType = to.Slot0.GetValueType();
+			var afterValue = to.Slot0.GetDouble();
+			
+			Assert.AreEqual(beforeType, ValueType.Bool);
+			Assert.AreEqual(afterType, ValueType.Number);
+			Assert.AreEqual(afterValue, value);
+		}
 	}
 }

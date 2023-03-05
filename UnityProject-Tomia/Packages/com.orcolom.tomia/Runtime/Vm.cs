@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Tomia.Native;
 using Unity.Burst;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace Tomia
 {
 	public struct Vm : IEquatable<Vm>, IDisposable
 	{
+		[NativeDisableUnsafePtrRestriction]
 		private IntPtr _ptr;
 		internal IntPtr Ptr => _ptr;
 
@@ -142,17 +144,14 @@ namespace Tomia
 			// return true;
 		}
 
-		internal static bool ExpectedSameVm(this Vm self, Slot other) => ExpectedSameVm(self.Ptr, other.VmPtr);
-		internal static bool ExpectedSameVm(this Vm self, Handle other) => ExpectedSameVm(self.Ptr, other.VmPtr);
-		internal static bool ExpectedSameVm(this Slot self, Slot other) => ExpectedSameVm(self.VmPtr, other.VmPtr);
-		internal static bool ExpectedSameVm(this Slot self, Handle other) => ExpectedSameVm(self.VmPtr, other.VmPtr);
+		internal static bool ExpectedSameVm(this Vm self, Slot other) => ExpectedSameVm(self.Ptr, other.VmPtr, "Slot is not from this vm");
+		internal static bool ExpectedSameVm(this Slot self, Slot other) => ExpectedSameVm(self.VmPtr, other.VmPtr, "Slots are not from the same vm");
 
-		internal static bool ExpectedSameVm(IntPtr ptr, IntPtr other)
+		internal static bool ExpectedSameVm(IntPtr ptr, IntPtr other, string error)
 		{
 			if (ptr == other) return false;
 
-			throw new ArgumentOutOfRangeException("ExpectedSameVm",
-				"Not all elements are from the same Vm");
+			throw new ArgumentOutOfRangeException("ExpectedSameVm",error);
 			// return true;
 		}
 
@@ -225,7 +224,6 @@ namespace Tomia
 
 			if (ExpectedValid(vm)) return InterpretResult.CompileError;
 			if (Handle.IfInvalid(method)) return InterpretResult.CompileError;
-			if (vm.ExpectedSameVm(method)) return InterpretResult.CompileError;
 			var result = Interop.wrenCall(vm.Ptr, method.Ptr);
 
 			PrefCall.End();

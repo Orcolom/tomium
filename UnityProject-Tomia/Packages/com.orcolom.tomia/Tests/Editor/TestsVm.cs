@@ -138,6 +138,22 @@ var fn = Fn.new { fn2.call() }
 			test.Call(vm, handle);
 		}
 
+						
+		[Test]
+		public void CallHandle_Sharing()
+		{
+			using var from = Vm.New();
+
+			using var to = Vm.New();
+			using var handle = from.MakeCallHandle("call()");
+
+			to.Interpret("<x>", "var fn = Fn.new {}");
+			to.EnsureSlots(1);
+			to.Slot0.GetVariable("<x>", "fn");
+			var result = to.Call(handle);
+			Assert.AreEqual(result, InterpretResult.Success);
+		}
+		
 		#endregion
 
 		#region Module

@@ -9,6 +9,8 @@ namespace Tomia
 	public readonly struct Slot : IEquatable<Slot>
 	{
 		private readonly int _index;
+		
+		[NativeDisableUnsafePtrRestriction]
 		private readonly IntPtr _vmPtr;
 
 		internal IntPtr VmPtr => _vmPtr;
@@ -251,7 +253,6 @@ namespace Tomia
 		{
 			if (ExpectedValid(slot)) return;
 			if (Handle.IfInvalid(handle)) return;
-			if (slot.ExpectedSameVm(handle)) return;
 
 			Interop.wrenSetSlotHandle(slot.VmPtr, slot.Index, handle.Ptr);
 		}
