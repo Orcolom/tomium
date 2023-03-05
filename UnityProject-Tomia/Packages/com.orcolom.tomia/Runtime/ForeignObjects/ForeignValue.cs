@@ -12,7 +12,7 @@ namespace Tomia
 		static ForeignValue()
 		{
 			_values.Data.Init(64);
-			ForeignMetadata.TryAddRemoveAction<T>(Remove);
+			ForeignMetadata.TryAddType<T>(Remove);
 		}
 
 		public static bool ContainsKey(IntPtr ptr) => _values.Data.Map.ContainsKey(ptr);

@@ -89,12 +89,12 @@ fn2.call()
 
 			SampleRunner.NextSample();
 
-			ForeignClass.DefaultAlloc<Collider>();
-			ForeignClass.DefaultAlloc<Collider>();
-			ForeignClass.DefaultAlloc<BoxCollider>();
-			ForeignClass.DefaultAlloc<BoxCollider>();
+			ForeignClass.DefaultObjectAlloc<Collider>();
+			ForeignClass.DefaultObjectAlloc<Collider>();
+			ForeignClass.DefaultObjectAlloc<BoxCollider>();
+			ForeignClass.DefaultObjectAlloc<BoxCollider>();
 			{
-				ForeignClass.DefaultAlloc<Collider>();
+				ForeignClass.DefaultObjectAlloc<Collider>();
 			}
 		}
 	}
@@ -105,7 +105,7 @@ fn2.call()
 
 		public TimeDateBuilderModule() : base("Time")
 		{
-			Add(new Class("DateTime", null, ForeignClass.DefaultAlloc<TimeDateBuilderModule>())
+			Add(new Class("DateTime", null, ForeignClass.DefaultObjectAlloc<TimeDateBuilderModule>())
 			{
 				new Method(Signature.Create(MethodType.Construct, "Now"), new ForeignMethod(NowInstanced)),
 				new Method(Signature.Create(MethodType.Construct, "Today"), new ForeignMethod(TodayStatic)),

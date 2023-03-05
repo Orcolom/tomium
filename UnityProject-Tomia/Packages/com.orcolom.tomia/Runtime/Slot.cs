@@ -59,7 +59,22 @@ namespace Tomia
 			var actualType = Interop.wrenGetSlotType(slot.VmPtr, slot.Index);
 			if (actualType == typeA || actualType == typeB) return false;
 
-			throw new TypeAccessException($"slot {slot.Index} is of type {actualType} not of types [{typeA}, {typeB}]");
+			string currentType;
+			if (actualType == ValueType.Foreign)
+			{
+				ForeignMetadata.TryGetValue(slot.VmPtr, out var metadata);
+				currentType = $"{actualType}({metadata})";
+			}
+			else
+			{
+				currentType = actualType.ToString();
+			}
+
+			string expectedType = typeB.HasValue 
+				? $"[{typeA}, {typeB}]" 
+				: typeA.ToString();
+
+			throw new TypeAccessException($"slot {slot.Index} is of type {currentType} and not the expected {expectedType}");
 			// return true;
 		}
 

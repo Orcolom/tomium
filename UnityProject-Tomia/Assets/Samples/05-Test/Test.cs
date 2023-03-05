@@ -17,13 +17,15 @@ namespace Tomia.Samples
 		{
 			// ID sanity checks, if these don't return the expected values then we need to re check how de decide ID's
 			
-			ForeignClass.DefaultAlloc<Collider>();
-			ForeignClass.DefaultAlloc<Collider>();
-			ForeignClass.DefaultAlloc<BoxCollider>();
-			ForeignClass.DefaultAlloc<BoxCollider>();
+			ForeignClass.DefaultObjectAlloc<Collider>();
+			ForeignClass.DefaultObjectAlloc<Collider>();
+			ForeignClass.DefaultObjectAlloc<BoxCollider>();
+			ForeignClass.DefaultObjectAlloc<BoxCollider>();
 			
-			ForeignClass.DefaultAlloc<Collider>();
-			ForeignClass.DefaultAlloc<Test>();
+			ForeignClass.DefaultObjectAlloc<Collider>();
+			ForeignClass.DefaultObjectAlloc<Test>();
+			
+			SampleRunner.NextSample();
 		}
 	}
 }

@@ -74,14 +74,26 @@ namespace Tomia
 		// 	return new ForeignClass(vm => vm.Slot0.SetNewForeign<T>(vm.Slot0));
 		// }
 
-		public static ForeignClass DefaultAlloc<T>()
+		public static ForeignClass DefaultObjectAlloc<T>()
 		{
-			return new ForeignClass(DefaultAllocAction<T>);
+			return new ForeignClass(DefaultObjectAllocAction<T>);
 		}
 
-		private static void DefaultAllocAction<T>(Vm vm)
+		private static void DefaultObjectAllocAction<T>(Vm vm)
 		{
 			vm.Slot0.SetNewForeignObject<T>(vm.Slot0);
+		}
+		
+		public static ForeignClass DefaultStructAlloc<T>()
+			where T: unmanaged
+		{
+			return new ForeignClass(DefaultStructAllocAction<T>);
+		}
+
+		private static void DefaultStructAllocAction<T>(Vm vm)
+			where T: unmanaged
+		{
+			vm.Slot0.SetNewForeignStruct<T>(vm.Slot0);
 		}
 		
 		internal static ForeignClass FromAllocPtr(IntPtr ptr)

@@ -15,7 +15,7 @@ namespace Tomia
 		/// <summary>
 		/// ForeignStructs use this to remove values on finalize
 		/// </summary>
-		private static readonly Dictionary<int, Action<IntPtr>> TypeIdToRemove = new Dictionary<int, Action<IntPtr>>(32);
+		private static readonly Dictionary<int, (Action<IntPtr>, Type)> TypeIdToRemove = new Dictionary<int, (Action<IntPtr>, Type)>(32);
 
 		public readonly int TypeID;
 		public readonly ForeignStyle Style;
@@ -29,6 +29,11 @@ namespace Tomia
 		{
 			Style = style;
 			TypeID = typeID;
+		}
+
+		public override string ToString()
+		{
+			return $"{Style}, {TypeID}, {(TypeIdToRemove.TryGetValue(TypeID, out var value) ? value.Item2.Name : string.Empty)}";
 		}
 
 		/// <summary>
@@ -57,18 +62,25 @@ namespace Tomia
 		}
 		
 		
-		internal static bool TryAddRemoveAction<T>(Action<IntPtr> remove)
+		internal static bool TryAddType<T>(Action<IntPtr> remove)
 			where T : unmanaged
 		{
 			using (ProfilerUtils.AllocScope.Auto())
 			{
-				return TypeIdToRemove.TryAdd(ForeignStruct<T>.TypeID, remove);
+				return TypeIdToRemove.TryAdd(ForeignStruct<T>.TypeID, (remove, typeof(T)));
 			}
 		}
 
 		internal static bool TryGetRemoveAction(int typeID, out Action<IntPtr> remove)
 		{
-			return TypeIdToRemove.TryGetValue(typeID, out remove);
+			if (TypeIdToRemove.TryGetValue(typeID, out var typeData))
+			{
+				remove = typeData.Item1;
+				return true;
+			}
+			
+			remove = null;
+			return false;
 		}
 	}
 }

@@ -33,7 +33,7 @@ namespace Binding
 			
 			protected Class(string name, string inherits = null, ClassBody body = null,
 				Attributes attributes = null)
-				: base(name, inherits, typeof(T), ForeignClass.DefaultAlloc<T>(), body, attributes)
+				: base(name, inherits, typeof(T), ForeignClass.DefaultObjectAlloc<T>(), body, attributes)
 			{
 				if (ValueType == null) return;
 				TypesById.Add(name, this);
