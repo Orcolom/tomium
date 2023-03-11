@@ -17,6 +17,7 @@ namespace Tomia.Samples
 		private void Start()
 		{
 			_collection = new ModuleCollection();
+			_collection.ModuleSourceGeneratedEvent += (path, _, str) => Debug.LogWarning($"Load `{path}`\n{str}");
 			_collection.Add(new Vector3Module());
 
 			// single
@@ -65,7 +66,7 @@ namespace Tomia.Samples
 			vm.SetWriteListener(logger.OnWrite);
 			vm.SetErrorListener(logger.OnError);
 			vm.SetUserData(logger);
-			vm.SetLoadModuleListener(LoadModule);
+			vm.SetLoadModuleListener(_collection.LoadModuleHandler);
 			vm.SetBindForeignClassListener(_collection.BindForeignClassHandler);
 			vm.SetBindForeignMethodListener(_collection.BindForeignMethodHandler);
 
@@ -83,13 +84,6 @@ var fn = Fn.new {|value|
 			vm.Slot0.GetVariable("<main>", "fn");
 			return (vm, vm.Slot0.GetHandle());
 		}
-
-		string LoadModule(Vm vm, string path)
-		{
-			var str = _collection.LoadModuleHandler(vm, path);
-			Debug.LogWarning($"Load `{path}`\n{str}");
-			return str;
-		}
 	}
 
 	public class Logger
@@ -100,8 +94,6 @@ var fn = Fn.new {|value|
 
 		public void OnWrite(Vm _, string text)
 		{
-			Console.Write(text);
-			return;
 			if (text == "\n")
 			{
 				Debug.Log(_writeBuffer);
@@ -121,9 +113,6 @@ var fn = Fn.new {|value|
 				_ => string.Empty,
 			};
 
-			Console.Write(str);
-			return;
-			
 			if (type == ErrorType.CompileError)
 				Debug.LogWarning(str);
 			else if (type == ErrorType.StackTrace)

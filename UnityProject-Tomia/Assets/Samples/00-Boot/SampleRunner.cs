@@ -26,12 +26,12 @@ namespace Tomia.Samples
 
 		private void SceneManagerOnSceneLoaded(Scene arg0, LoadSceneMode arg1)
 		{
-			Debug.Log($"-- Loaded sample {arg0.name}");
+			Debug.LogWarning($"-- Loaded sample {arg0.name}");
 		}
 
 		public static void NextSample()
 		{
-			Debug.Log($"-- Finished sample");
+			Debug.LogWarning($"-- Finished sample");
 			if (_active == null) return;
 			_currentScene++;
 			if (_currentScene < SceneManager.sceneCountInBuildSettings) 

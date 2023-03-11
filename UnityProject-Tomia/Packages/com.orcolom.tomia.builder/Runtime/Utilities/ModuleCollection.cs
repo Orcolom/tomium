@@ -9,12 +9,13 @@ namespace Tomia.Builder
 		private static ScriptBuilder _wb = new ScriptBuilder();
 		private Dictionary<string, Module> _modules = new Dictionary<string, Module>();
 		private List<Class> _classes = new List<Class>();
-		
+		private Dictionary<string, string> _moduleCaches = new Dictionary<string, string>();
+
 		public ModuleCollection()
 		{
 		}
 
-		public event Action<Module, string> ModuleLoadEvent;
+		public event Action<string, Module, string> ModuleSourceGeneratedEvent;
 		
 		public void Add(Module module)
 		{
@@ -61,8 +62,12 @@ namespace Tomia.Builder
 		public string LoadModuleHandler(Vm vm, string module)
 		{
 			if (_modules.TryGetValue(module, out Module wrenModule) == false) return null;
-			string str = _wb.CreateModuleSource(vm, wrenModule);
-			ModuleLoadEvent?.Invoke(wrenModule, str);
+			if (_moduleCaches.TryGetValue(module, out var str) == false)
+			{
+				str = _wb.CreateModuleSource(vm, wrenModule);
+				ModuleSourceGeneratedEvent?.Invoke(module, wrenModule, str);
+				_moduleCaches.Add(module, str);
+			}
 			return str;
 		}
 
