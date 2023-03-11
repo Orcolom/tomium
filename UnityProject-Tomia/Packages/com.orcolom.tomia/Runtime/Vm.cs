@@ -58,7 +58,7 @@ namespace Tomia
 
 		public void Dispose()
 		{
-			ProfilerUtils.Log($"Disposed {nameof(Vm)} : {_ptr}");
+			ProfilerUtils.Log($"Dispose {this}");
 			
 			if (this.IsValid() == false) return;
 
@@ -71,8 +71,8 @@ namespace Tomia
 			
 			Interop.wrenFreeVM(_ptr);
 			Managed.ManagedClasses.Remove(_ptr);
-			VmUtils.Vms.Data.Map.Remove(_ptr);
-			VmUtils.Thread.Data.Map.Remove(_ptr);
+			VmUtils.Vms.Data.Remove(_ptr);
+			VmUtils.Thread.Data.Remove(_ptr);
 			_ptr = IntPtr.Zero;
 		}
 
@@ -92,11 +92,11 @@ namespace Tomia
 			Vm vm = new Vm(ptr);
 
 			// store data
-			VmUtils.Vms.Data.Map.Add(ptr, vm);
-			VmUtils.Thread.Data.Map.Add(ptr, 0);
+			VmUtils.Vms.Data.TryAdd(ptr, vm);
+			VmUtils.Thread.Data.TryAdd(ptr, 0);
 			Managed.ManagedClasses.Add(ptr, new Managed()); // store *managed* events separately 
 
-			ProfilerUtils.Log($"Created {nameof(Vm)} : {vm._ptr}");
+			ProfilerUtils.Log($"Create {vm}");
 
 			return vm;
 		}
@@ -112,6 +112,11 @@ namespace Tomia
 
 		public static bool operator ==(Vm left, Vm right) => left.Equals(right);
 		public static bool operator !=(Vm left, Vm right) => left.Equals(right) == false;
+
+		public override string ToString()
+		{
+			return $"{nameof(Vm)}({_ptr})";
+		}
 	}
 
 	public static class VmUtils
@@ -167,7 +172,7 @@ namespace Tomia
 		/// <returns>the "true" vm</returns>
 		internal static Vm FromPtr(IntPtr ptr)
 		{
-			return Vms.Data.Map.TryGetValue(ptr, out var vm) ? vm : new Vm();
+			return Vms.Data.TryGetValue(ptr, out var vm) ? vm : new Vm();
 		}
 
 		/// <summary>
@@ -402,15 +407,15 @@ namespace Tomia
 			_vmPtr = vmPtr;
 			
 			var currentThread = Environment.CurrentManagedThreadId;
-			var activeThread = VmUtils.Thread.Data.Map[_vmPtr];
+			VmUtils.Thread.Data.TryGetValue(_vmPtr, out var activeThread);
 			
 			if (activeThread != 0 && activeThread != currentThread) throw new AccessViolationException("Tried to use the same Vm on multiple threads at the same time.");
-			VmUtils.Thread.Data.Map[_vmPtr] = currentThread;
+			VmUtils.Thread.Data.Set(_vmPtr, currentThread);
 		}
 
 		public void Dispose()
 		{
-			VmUtils.Thread.Data.Map[_vmPtr] = 0;
+			VmUtils.Thread.Data.Set(_vmPtr, 0);
 		}
 	}
 }

@@ -25,7 +25,6 @@ namespace Tomia.Samples
 			Debug.Log(number);
 			data.Item2.Dispose();
 			data.Item1.Dispose();
-			return;
 			
 			const int count = 512;
 			
@@ -152,13 +151,14 @@ var fn = Fn.new {|value|
 
 		public static int Call(Vm vm, Handle handle, int index)
 		{
-			using var call = vm.MakeCallHandle("call()");
+			using var call = vm.MakeCallHandle("call(_)");
 			vm.EnsureSlots(2);
 			vm.Slot0.SetHandle(handle);
 			vm.Slot1.SetInt(index);
 			vm.Call(call);
 			
 			vm.EnsureSlots(1);
+			call.Dispose();
 			return vm.Slot0.GetInt();
 		}
 	}

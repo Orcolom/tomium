@@ -39,18 +39,18 @@ namespace Tomia
 			// if (action.Method.IsStatic == false) Debug.LogError($"il2cpp only allows static methods. {action.Method.Name} is not");
 #endif
 
-			ProfilerUtils.Log($"New {nameof(ForeignMethod)}: {action.Method.Name}({action.Method.MethodHandle.Value})");
+			ProfilerUtils.Log($"Create({nameof(ForeignMethod)}) {action.Method.Name}({action.Method.MethodHandle.Value})");
 			
 			_ptr = action.Method.MethodHandle.Value;
 			_profilerMarker = ProfilerUtils.Create(marker ?? action.Method.Name);
 			
 			Managed.Actions.TryAdd(_ptr, action);
-			ForeignMethodStatics.Methods.Data.Map.TryAdd(_ptr, this);
+			ForeignMethodStatics.Methods.Data.TryAdd(_ptr, this);
 		}
 
 		internal static ForeignMethod FromPtr(IntPtr ptr)
 		{
-			return ForeignMethodStatics.Methods.Data.Map.TryGetValue(ptr, out var method) ? method : new ForeignMethod();
+			return ForeignMethodStatics.Methods.Data.TryGetValue(ptr, out var method) ? method : new ForeignMethod();
 		}
 
 		#endregion

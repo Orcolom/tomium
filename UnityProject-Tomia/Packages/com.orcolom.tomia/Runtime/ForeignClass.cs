@@ -42,20 +42,20 @@ namespace Tomia
 			// if (alloc.Method.IsStatic == false) Debug.LogError("Alloc methods have to be static for il2cpp");
 #endif
 			
-			ProfilerUtils.Log($"New {nameof(ForeignClass)}: {alloc.Method.Name}({alloc.Method.MethodHandle.Value}), null");
+			ProfilerUtils.Log($"Create({nameof(ForeignClass)}) {alloc.Method.Name}({alloc.Method.MethodHandle.Value}), no fin");
 
 			_allocPtr = alloc.Method.MethodHandle.Value;
 			_finPtr = IntPtr.Zero;
 			using (ProfilerUtils.AllocScope.Auto())
 			{
 				Managed.Actions.TryAdd(_allocPtr, alloc);
-				ForeignClassStatics.Classes.Data.Map.TryAdd(_allocPtr, this);
+				ForeignClassStatics.Classes.Data.TryAdd(_allocPtr, this);
 			}
 		}
 
 		public ForeignClass(ForeignAction alloc, ForeignAction fin)
 		{
-			ProfilerUtils.Log($"New {nameof(ForeignClass)}: {alloc.Method.Name}({alloc.Method.MethodHandle.Value}), {fin.Method.Name}({fin.Method.MethodHandle.Value})");
+			ProfilerUtils.Log($"Create({nameof(ForeignClass)}) {alloc.Method.Name}({alloc.Method.MethodHandle.Value}), {fin.Method.Name}({fin.Method.MethodHandle.Value})");
 			
 			_allocPtr = alloc.Method.MethodHandle.Value;
 			_finPtr = fin.Method.MethodHandle.Value;
@@ -63,8 +63,8 @@ namespace Tomia
 			using (ProfilerUtils.AllocScope.Auto())
 			{
 				Managed.Actions.TryAdd(_allocPtr, alloc);
-				ForeignClassStatics.Classes.Data.Map.TryAdd(_allocPtr, this);
-				ForeignClassStatics.FinToAlloc.Data.Map.TryAdd(_allocPtr, _finPtr);
+				ForeignClassStatics.Classes.Data.TryAdd(_allocPtr, this);
+				ForeignClassStatics.FinToAlloc.Data.TryAdd(_allocPtr, _finPtr);
 			}
 		}
 
@@ -98,12 +98,12 @@ namespace Tomia
 		
 		internal static ForeignClass FromAllocPtr(IntPtr ptr)
 		{
-			return ForeignClassStatics.Classes.Data.Map.TryGetValue(ptr, out var @class) ? @class : new ForeignClass();
+			return ForeignClassStatics.Classes.Data.TryGetValue(ptr, out var @class) ? @class : new ForeignClass();
 		}
 
 		internal static ForeignClass FromFinPtr(IntPtr ptr)
 		{
-			return ForeignClassStatics.FinToAlloc.Data.Map.TryGetValue(ptr, out var alloc) ? FromAllocPtr(alloc) : new ForeignClass();
+			return ForeignClassStatics.FinToAlloc.Data.TryGetValue(ptr, out var alloc) ? FromAllocPtr(alloc) : new ForeignClass();
 		}
 
 		#endregion

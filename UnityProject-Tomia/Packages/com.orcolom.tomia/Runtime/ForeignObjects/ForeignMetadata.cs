@@ -48,17 +48,14 @@ namespace Tomia
 
 		internal static bool TryAdd(IntPtr ptr, ForeignMetadata metadata)
 		{
-			using (ProfilerUtils.AllocScope.Auto())
-			{
-				return Metadata.Data.Map.TryAdd(ptr, metadata);
-			}
+			return Metadata.Data.TryAdd(ptr, metadata);
 		}
 
-		internal static bool TryGetValue(IntPtr ptr, out ForeignMetadata value) => Metadata.Data.Map.TryGetValue(ptr, out value);
+		internal static bool TryGetValue(IntPtr ptr, out ForeignMetadata value) => Metadata.Data.TryGetValue(ptr, out value);
 
 		internal static void Remove(IntPtr ptr)
 		{
-			Metadata.Data.Map.Remove(ptr);
+			Metadata.Data.Remove(ptr);
 		}
 		
 		

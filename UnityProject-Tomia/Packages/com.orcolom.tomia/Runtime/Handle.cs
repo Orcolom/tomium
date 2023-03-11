@@ -30,7 +30,8 @@ namespace Tomia
 
 			using (ProfilerUtils.AllocScope.Auto())
 			{
-				Handles.Data.Map.Add(_ptr, this);
+				ProfilerUtils.Log($"Create {this}");
+				Handles.Data.TryAdd(_ptr, this);
 			}
 		}
 
@@ -43,23 +44,25 @@ namespace Tomia
 
 			using (ProfilerUtils.AllocScope.Auto())
 			{
-				Handles.Data.Map.Add(handlePtr, handle);
+				Handles.Data.TryAdd(handlePtr, handle);
 				Managed.ManagedClasses[vm.Ptr].CallHandles.Add(handlePtr);
 			}
-			
+
 			return handle;
 		}
 
 		internal static Handle FromPtr(IntPtr ptr)
 		{
-			return Handles.Data.Map.TryGetValue(ptr, out var handle) ? handle : new Handle();
+			return Handles.Data.TryGetValue(ptr, out var handle) ? handle : new Handle();
 		}
 
 		public void Dispose()
 		{
 			if (IsValid == false) return;
+			
+			ProfilerUtils.Log($"Dispose {this}");
 			Interop.wrenReleaseHandle(_vmPtr, _ptr);
-			Handles.Data.Map.Remove(_ptr);
+			Handles.Data.Remove(_ptr);
 			Managed.ManagedClasses[_vmPtr].CallHandles.Remove(_ptr);
 			_ptr = IntPtr.Zero;
 		}
@@ -69,7 +72,7 @@ namespace Tomia
 		{
 			if (handle.IsValid) return false;
 			
-			throw new ObjectDisposedException("Handle is already disposed");
+			throw new ObjectDisposedException(handle.ToString());
 			// return true;
 		}
 
@@ -101,5 +104,10 @@ namespace Tomia
 		}
 
 		#endregion
+
+		public override string ToString()
+		{
+			return $"{nameof(Handle)}({_ptr})";
+		}
 	}
 }
