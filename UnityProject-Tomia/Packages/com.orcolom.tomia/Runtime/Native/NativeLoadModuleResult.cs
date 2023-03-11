@@ -5,7 +5,7 @@ namespace Tomia.Native
 	/// <summary>
 	/// result from <see cref="NativeConfig.NativeLoadModule"/> call
 	/// </summary>
-	public struct NativeLoadModuleResult
+	internal struct NativeLoadModuleResult
 	{
 		/// <summary>
 		/// Source code of the module

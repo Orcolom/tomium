@@ -44,7 +44,7 @@ namespace Tomia
 			};
 		}
 
-		internal static Config FromInterop(NativeConfig config)
+		private static Config FromInterop(NativeConfig config)
 		{
 			return new Config
 			{

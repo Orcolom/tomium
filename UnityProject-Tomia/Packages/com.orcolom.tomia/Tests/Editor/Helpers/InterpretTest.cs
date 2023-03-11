@@ -4,7 +4,7 @@ using System.Text;
 using NUnit.Framework;
 using Tomia;
 
-namespace Tests.Helpers
+namespace Tomia.Tests.Helpers
 {
 	public class InterpretTest : IDisposable
 	{

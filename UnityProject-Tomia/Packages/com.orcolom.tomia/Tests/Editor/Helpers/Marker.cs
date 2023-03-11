@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Tests.Helpers
+namespace Tomia.Tests.Helpers
 {
 	public class Marker
 	{

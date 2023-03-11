@@ -1,8 +1,7 @@
 ﻿using NUnit.Framework;
-using Tests.Helpers;
-using Tomia;
+using Tomia.Tests.Helpers;
 
-namespace Tests
+namespace Tomia.Tests
 {
 	public class TestsVm
 	{
@@ -11,7 +10,7 @@ namespace Tests
 		[Test]
 		public void Wren_IsSupported()
 		{
-			Assert.IsTrue(Tomia.Tomia.IsSupported);
+			Assert.IsTrue(Tomia.IsSupported);
 		}
 
 		#endregion

@@ -1,13 +1,11 @@
-﻿using System;
-using NUnit.Framework;
-using Tests.Helpers;
+﻿using NUnit.Framework;
+using Tomia.Tests.Helpers;
 using Unity.Collections;
 using Unity.Jobs;
-using Tomia;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Tests
+namespace Tomia.Tests
 {
 	public class TestsVmJobs
 	{

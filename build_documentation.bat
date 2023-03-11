@@ -1,1 +1,1 @@
-docfx docfx_project/docfx.json --serve
+docfx docfx_project/docfx.json
