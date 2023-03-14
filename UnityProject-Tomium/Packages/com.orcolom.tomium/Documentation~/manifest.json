@@ -1,0 +1,1093 @@
+{
+  "homepages": [],
+  "source_base_path": "D:/Projects/Tomium/docfx_project",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.BindForeignClassDelegate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.BindForeignClassDelegate.html",
+          "hash": "h2izfyio7qlYUSzCMu1ZWac4fVMvKQlbligGs11b8VU="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.BindForeignMethodDelegate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.BindForeignMethodDelegate.html",
+          "hash": "nv3VFWGPlTcGL1bz3BmtF7HGH2VMSya0S6/QQIURVEQ="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Attribute.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Attribute.html",
+          "hash": "VMqyUO0dztuFldyVi8heyeQoJiy0PcDebHSBmp+EfVA="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.AttributeVariable.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.AttributeVariable.html",
+          "hash": "gsQ1sirX17gtGXer4t9MAHuNZPPu9DCeWJMB9WjIqxA="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Attributes.IScoped.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Attributes.IScoped.html",
+          "hash": "doOwyqPCBJdMjyCex7y9CGoxbrPpFkwTW/kD5YFYACs="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Attributes.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Attributes.html",
+          "hash": "o8BhP7nhJAtnEXTTkc3xAgZM4C3Pw4hEbiKQOiu1jZs="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Block-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Block-1.html",
+          "hash": "Zekv/0H6KoMPjdNM9BJUnkHq8rQCieTEacctrImV3Iw="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.CallExpression.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.CallExpression.html",
+          "hash": "KxuyrR9cYiQTiRcZYxlbIiVMxMnXyJx5C4/g02MGfoE="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Class.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Class.html",
+          "hash": "GhbUYLJWumSl3BjEfGA1x8EyzpiRMh8RiA7akMXgCR8="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.ClassBody.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.ClassBody.html",
+          "hash": "tkriGq7RR4nvxHCLejaItsfG3pAevGmprgDOukWEUt8="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Comment.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Comment.html",
+          "hash": "nq8RZf24zNtn68zKEHpnsdHF49/sziVZtGQm97YxcFs="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.ExpectValue.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.ExpectValue.html",
+          "hash": "NAQpHWXSRFO23dI+ymdkfl1u96u4Hpud+pFJy3O/5ew="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.IClassScope.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.IClassScope.html",
+          "hash": "50Q36zUJvD0FtZweQj65QdgHj83Z96w2hR0cQJxPEUY="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.IClassScoped.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.IClassScoped.html",
+          "hash": "xpGA3CMi5ZdOuEra+jat6f+Q8dzN5QZ8WzSZBAwkdSg="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.IMethodScope.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.IMethodScope.html",
+          "hash": "tMNfMiwFoJd6nMKhXXnTTCAyFF2Y2Qw/636nPizOl/k="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.IMethodScoped.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.IMethodScoped.html",
+          "hash": "8bRklw62iz9cl47Xb2mW9efQdLM+J0Slw/t9BCPfreM="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.IModuleScope.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.IModuleScope.html",
+          "hash": "hupCOpWsX8/qflG7gXMyuwnIqDqIC3mQh4FAQBp8GhI="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.IModuleScoped.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.IModuleScoped.html",
+          "hash": "zGB7Z6E1AJ0Am0+IkV7qwByFVDyoJh6x5KJFvchMXe4="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Import.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Import.html",
+          "hash": "zUsnMi77RHVs2FGoBtwFbbd0hgR9k7E4nLmScTFv0js="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.ImportDeferred.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.ImportDeferred.html",
+          "hash": "xFHGjCMknBbl5tbjK3yfdOIv33l7lymksNMSpR9o3YE="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.ImportVariable.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.ImportVariable.html",
+          "hash": "eCoBNJ/n9q9/Fs2F8Dg5Cu+cn7XfVjkuC8fkzdjdRFU="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Method.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Method.html",
+          "hash": "L1HsdI+rza2ReuZkt+NQSQN7RL1BniR+9ClDDhmV5ls="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.MethodBody.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.MethodBody.html",
+          "hash": "uVL0+K92lJz888JSuX7Le0TK3a6W+YbwXDNVnoOg8EY="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.MethodType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.MethodType.html",
+          "hash": "6PwYnOat1gPD+nt4wsZk+WfxLz2eGx9Z8fZyIekdxD0="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.MethodTypeExtensions.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.MethodTypeExtensions.html",
+          "hash": "iP2a62kW7FWEyztS0zaHHAYNRVzEnmb184EeEByfk1s="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Module.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Module.html",
+          "hash": "huo/CS7H9YjFE5sXcIgq8aAPk7yonUZvM/5wUaUgOo8="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.ModuleCollection.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.ModuleCollection.html",
+          "hash": "zreqFdgfOUJKuInkd5wUTmneLAWlfZH/dedX5eZiZS4="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.ScriptBuilder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.ScriptBuilder.html",
+          "hash": "HtGjSYR2sHcCAp32BeEL49CC3jxBH5I2t+iNFI9XE+w="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Signature.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Signature.html",
+          "hash": "D9c1sry94NG/omxDrmgvdCXHoJZYx2HvJ87WzoBqizk="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.SignatureStyle.PrefixType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.SignatureStyle.PrefixType.html",
+          "hash": "D+Ucxjyygok/o2d4qSNS7g13rYnuenr/rgEFq5BGvf0="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.SignatureStyle.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.SignatureStyle.html",
+          "hash": "zBOd8O1qNPcMuTZjpI93979oG7PHyOUWNkkJ0lgQhjM="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Token.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Token.html",
+          "hash": "NQgXWz/m6omTrF64eZ9Rb53oHnf6KAt64XDLJAuVejU="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.TokenCollector.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.TokenCollector.html",
+          "hash": "ccjmR+H9LtENHFN/oWzCCYUENmcuw1G+RGbB1HrrYsc="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Tokens.BasicToken.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Tokens.BasicToken.html",
+          "hash": "ZuyfOBAfq/zcr+mRRQV+U+mhVvwJjzas3M//t6yFzqY="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Tokens.BoolToken.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Tokens.BoolToken.html",
+          "hash": "I7xoLhQtm3LQqMGPH49bYg+hvZN1SZdtnVET206PCWY="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Tokens.EolToken.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Tokens.EolToken.html",
+          "hash": "hcFKbQeoodrPtqyhkY0HGJxIbZxEis3kYZuq+WcHwPo="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Tokens.INode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Tokens.INode.html",
+          "hash": "56fM+s8SxPlwUoHj9v/e50Jg2PmqwkBFR9zOFETvfe0="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Tokens.IScopedNode-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Tokens.IScopedNode-1.html",
+          "hash": "YGHKzki2cE9H2vLda7W9xRpuHdkhB+NJe1bGawHhAy4="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Tokens.IToken.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Tokens.IToken.html",
+          "hash": "lB3OKv3rOwcfn4UQOGLhH2o98u6I6/04VNplVttAjJc="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Tokens.NameToken.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Tokens.NameToken.html",
+          "hash": "kIjzQ8t5f/3MsdeoqrqoNh7iTMP45GgFaQOd8pVlt+U="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Tokens.NumberToken.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Tokens.NumberToken.html",
+          "hash": "nTsJrCyd9n0d1F0YVjMbDwVSaMsIDg53/aSV5G/AjV8="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Tokens.StringToken.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Tokens.StringToken.html",
+          "hash": "gMjbkq+JXoRVNRfK9wasp9RFQxp3GdH1KDKMs990tMA="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.Tokens.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.Tokens.html",
+          "hash": "zBSX+uK59FhAaEJjgpnB/d69iPegi73qduhQItpWUq4="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.TomiaBuilderUtils.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.TomiaBuilderUtils.html",
+          "hash": "ovKdTtn3qrkJFbK+TztsSKduAz9fXbqZDssgU//K01k="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Builder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Builder.html",
+          "hash": "rdvMay9BkSI7a7P/6ER/lK/qsn1zlf11mxEgoMgIPo8="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Config.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Config.html",
+          "hash": "+JQGu2zpngsJtBEdGyBQL+nH2A84eCRjtXqTCvAhJt4="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Editor.WrenImporter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Editor.WrenImporter.html",
+          "hash": "AY7SZbYCEVJfd7FD+WwZgvYqZILe+TOab7wCi4BrKbU="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Editor.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Editor.html",
+          "hash": "K08aWxdShHpnyNAZdEoSf5G1XjUMDrILFMyiy6UoKt0="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.ErrorDelegate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.ErrorDelegate.html",
+          "hash": "btciZkYj+h7o2RCyqTflxPMJ/e60JRQk25kz9hYCt9A="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.ErrorType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.ErrorType.html",
+          "hash": "wVUz3CER19LvYF0WdY78FOz56PbeRrvOTYDosi4TTc8="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.ForeignAction.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.ForeignAction.html",
+          "hash": "vQT2QYG98YIa6LFZMePQHMi/ml0A5vfTHpzZG6xsSGw="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.ForeignClass.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.ForeignClass.html",
+          "hash": "fm456iGzIN0OFHHoNaNF4zHDrp+whySgTIKrRZMy9QQ="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.ForeignMethod.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.ForeignMethod.html",
+          "hash": "1AvOpORVsUuJmg0Pc4jcAjsPMZ3DAI6gTrJTU9mW26I="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.ForeignObject-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.ForeignObject-1.html",
+          "hash": "ntpwbzAwCuHCNi97mCdON4xNPZyI/H98xh20uTlWX5s="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.ForeignStruct-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.ForeignStruct-1.html",
+          "hash": "5ad6RTOGku+iesisi5vRKzelUwT8HADqUXUFRiEWJaA="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Handle.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Handle.html",
+          "hash": "C9F/v+VTbBz4rQP8+qhfLO+mt8QNZX+MkwbygDx4x7E="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.InterpretResult.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.InterpretResult.html",
+          "hash": "fbZzKMRj1bFdWnzXSH7JugHGJtNfEgThuKOuCiH255A="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.LoadModuleDelegate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.LoadModuleDelegate.html",
+          "hash": "di7kjhfS+pKQSCVasL/T0fJ3Z0jWu0BLn+g/CT0xYUw="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.ProfilerUtils.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.ProfilerUtils.html",
+          "hash": "d6QzoQdN0EY/tndq/IAAlCyh7AXoYU1LTYB+lBDrWkk="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.ResolveModuleDelegate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.ResolveModuleDelegate.html",
+          "hash": "WGyp0AAXsUu5se+GONbr62hUTT/V7ZEyr5hHhlmFIE0="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.Builder.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.Builder.html",
+          "hash": "u6lcVfxwRlS6/9b+zNR6zjpg/RPQ4nA1oS4oETezD3c="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.Foreign.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.Foreign.html",
+          "hash": "kE2nvzJOGeQu9LFEvpxqUTa1Q4zs7Exi4GMePiT15IA="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.HelloWorld.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.HelloWorld.html",
+          "hash": "BLgUWMoSNgjw2VFh7h2uFecFWv2+cDQ1Uwe6wd2665I="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.Jobs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.Jobs.html",
+          "hash": "ze70U5IoElqM1+4K2Q0g7/BA5fTyuGvA30iCocn/Zs0="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.Logger.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.Logger.html",
+          "hash": "w7OzLu6eUMVFk2uRTlyGerZVO4uxPsdtKf5KlFtUzco="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.Modules.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.Modules.html",
+          "hash": "VdsaO2CW58msUJgGHrRDJ8UqYJbFsXWe3Mv/3t8Z5LU="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.SampleRunner.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.SampleRunner.html",
+          "hash": "wZIm/ePb062jE8FmMMLRlQa2/wQZZ4fFgJhITmVwK+8="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.Test.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.Test.html",
+          "hash": "2xsDpIJr7wb3m1VTT/OrECG/0jg6sDqAUn6PUq5Ns0o="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.TimeDateBuilderModule.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.TimeDateBuilderModule.html",
+          "hash": "fKaMhmg4GpfpKOuNi3idR98VYLqyptHeQoeTg6rs7pY="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.TimeDateModule.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.TimeDateModule.html",
+          "hash": "EogSPuNyS5FR3EqtDjOD5O+pc7MR3UryDUvbvcNqSd8="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.Vector3Module.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.Vector3Module.html",
+          "hash": "RFU6LdsAMvTdIxgblaJo2e+rZ0HtfD1Ly8oJD1Fa1qc="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Samples.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Samples.html",
+          "hash": "St6aLCghlwX+JjZgyJBCOtOEcuMqHzlLyDz/RBqlyWc="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Slot.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Slot.html",
+          "hash": "Cx6UVHVoLYH/2f7ErdoflTxh8fLIBPt17gPrt5MY4Rs="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.SlotUtils.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.SlotUtils.html",
+          "hash": "Qv1/cHdfOLJCSMoWaHjJI+0bpf1W/+M7XW8KryxZRQc="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.StaticMap-1.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.StaticMap-1.html",
+          "hash": "eLA302yDZWeNhXyHgZWRAl8wrlpZj/jua/FgG5PrG9A="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Tests.Helpers.InterpretTest.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Tests.Helpers.InterpretTest.html",
+          "hash": "Vq9dGoAOZyIAdWrkbCXDwky5EDdiyumqRbeyhwNxJcE="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Tests.Helpers.Marker.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Tests.Helpers.Marker.html",
+          "hash": "cD0jIm40IyrG3XWKFDIKfkiX6s3Xrwoqc+fvTecjpqk="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Tests.Helpers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Tests.Helpers.html",
+          "hash": "XUcNVKsBvypGsec+FoZvI7c1o1wRhtH1yV6g2HFegV0="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Tests.TestsVm.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Tests.TestsVm.html",
+          "hash": "ZnlsEFM5WGRwnjsBwhqWVAEkpo/C5yuSs2lInXT8QgQ="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Tests.TestsVmJobs.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Tests.TestsVmJobs.html",
+          "hash": "FbmjaeMwV+y5QqJfdrgZn1hlOj0cUtxv/1Cdypp+c70="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Tests.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Tests.html",
+          "hash": "m7NsxaBXufaMYIr/9AfYKQmXE7BSBnvAOneBtY9WkGE="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Tomia.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Tomia.html",
+          "hash": "rzsZJ4Mkwzrxnz7J5AU5mkqgd4zVFC/2PqJP3Y5/Qbc="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.ValueType.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.ValueType.html",
+          "hash": "Rt/oXKcp/N7UMJaO9O2wZmTQRky65Kr3yF39EfOGatg="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.Vm.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.Vm.html",
+          "hash": "ZAzgz7QFozx8YwEpVLycgPkeus8zc8/guYwCgVYE2F4="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.VmUtils.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.VmUtils.html",
+          "hash": "m6vr0dUgOlUojuaRg3YFSn5xcybKbiD9TEsIPXmWixQ="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.WrenScript.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.WrenScript.html",
+          "hash": "icx4yruJ2tvqiHbqPLDM9waAtJ24FFNVN9nMyILuplc="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.WriteDelegate.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.WriteDelegate.html",
+          "hash": "5bmXEkFCnwsPIyhBsv6ODs0T4XcxZ9urEJOMlOQ5sUM="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/Tomia.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/Tomia.html",
+          "hash": "qJaw08736Q1GvJe8U6XAZ40QgpOhNtST+VxjMR4iiZI="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "api/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "api/index.html",
+          "hash": "mcSMiYDZmBy2N53EojsLYc4xqe2ecYrJ4tLMVLhZouU="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/intro.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/intro.html",
+          "hash": "LClfslUxo/TFRpNOcWMzLcCI4oekUHBDBs/MI2srVQE="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/learnings/interop.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/learnings/interop.html",
+          "hash": "f0yS+5Sp8hmcC3aQIAxzQjs7ZPOQuMkktnXmN9ADy3g="
+        }
+      },
+      "version": ""
+    },
+    {
+      "log_codes": [
+        "InvalidFileLink"
+      ],
+      "type": "Conceptual",
+      "source_relative_path": "articles/learnings/intro.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/learnings/intro.html",
+          "hash": "6TjS16AA3qWOV+PUHCHFFqVpvbaHeE1fnTtLTna41uc="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/learnings/multiplatform_building.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/learnings/multiplatform_building.html",
+          "hash": "OZB9KvC8Igs3IIFZnnZg1s3MCOX+4goZC47m212Wlkg="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/learnings/reflections.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/learnings/reflections.html",
+          "hash": "Ez9fQuqXYOpJAYdp8BcailabuW2aBaLFBY0nbtlFCf4="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/learnings/thread_safety.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/learnings/thread_safety.html",
+          "hash": "0DARtIXN2Em2wGz2TGu10P9W81SwGI/VkunQX7owTUQ="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/learnings/weaving.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/learnings/weaving.html",
+          "hash": "L4azKeXhWWsQdrSHkG/asFdW6qyltzgeeD9eXRgBCuE="
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Resource",
+      "source_relative_path": "documentation.md",
+      "output": {
+        "resource": {
+          "relative_path": "documentation.md"
+        }
+      },
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html",
+          "hash": "icSNTxop11tU03DozQo7HgmDt1yXqRS/9xJTTNwbuD0="
+        }
+      },
+      "version": ""
+    }
+  ],
+  "version_info": {},
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}

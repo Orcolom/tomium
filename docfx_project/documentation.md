@@ -1,0 +1,1 @@
+use [index.html](index.html) to open the statis documentation website

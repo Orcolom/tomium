@@ -22,13 +22,17 @@
           "articles/**/*.{md,yml}",
           "toc.yml",
           "*.md"
+        ],
+        "exclude": [
+          "documentation.md"
         ]
       }
     ],
     "resource": [
       {
         "files": [
-          "images/**"
+          "images/**",
+          "documentation.md"
         ]
       }
     ],

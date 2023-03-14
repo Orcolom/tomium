@@ -1,0 +1,200 @@
+﻿<!DOCTYPE html>
+<!--[if IE]><![endif]-->
+<html>
+
+  <head>
+    <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+      <title>Intro </title>
+      <meta name="viewport" content="width=device-width">
+      <meta name="title" content="Intro ">
+    
+      <link rel="shortcut icon" href="../../favicon.ico">
+      <link rel="stylesheet" href="../../styles/docfx.vendor.css">
+      <link rel="stylesheet" href="../../styles/docfx.css">
+      <link rel="stylesheet" href="../../styles/main.css">
+      <meta property="docfx:navrel" content="../../toc">
+      <meta property="docfx:tocrel" content="../toc">
+    
+    
+    
+  </head>
+  <body data-spy="scroll" data-target="#affix" data-offset="120">
+    <div id="wrapper">
+      <header>
+
+        <nav id="autocollapse" class="navbar navbar-inverse ng-scope" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+
+              <a class="navbar-brand" href="../../index.html">
+                <img id="logo" class="svg" src="../../logo.svg" alt="">
+              </a>
+            </div>
+            <div class="collapse navbar-collapse" id="navbar">
+              <form class="navbar-form navbar-right" role="search" id="search">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="search-query" placeholder="Search" autocomplete="off">
+                </div>
+              </form>
+
+                <ul class="nav level1 navbar-nav">
+                      <li>
+                          <a href="../../articles/intro.html" title="Articles">Articles</a>
+                      </li>
+                      <li>
+                          <a href="../../api/index.html" title="Api Documentation">Api Documentation</a>
+                      </li>
+                </ul>            </div>
+          </div>
+        </nav>
+
+        <div class="subnav navbar navbar-default">
+          <div class="container hide-when-search" id="breadcrumb">
+            <ul class="breadcrumb">
+              <li></li>
+            </ul>
+          </div>
+        </div>
+      </header>
+      <div role="main" class="container body-content hide-when-search">
+        <div class="sidenav hide-when-search">
+          <a class="btn toc-toggle collapse" data-toggle="collapse" href="#sidetoggle" aria-expanded="false" aria-controls="sidetoggle">Show / Hide Table of Contents</a>
+          <div class="sidetoggle collapse" id="sidetoggle">
+            <div>
+              <div class="sidefilter">
+                <form class="toc-filter">
+                  <span class="glyphicon glyphicon-filter filter-icon"></span>
+                  <input type="text" id="toc_filter_input" placeholder="Enter here to filter..." onkeypress="if(event.keyCode==13) {return false;}">
+                </form>
+              </div>
+              <div class="sidetoc">
+                <div class="toc" id="toc">
+
+                  <ul class="nav level1">
+                    <li class="">
+                      <a href="../intro.html" title="Introduction" class="">Introduction</a>
+                    </li>
+                    <li class="">
+                      <span class="expand-stub"></span>
+                      <a class="">Learnings</a>
+
+                        <ul class="nav level2">
+                          <li class="active">
+                            <a href="../learnings/intro.html" title="Intro" class="active">Intro</a>
+                          </li>
+                          <li class="">
+                            <a href="../learnings/interop.html" title="Interop" class="">Interop</a>
+                          </li>
+                          <li class="">
+                            <a href="../learnings/reflections.html" title="Reflections" class="">Reflections</a>
+                          </li>
+                          <li class="">
+                            <a href="../learnings/weaving.html" title="Weaving" class="">Weaving</a>
+                          </li>
+                          <li class="">
+                            <a href="../learnings/multiplatform_building.html" title="Multiplatform Building" class="">Multiplatform Building</a>
+                          </li>
+                          <li class="">
+                            <a href="../learnings/thread_safety.html" title="Thread Safety" class="">Thread Safety</a>
+                          </li>
+                        </ul>                    </li>
+                  </ul>                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="article row grid-right">
+          <div class="col-md-10">
+            <article class="content wrap" id="_content" data-uid="">
+<h1 id="intro">Intro</h1>
+
+<p>For the last 3 years, Tomium and its previous iterations have been an excuse for experimentation. In Wren's spirit and moto, being a gateway to learn c and interpreters, I wanted this plugin to be my tool to learn things I otherwise never had a reason for like: writing plugins or packages, c interop, &quot;low-level&quot; c#, reflections, weaving, code design intended for public use, and many other things I can't think of right now.</p>
+<p>It has learned me many of those things, and in the progress, it has had me run into many walls that would take days of debugging, weeks of scouring documentation and months of burnout. But now that I'm through the list I wanted to learn, try and experiment it has become time to wrap it up and move on to some extent. But not before I document some of the things I learned.</p>
+<h1 id="iterations">Iterations</h1>
+<h2 id="1-wrenit-2021">1. Wrenit (2021)</h2>
+<p>This was my first attempt at making a plugin. So things were probably never going to last. But all things have to start somewhere.</p>
+<p>Features consisted of:</p>
+<ul>
+<li>Native wren interoperability. <a href="interop.html">Read more</a></li>
+<li>Data binding and source builder using reflections.</li>
+<li>Build to be for all .Net projects, not just Unity.</li>
+</ul>
+<p>What it didn't support was <a href="./pitfalls_of_supporting_il2cpp.md">il2cpp</a>. at this point, I was unaware of the roundabout ways you needed to fix some of these issues. Code was also heavily based and a big mishmash of existing .net implementations of Wren.</p>
+<h2 id="2-wrenu-2022-to-apr-2022">2. Wrenu (2022 to Apr 2022)</h2>
+<p>Redesigned to work with il2cpp and expanded upon many features.</p>
+<p>Features consisted of:</p>
+<ul>
+<li>il2cpp support <a href="./pitfalls_of_supporting_il2cpp.md">Read more</a></li>
+<li>Native wren interoperability. <a href="interop.html">Read more</a></li>
+<li>Safety checks to avoid unity crashing. <a href="thread_safety.html">Read more</a></li>
+<li>Documentation</li>
+<li>Syntax Tree based source builder. The idea here was to eventually be able to parse wren scripts to c#.</li>
+<li>Tests</li>
+<li>A single sample.</li>
+</ul>
+<h2 id="3-wrench-apr-2022-to-dec-2022">3. Wrench (Apr 2022 to Dec 2022)</h2>
+<p>This is when I started to think about Unity job system support. I also took another shot at data binding but this time using weaving.</p>
+<p>Features consisted of:</p>
+<ul>
+<li>Fully struct based</li>
+<li>Many attempts to have weaving work.</li>
+<li>il2cpp support <a href="./pitfalls_of_supporting_il2cpp.md">Read more</a></li>
+<li>Native wren interoperability. <a href="interop.html">Read more</a></li>
+<li>Safety checks to avoid unity crashing. <a href="thread_safety.html">Read more</a></li>
+<li>Syntax Tree based source builder. The idea here was to eventually be able to parse wren scripts to c#.</li>
+</ul>
+<h2 id="4-tomia-2023">4. Tomia (2023+)</h2>
+<p>This is where I decided to move towards a public 1.0.0 version of the project. and have a working sample project on every possible build target.</p>
+<ul>
+<li>Fully struct based and job compatible</li>
+<li>il2cpp support <a href="./pitfalls_of_supporting_il2cpp.md">Read more</a></li>
+<li>Native wren interoperability. <a href="interop.html">Read more</a></li>
+<li>(Thread) Safety checks to avoid unity crashing. <a href="thread_safety.html">Read more</a></li>
+<li>Syntax Tree based source builder. The idea here was to eventually be able to parse wren scripts to c#.</li>
+<li>Many tests and samples.</li>
+<li>A Sample project that can be built to all platforms as POC.</li>
+</ul>
+</article>
+          </div>
+
+          <div class="hidden-sm col-md-2" role="complementary">
+            <div class="sideaffix">
+              <div class="contribution">
+                <ul class="nav">
+                </ul>
+              </div>
+              <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
+                <h5>In This Article</h5>
+                <div></div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="grad-bottom"></div>
+        <div class="footer">
+          <div class="container">
+            <span class="pull-right">
+              <a href="#top">Back to top</a>
+            </span>
+      
+      <span>Generated by <strong>DocFX</strong></span>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script type="text/javascript" src="../../styles/docfx.vendor.js"></script>
+    <script type="text/javascript" src="../../styles/docfx.js"></script>
+    <script type="text/javascript" src="../../styles/main.js"></script>
+  </body>
+</html>
