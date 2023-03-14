@@ -6,21 +6,21 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Tomium.Samples/00-Boot/Boot.unity
+    path: Assets/Samples/Tomium/Latest/GettingStarted/00-Boot/Boot.unity
     guid: 458e51f227fc94240abb12d02896284b
   - enabled: 1
-    path: Assets/Tomium.Samples/01-HelloWorld/HelloWorld.unity
+    path: Assets/Samples/Tomium/Latest/GettingStarted/01-HelloWorld/HelloWorld.unity
     guid: f590bb6aef4b2af4abe9ec85d59787d3
   - enabled: 1
-    path: Assets/Tomium.Samples/02-Modules/Modules.unity
+    path: Assets/Samples/Tomium/Latest/GettingStarted/02-Modules/Modules.unity
     guid: 18f8c591125b8264b8f3a79ba0a27d8c
   - enabled: 1
-    path: Assets/Tomium.Samples/03-Foreign/Foreign.unity
+    path: Assets/Samples/Tomium/Latest/GettingStarted/03-Foreign/Foreign.unity
     guid: ab3ebde77bf8a0045a7fd0d6c8c3063c
   - enabled: 1
-    path: Assets/Tomium.Samples/04-Builder/Builder.unity
+    path: Assets/Samples/Tomium/Latest/GettingStarted/04-Builder/Builder.unity
     guid: c2adb10e89c453d46881ffc35b717b27
   - enabled: 1
-    path: Assets/Tomium.Samples/05-Test/Test.unity
+    path: Assets/Samples/Tomium/Latest/GettingStarted/05-Test/Test.unity
     guid: 97d777ab068ae0f45b4a67aa261c2e68
   m_configObjects: {}

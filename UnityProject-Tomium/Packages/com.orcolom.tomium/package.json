@@ -9,9 +9,14 @@
   },
   "samples": [
     {
-      "displayName": "Samples",
-      "description": "All samples",
-      "path": "Samples~"
+      "displayName": "Getting Started",
+      "description": "Examples explaining how to use Tomium",
+      "path": "Samples~/GettingStarted"
+    },
+    {
+      "displayName": "Unity Binding",
+      "description": "Barebone unity binding",
+      "path": "Samples~/GettingStarted"
     }
   ]
 }

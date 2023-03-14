@@ -1,5 +1,5 @@
 {
-    "name": "Tomium.Samples",
+    "name": "Tomium.Samples.GettingStarted",
     "rootNamespace": "",
     "references": [
         "GUID:76acb78479c2219438fb4d7a893fc6b0",
