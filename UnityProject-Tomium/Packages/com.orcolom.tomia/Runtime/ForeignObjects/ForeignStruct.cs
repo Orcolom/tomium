@@ -45,7 +45,7 @@ namespace Tomia
 			// return true;
 		}
 
-		public static void Add(IntPtr ptr, T data)
+		internal static void Add(IntPtr ptr, T data)
 		{
 			ForeignMetadata.TryAdd(ptr, new ForeignMetadata(ForeignStyle.Struct, TypeID));
 			ForeignValue<T>.TryAdd(ptr, data);
