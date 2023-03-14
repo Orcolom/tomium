@@ -5,7 +5,7 @@ using AOT;
 using Unity.Burst;
 using UnityEngine;
 
-namespace Tomia
+namespace Tomium
 {
 	internal static class ForeignClassStatics
 	{

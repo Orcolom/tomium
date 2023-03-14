@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Tomia.Builder.Tokens
+namespace Tomium.Builder.Tokens
 {
 	public class EolToken : IToken, IModuleScoped, IMethodScoped, IClassScoped
 	{

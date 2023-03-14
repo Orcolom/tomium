@@ -1,4 +1,4 @@
-﻿namespace Tomia
+﻿namespace Tomium
 {
 	/// <summary>
 	/// result of interpreting source code

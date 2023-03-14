@@ -4,7 +4,7 @@ using Unity.Burst;
 using Unity.Profiling;
 using UnityEngine;
 
-namespace Tomia
+namespace Tomium
 {
 	
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]

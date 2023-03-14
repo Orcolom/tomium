@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using UnityEngine;
 
-namespace Tomia.Samples
+namespace Tomium.Samples
 {
 	public class HelloWorld : MonoBehaviour
 	{

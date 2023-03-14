@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Tomia.Native
+namespace Tomium.Native
 {
 	// A generic allocation function that handles all explicit memory management
 	// used by Wren. It's used like so:

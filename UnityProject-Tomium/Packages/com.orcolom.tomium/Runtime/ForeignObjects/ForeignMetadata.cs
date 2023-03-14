@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Burst;
 
-namespace Tomia
+namespace Tomium
 {
 	/// <summary>
 	/// Hold meta data about every foreign data, what type it is and if its an ForeignObject or a ForeignStruct 

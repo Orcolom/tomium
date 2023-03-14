@@ -2,11 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using Tomia.Builder;
+using Tomium.Builder;
 using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 
-namespace Tomia.Samples
+namespace Tomium.Samples
 {
 	public class Builder : MonoBehaviour
 	{

@@ -1,7 +1,7 @@
 using System;
 using Unity.Burst;
 
-namespace Tomia
+namespace Tomium
 {
 	internal static class ForeignValue<T>
 		where T : unmanaged

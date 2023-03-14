@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using Tomia.Native;
+using Tomium.Native;
 using UnityEngine;
 
-[assembly: InternalsVisibleTo("Tomia.Editor")]
-[assembly: InternalsVisibleTo("Tomia.Tests.Editor")]
-[assembly: InternalsVisibleTo("Tomia.Builder")]
-[assembly: InternalsVisibleTo("Unity.Tomia.Builder.CodeGen")]
-
-namespace Tomia
+namespace Tomium
 {
-	public static class Tomia
+	public static class Tomium
 	{
 		public static readonly bool IsSupported;
 		public static readonly int CurrentWrenVersion;
@@ -20,7 +15,7 @@ namespace Tomia
 		private static readonly int[] WrenMinVersion = {0, 4, 0};
 		private static readonly int[] WrenMaxVersion = {0, 4, -1};
 
-		static Tomia()
+		static Tomium()
 		{
 			CurrentWrenVersion = Interop.wrenGetVersionNumber();
 

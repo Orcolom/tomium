@@ -1,6 +1,6 @@
-﻿using Tomia.Native;
+﻿using Tomium.Native;
 
-namespace Tomia
+namespace Tomium
 {
 	/// <inheritdoc cref="NativeWriteDelegate"/>
 	public delegate void WriteDelegate(Vm vm, string text);

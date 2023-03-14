@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using Binding;
 using Unity.Profiling;
 using UnityEngine;
-using Tomia;
-using Tomia.Builder;
+using Tomium;
+using Tomium.Builder;
 
 public class WrenScripting : MonoBehaviour
 {
@@ -23,7 +23,7 @@ public class WrenScripting : MonoBehaviour
 
 	private void Awake()
 	{
-		Debug.Log(Tomia.Tomia.CurrentWrenVersionSemVer);
+		Debug.Log(Tomium.Tomium.CurrentWrenVersionSemVer);
 	}
 
 	void Start()

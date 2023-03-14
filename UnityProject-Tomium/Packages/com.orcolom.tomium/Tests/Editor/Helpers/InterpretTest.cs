@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using NUnit.Framework;
-using Tomia;
+using Tomium;
 
-namespace Tomia.Tests.Helpers
+namespace Tomium.Tests.Helpers
 {
 	public class InterpretTest : IDisposable
 	{

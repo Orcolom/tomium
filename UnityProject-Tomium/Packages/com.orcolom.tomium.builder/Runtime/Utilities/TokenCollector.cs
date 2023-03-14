@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Text;
-using Tomia.Builder.Tokens;
-using Tomia.Builder;
+using Tomium.Builder;
+using Tomium.Builder.Tokens;
 
-namespace Tomia.Builder
+namespace Tomium.Builder
 {
 	public class TokenCollector
 	{

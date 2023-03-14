@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tomia.Native
+namespace Tomium.Native
 {
 	internal struct NativeForeignClass
 	{

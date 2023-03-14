@@ -3,7 +3,7 @@ using System.Threading;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 
-namespace Tomia
+namespace Tomium
 {
 	public struct StaticMap<T> : IDisposable
 		where T : unmanaged

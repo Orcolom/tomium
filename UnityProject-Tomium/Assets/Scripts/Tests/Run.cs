@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Tomia.Samples;
+using Tomium.Samples;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;

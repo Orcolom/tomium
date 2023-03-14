@@ -1,7 +1,7 @@
 ﻿using System;
-using Tomia.Builder.Tokens;
+using Tomium.Builder.Tokens;
 
-namespace Tomia.Builder
+namespace Tomium.Builder
 {
 	public static class Token
 	{

@@ -1,4 +1,4 @@
-﻿namespace Tomia.Builder
+﻿namespace Tomium.Builder
 {
 	public class ExpectValue
 	{

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using Tomia.Builder.Tokens;
-using Tomia;
+using Tomium.Builder.Tokens;
+using Tomium;
 
-namespace Tomia.Builder
+namespace Tomium.Builder
 {
 	public class ImportDeferred : IModuleScoped, IMethodScoped
 	{

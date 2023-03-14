@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
-using Tomia;
-using Tomia.Builder;
+using Tomium;
+using Tomium.Builder;
 
 namespace Binding.UnityBinding
 {

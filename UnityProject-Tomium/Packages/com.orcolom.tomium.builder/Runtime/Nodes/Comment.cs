@@ -1,8 +1,8 @@
 ﻿using System.Text;
-using Tomia.Builder.Tokens;
-using Tomia;
+using Tomium;
+using Tomium.Builder.Tokens;
 
-namespace Tomia.Builder
+namespace Tomium.Builder
 {
 	public class Comment : IToken, IModuleScoped, IClassScoped, IMethodScoped
 	{

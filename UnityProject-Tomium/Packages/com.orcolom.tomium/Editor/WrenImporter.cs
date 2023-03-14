@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 
-namespace Tomia.Editor
+namespace Tomium.Editor
 {
 	[ScriptedImporter(2, "wren")]
 	public class WrenImporter : ScriptedImporter

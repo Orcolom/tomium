@@ -1,6 +1,6 @@
 {
-    "name": "Tomia.Editor",
-    "rootNamespace": "Tomia",
+    "name": "Tomium.Editor",
+    "rootNamespace": "Tomium",
     "references": [
         "GUID:76acb78479c2219438fb4d7a893fc6b0",
         "GUID:27619889b8ba8c24980f49ee34dbb44a",

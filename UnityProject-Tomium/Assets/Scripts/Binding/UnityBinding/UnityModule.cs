@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using Binding.UnityBinding;
 using UnityEngine;
-using Tomia;
-using Tomia.Builder;
-using Tomia.Builder.Tokens;
-using MethodBody = Tomia.Builder.MethodBody;
-using Module = Tomia.Builder.Module;
+using Tomium;
+using Tomium.Builder;
+using Tomium.Builder.Tokens;
+using MethodBody = Tomium.Builder.MethodBody;
+using Module = Tomium.Builder.Module;
 using Object = UnityEngine.Object;
 // ReSharper disable InconsistentNaming
 
@@ -16,7 +16,7 @@ namespace Binding
 {
 	public class UnityModule : Module
 	{
-		public class Class : Tomia.Builder.Class
+		public class Class : Tomium.Builder.Class
 		{
 			public readonly Type ValueType;
 

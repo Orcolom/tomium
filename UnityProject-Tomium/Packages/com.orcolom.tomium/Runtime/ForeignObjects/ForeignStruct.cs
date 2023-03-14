@@ -1,6 +1,6 @@
 using System;
 
-namespace Tomia
+namespace Tomium
 {
 	public readonly struct ForeignStruct<T>
 		where T : unmanaged

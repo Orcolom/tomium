@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
-using Tomia.Native;
+using Tomium.Native;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
 using UnityEngine;
 
-namespace Tomia
+namespace Tomium
 {
 	public struct Vm : IEquatable<Vm>, IDisposable
 	{
@@ -80,12 +80,12 @@ namespace Tomia
 		{
 			// set config
 			var configuration = Config.ToInterop(config ?? Config.Default);
-			configuration.NativeWrite = Tomia.WriteCallback;
-			configuration.NativeError = Tomia.ErrorCallback;
-			configuration.NativeResolveModule = Tomia.ResolveCallback;
-			configuration.NativeLoadModule = Tomia.LoadCallback;
-			configuration.NativeBindForeignClass = Tomia.BindForeignClassCallback;
-			configuration.NativeBindForeignMethod = Tomia.BindForeignMethodCallback;
+			configuration.NativeWrite = Tomium.WriteCallback;
+			configuration.NativeError = Tomium.ErrorCallback;
+			configuration.NativeResolveModule = Tomium.ResolveCallback;
+			configuration.NativeLoadModule = Tomium.LoadCallback;
+			configuration.NativeBindForeignClass = Tomium.BindForeignClassCallback;
+			configuration.NativeBindForeignMethod = Tomium.BindForeignMethodCallback;
 
 			// get vm ptr
 			IntPtr ptr = Interop.wrenNewVM(configuration);

@@ -1,4 +1,4 @@
-﻿namespace Tomia
+﻿namespace Tomium
 {
 	/// <summary>
 	/// types a WrenValue can have

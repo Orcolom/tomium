@@ -1,4 +1,4 @@
-namespace Tomia
+namespace Tomium
 {
 	internal enum ForeignStyle : byte
 	{

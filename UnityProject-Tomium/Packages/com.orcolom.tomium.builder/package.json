@@ -1,11 +1,10 @@
 {
-  "name": "com.orcolom.tomia.builder",
-  "displayName": "Tomia Builder",
+  "name": "com.orcolom.tomium.builder",
+  "displayName": "Tomium Builder",
   "version": "0.4.0",
   "unity": "2021.3",
-  "description": "Tomia's Tokenized Module Builder",
+  "description": "Tomium's Tokenized Module Builder",
   "dependencies": {
-    "com.orcolom.tomia": "0.4.0",
-    "com.unity.nuget.mono-cecil": "1.10.2"
+    "com.orcolom.tomium": "0.4.0"
   }
 }

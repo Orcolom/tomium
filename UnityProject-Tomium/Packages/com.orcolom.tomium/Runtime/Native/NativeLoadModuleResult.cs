@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tomia.Native
+namespace Tomium.Native
 {
 	/// <summary>
 	/// result from <see cref="NativeConfig.NativeLoadModule"/> call

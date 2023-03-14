@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Tomia.Builder
+namespace Tomium.Builder
 {
 	public class ModuleCollection : IEnumerable
 	{

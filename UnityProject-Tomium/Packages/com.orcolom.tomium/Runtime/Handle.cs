@@ -1,9 +1,9 @@
 ﻿using System;
-using Tomia.Native;
+using Tomium.Native;
 using Unity.Burst;
 using Unity.Collections.LowLevel.Unsafe;
 
-namespace Tomia
+namespace Tomium
 {
 	public struct Handle : IDisposable, IEquatable<Handle>
 	{

@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
 
-namespace Tomia.Builder.Tokens
+namespace Tomium.Builder.Tokens
 {
 	public class NumberToken : IToken, IModuleScoped, IMethodScoped
 	{

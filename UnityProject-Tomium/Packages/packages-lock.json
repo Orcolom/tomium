@@ -1,20 +1,19 @@
 {
   "dependencies": {
-    "com.orcolom.tomia": {
-      "version": "file:com.orcolom.tomia",
+    "com.orcolom.tomium": {
+      "version": "file:com.orcolom.tomium",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
         "com.unity.collections": "1.2.3"
       }
     },
-    "com.orcolom.tomia.builder": {
-      "version": "file:com.orcolom.tomia.builder",
+    "com.orcolom.tomium.builder": {
+      "version": "file:com.orcolom.tomium.builder",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.orcolom.tomia": "0.4.0",
-        "com.unity.nuget.mono-cecil": "1.10.2"
+        "com.orcolom.tomium": "0.4.0"
       }
     },
     "com.unity.burst": {
@@ -92,13 +91,6 @@
     "com.unity.mathematics": {
       "version": "1.2.6",
       "depth": 2,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.nuget.mono-cecil": {
-      "version": "1.10.2",
-      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"

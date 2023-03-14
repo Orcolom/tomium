@@ -4,7 +4,7 @@ using System.Text;
 
 [assembly: InternalsVisibleTo("Unity.Tomia.CodeGen")]
 
-namespace Tomia.Builder
+namespace Tomium.Builder
 {
 	public static class TomiaBuilderUtils
 	{

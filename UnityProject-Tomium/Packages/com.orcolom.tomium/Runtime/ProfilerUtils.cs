@@ -3,7 +3,7 @@ using System.Diagnostics;
 using Unity.Profiling;
 using Unity.Profiling.LowLevel;
 
-namespace Tomia
+namespace Tomium
 {
 	public static class ProfilerUtils
 	{

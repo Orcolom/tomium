@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Tomia.Builder
+namespace Tomium.Builder
 {
 	public class ScriptBuilder
 	{

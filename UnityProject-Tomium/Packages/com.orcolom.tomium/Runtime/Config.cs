@@ -1,7 +1,7 @@
 ﻿using System;
-using Tomia.Native;
+using Tomium.Native;
 
-namespace Tomia
+namespace Tomium
 {
 	public struct Config
 	{

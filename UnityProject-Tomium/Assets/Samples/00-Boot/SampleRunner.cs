@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace Tomia.Samples
+namespace Tomium.Samples
 {
 	public class SampleRunner : MonoBehaviour
 	{

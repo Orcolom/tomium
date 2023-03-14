@@ -1,11 +1,11 @@
 {
-    "name": "Tomia",
-    "rootNamespace": "Tomia",
+    "name": "Tomium.Builder",
+    "rootNamespace": "Tomium.Builder",
     "references": [
-        "GUID:e0cd26848372d4e5c891c569017e11f1",
-        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:76acb78479c2219438fb4d7a893fc6b0",
         "GUID:343deaaf83e0cee4ca978e7df0b80d21",
-        "GUID:2bafac87e7f4b9b418d9448d219b01ab"
+        "GUID:2bafac87e7f4b9b418d9448d219b01ab",
+        "Tomium"
     ],
     "includePlatforms": [
         "Android",

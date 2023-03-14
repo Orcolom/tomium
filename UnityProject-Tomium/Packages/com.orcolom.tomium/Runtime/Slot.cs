@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using Tomia.Native;
+using Tomium.Native;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Profiling;
 
-namespace Tomia
+namespace Tomium
 {
 	public readonly struct Slot : IEquatable<Slot>
 	{

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace Tomia.Native
+namespace Tomium.Native
 {
 	/// <summary>
 	/// interop struct for WrenConfiguration
