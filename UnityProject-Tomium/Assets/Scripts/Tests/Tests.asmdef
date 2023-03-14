@@ -2,9 +2,9 @@
     "name": "Tests",
     "rootNamespace": "",
     "references": [
-        "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "Tomia.Samples.HelloWorld"
+        "GUID:27619889b8ba8c24980f49ee34dbb44a",
+        "GUID:0acc523941302664db1f4e527237feb3",
+        "GUID:24e78fe0df8a23b499eb20b53d0ae148"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

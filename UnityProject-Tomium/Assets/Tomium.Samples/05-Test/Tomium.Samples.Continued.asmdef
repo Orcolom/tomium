@@ -1,11 +1,10 @@
 {
-    "name": "Tomia.Samples2",
+    "name": "Tomium.Samples.Continued",
     "rootNamespace": "",
     "references": [
         "GUID:76acb78479c2219438fb4d7a893fc6b0",
         "GUID:807ba51b0ce56044fb2c499732c299d8",
-        "GUID:24e78fe0df8a23b499eb20b53d0ae148",
-        "Tomium.Builder"
+        "GUID:24e78fe0df8a23b499eb20b53d0ae148"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
