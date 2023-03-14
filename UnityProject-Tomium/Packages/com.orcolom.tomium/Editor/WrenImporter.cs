@@ -13,7 +13,7 @@ namespace Tomium.Editor
 
 		public override void OnImportAsset(AssetImportContext ctx)
 		{
-			var texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.orcolom.tomia/Editor/wren.png");
+			var texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Packages/com.orcolom.tomium/Editor/wren.png");
 			var text = File.ReadAllText(ctx.assetPath);
 			string scriptName = Path.GetFileName(ctx.assetPath);
 

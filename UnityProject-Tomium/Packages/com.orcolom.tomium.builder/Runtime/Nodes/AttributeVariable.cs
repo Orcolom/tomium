@@ -22,7 +22,7 @@ namespace Tomium.Builder
 		public AttributeVariable(string name, string value)
 		{
 			Name = Token.Name(name);
-			Value = TomiaBuilderUtils.IsNameSafe(value) ? Token.Name(value) : Token.String(value);
+			Value = BuilderUtils.IsNameSafe(value) ? Token.Name(value) : Token.String(value);
 		}
 
 		public AttributeVariable(string name, double value)

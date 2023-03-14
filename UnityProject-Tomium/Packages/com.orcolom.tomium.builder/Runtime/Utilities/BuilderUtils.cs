@@ -2,11 +2,9 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 
-[assembly: InternalsVisibleTo("Unity.Tomia.CodeGen")]
-
 namespace Tomium.Builder
 {
-	public static class TomiaBuilderUtils
+	public static class BuilderUtils
 	{
 		public static readonly List<string> ReservedWords = new List<string>()
 		{
