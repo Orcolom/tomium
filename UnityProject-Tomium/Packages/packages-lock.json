@@ -13,7 +13,7 @@
       "depth": 0,
       "source": "embedded",
       "dependencies": {
-        "com.orcolom.tomium": "0.4.0"
+        "com.orcolom.tomium": "1.0.0"
       }
     },
     "com.unity.burst": {
