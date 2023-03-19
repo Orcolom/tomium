@@ -19,10 +19,10 @@ namespace Tomium.Native
 
 #if UNITY_EDITOR == false && (ENABLE_IL2CPP || UNITY_WEBGL)
 		public const string DllName = "__Internal";
-#elif UNITY_STANDALONE_WIN
-		public const string DllName = "wren.dll";
 #elif UNITY_EDITOR_WIN || (UNITY_STANDALONE_WIN && DEBUG)
 		public const string DllName = "wren_d.dll";
+#elif UNITY_STANDALONE_WIN
+		public const string DllName = "wren.dll";
 #endif
 
 		/// <summary>
