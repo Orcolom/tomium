@@ -33,6 +33,8 @@ namespace Tomium
 		
 		public static bool operator ==(Slot left, Slot right) => Equals(left, right);
 		public static bool operator !=(Slot left, Slot right) => Equals(left, right) == false;
+
+		public override string ToString() => $"Slot({_index})";
 	}
 
 	public static class SlotUtils

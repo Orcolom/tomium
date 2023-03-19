@@ -1,11 +1,10 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Text;
 using Binding;
 using Unity.Profiling;
 using UnityEngine;
 using Tomium;
 using Tomium.Builder;
+using Tomium.Samples.UnityBinding;
 
 public class WrenScripting : MonoBehaviour
 {
@@ -19,7 +18,9 @@ public class WrenScripting : MonoBehaviour
 	private static readonly ProfilerMarker PrefNew = ProfilerUtils.Create("New");
 
 	private Handle _handle;
-
+	
+	private readonly StringBuilder _writeBuffer = new StringBuilder();
+	private readonly StringBuilder _errorBuffer = new StringBuilder();
 
 	private void Awake()
 	{
@@ -40,13 +41,34 @@ public class WrenScripting : MonoBehaviour
 		PrefNew.Begin();
 		_vm = Vm.New();
 		
-		_vm.SetErrorListener((_, type, module, line, message) =>
-			Debug.LogError($"{type}: {module} {line} {message}"));
 		_vm.SetWriteListener((_, text) =>
 		{
-			if (text == "\n") return;
-			Debug.Log(text);
+			if (text == "\n")
+			{
+				Debug.Log(_writeBuffer);
+				_writeBuffer.Clear();
+			} else _writeBuffer.Append(text);
 		});
+			
+		_vm.SetErrorListener((_, type, module, line, message) =>
+		{
+			string str = type switch
+			{
+				ErrorType.CompileError => $"[{module} line {line}] {message}",
+				ErrorType.RuntimeError => message,
+				ErrorType.StackTrace => $"[{module} line {line}] in {message}",
+				_ => string.Empty,
+			};
+				
+			if (type == ErrorType.CompileError) Debug.LogWarning(str);
+			else if (type == ErrorType.StackTrace)
+			{
+				_errorBuffer.AppendLine(str);
+				Debug.LogWarning(_errorBuffer);
+				if (message == "(script)") _errorBuffer.Clear();
+			} else _errorBuffer.AppendLine(str);
+		});
+		
 		_vm.SetLoadModuleListener((vm, path) =>
 		{
 			var str = _modules.LoadModuleHandler(vm, path);

@@ -6,6 +6,7 @@
 		{
 			vm.Slot0.SetString(msg);
 			vm.Abort(vm.Slot0);
+			ProfilerUtils.LogAbortException(msg);
 		}
 
 		public static bool IsOfValueType(Slot slot, ValueType type, bool canBeNull = false)
@@ -14,7 +15,7 @@
 			bool isNull = valueType == ValueType.Null;
 			if (slot.GetValueType() == type || (isNull && canBeNull)) return true;
 
-			AbortException(new Vm(slot.VmPtr), $"slot {slot.Index}: invalid-type");
+			AbortException(new Vm(slot.VmPtr), $"{slot} invalid-type(expected={type}, actual={valueType})");
 			return false;
 		}
 
