@@ -1,4 +1,7 @@
-﻿namespace Tomium.Builder
+﻿using System;
+using UnityEngine;
+
+namespace Tomium.Builder
 {
 	public class ExpectValue
 	{
@@ -6,7 +9,19 @@
 		{
 			vm.Slot0.SetString(msg);
 			vm.Abort(vm.Slot0);
-			ProfilerUtils.LogAbortException(msg);
+
+#if TOMIUM_LOG_ABORTEXCEPTION
+			// Throw an exception and catch it instantly.
+			// This gives us the original callstack but allows us to continue running.
+			try
+			{
+				throw new Exception(msg);
+			}
+			catch (Exception e)
+			{
+				Debug.LogException(e);
+			}
+#endif
 		}
 
 		public static bool IsOfValueType(Slot slot, ValueType type, bool canBeNull = false)

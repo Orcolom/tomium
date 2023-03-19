@@ -17,11 +17,5 @@ namespace Tomium
 		{
 			UnityEngine.Debug.Log($"[TOMIUM] {s}");
 		}
-
-		[Conditional("TOMIUM_LOG_ABORTEXCEPTION")]
-		public static void LogAbortException(string reason)
-		{
-			UnityEngine.Debug.LogError($"[TOMIUM] !Abort! {reason}");
-		}
 	}
 }

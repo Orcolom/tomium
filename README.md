@@ -2,7 +2,7 @@
 
 A [Wren](https://wren.io/) binding made from the ground up for Unity.
 
-> **Tomia**: A tooth-like structures that line the inside of a birds brill. That helps them handles their typical food sources better.
+> **Tomium**: A tooth-like structures that line the inside of a birds brill. That helps them handles their typical food sources better.
 
 ## Features
 
@@ -66,7 +66,7 @@ A [Wren](https://wren.io/) binding made from the ground up for Unity.
 
 Because of the nature of this project and the need for call to native code, 0 allocation became impossible. We pre-allocate as much as possible and use classes only for objects that should exist for the whole application lifetime.
 
-Every time we have possible allocation it is wrapped its own re-used Profiler Marker  
+Every time we have possible allocation that is unavoidable we've wrapped it in its own re-used Profiler Marker  
 
 ```cs
 using (ProfilerUtils.AllocScope.Auto())
@@ -74,6 +74,14 @@ using (ProfilerUtils.AllocScope.Auto())
   // code that has possible allocation
 }
 ```
+
+## Defines
+
+We have a few define symbols to change the level of debugging
+
+- `TOMIUM_DEBUG`: Logs creation and destruction of native objects.
+- `TOMIUM_LOG_ABORTEXCEPTION`: Log exceptions with callstack when we have to abort from C# 
+
 
 ## Support
 

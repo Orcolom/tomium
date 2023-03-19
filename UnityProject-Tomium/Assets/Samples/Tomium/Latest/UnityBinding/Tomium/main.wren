@@ -5,7 +5,7 @@ go.name = "named from wren"
 
 var transform1 = go.GetComponent(Transform)
 var pos = transform1.GetPosition()
-pos.x = 10
+pos.x = pos
 transform1.SetPosition(pos)
 
 var X = Fn.new {
