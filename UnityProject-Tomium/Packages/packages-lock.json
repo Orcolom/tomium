@@ -166,11 +166,10 @@
       }
     },
     "com.yasirkula.ingamedebugconsole": {
-      "version": "https://github.com/yasirkula/UnityIngameDebugConsole.git",
+      "version": "file:com.yasirkula.ingamedebugconsole",
       "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "2ee62e21eded65257454d14d545f5db7484743b0"
+      "source": "embedded",
+      "dependencies": {}
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
