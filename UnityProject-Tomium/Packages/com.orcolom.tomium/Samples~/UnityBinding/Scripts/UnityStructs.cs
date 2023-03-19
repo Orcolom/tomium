@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using Tomium;
 using Tomium.Builder;
+using Tomium.Samples.UnityBinding;
 
-namespace Binding.UnityBinding
+namespace Tomium.Samples.UnityBinding
 {
-	public class Vector3Binding : UnityModule.Class<Vector3>
+	public class Vector3Class : UnityModule.Class<Vector3>
 	{
-		public Vector3Binding() : base(nameof(Vector3))
+		public Vector3Class() : base(nameof(Vector3))
 		{
 			const string x = "x";
 			Add(new Method(Signature.Create(MethodType.FieldGetter, x), new ForeignMethod(GetX)));
@@ -40,7 +41,7 @@ namespace Binding.UnityBinding
 		{
 			vm.EnsureSlots(2);
 			if (Expect(vm.Slot0, out ForeignObject<Vector3> self) == false) return;
-			if (ExpectValue.ExpectFloat(vm.Slot0, out float x) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float x) == false) return;
 			
 			var selfValue = self.Value;
 			selfValue.x = x;
@@ -59,7 +60,7 @@ namespace Binding.UnityBinding
 		{
 			vm.EnsureSlots(2);
 			if (Expect(vm.Slot0, out ForeignObject<Vector3> self) == false) return;
-			if (ExpectValue.ExpectFloat(vm.Slot0, out float y) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float y) == false) return;
 
 			var selfValue = self.Value;
 			selfValue.y = y;
@@ -78,7 +79,7 @@ namespace Binding.UnityBinding
 		{
 			vm.EnsureSlots(2);
 			if (Expect(vm.Slot0, out ForeignObject<Vector3> self) == false) return;
-			if (ExpectValue.ExpectFloat(vm.Slot0, out float z) == false) return;
+			if (ExpectValue.ExpectFloat(vm.Slot1, out float z) == false) return;
 
 			var selfValue = self.Value;
 			selfValue.z = z;
@@ -94,9 +95,9 @@ namespace Binding.UnityBinding
 		}
 	}
 
-	public class ColorBinding : UnityModule.Class<Color>
+	public class ColorClass : UnityModule.Class<Color>
 	{
-		public ColorBinding() : base(nameof(Color))
+		public ColorClass() : base(nameof(Color))
 		{
 			const string r = "r";
 			Add(new Method(Signature.Create(MethodType.FieldGetter, r), new ForeignMethod(GetR)));
@@ -206,10 +207,10 @@ namespace Binding.UnityBinding
 			vm.Slot0.SetString(self.Value.ToString());
 		}
 	}
-
-	public class QuaternionBinding : UnityModule.Class<Quaternion>
+	
+	public class QuaternionClass : UnityModule.Class<Quaternion>
 	{
-		public QuaternionBinding() : base(nameof(Quaternion))
+		public QuaternionClass() : base(nameof(Quaternion))
 		{
 			const string x = "x";
 			Add(new Method(Signature.Create(MethodType.FieldGetter, x), new ForeignMethod(GetX)));
@@ -319,107 +320,4 @@ namespace Binding.UnityBinding
 			vm.Slot0.SetString(self.Value.ToString());
 		}
 	}
-
-	// public class MeshBinding : UnityModule.Class
-	// {
-	// 	public MeshBinding() : base(nameof(Mesh), null, typeof(Mesh))
-	// 	{
-	// 		Add(new Method(Signature.Create(MethodType.Construct, nameof(New)), new ForeignMethod(New)));
-	//
-	// 		const string name = "name"; 
-	// 		Add(new Method(Signature.Create(MethodType.FieldGetter, name), new ForeignMethod(GetName)));
-	// 		Add(new Method(Signature.Create(MethodType.FieldSetter, name), new ForeignMethod(SetName)));
-	// 		Add(new Method(Signature.Create(MethodType.ToString), new ForeignMethod(ToString)));
-	// 	}
-	//
-	// 	public static bool Expect(Vm vm, Slot slot, out ForeignObject<Mesh> value)
-	// 	{
-	// 		return ExpectValue.ExpectForeign(vm, slot, out value);
-	// 	}
-	//
-	// 	private static void New(Vm vm)
-	// 	{
-	// 		vm.EnsureSlots(1);
-	// 		if (Expect(vm, vm.Slot0, out var self) == false) return;
-	// 		
-	// 		self.Value = new Mesh();
-	// 	}
-	//
-	// 	private static void GetName(Vm vm)
-	// 	{
-	// 		vm.EnsureSlots(1);
-	// 		if (Expect(vm, vm.Slot0, out var self) == false) return;
-	//
-	// 		vm.Slot0.SetString(self.Value.name);
-	// 	}
-	//
-	// 	private static void SetName(Vm vm)
-	// 	{
-	// 		vm.EnsureSlots(1);
-	// 		if (Expect(vm, vm.Slot0, out var self) == false) return;
-	// 		if (ExpectValue.ExpectString(vm, vm.Slot0, out var name) == false) return;
-	// 		
-	// 		self.Value.name = name;
-	// 	}
-	//
-	// 	private static void ToString(Vm vm)
-	// 	{
-	// 		vm.EnsureSlots(1);
-	// 		if (Expect(vm, vm.Slot0, out var self) == false) return;
-	// 		
-	// 		vm.Slot0.SetString(self.Value.ToString());
-	// 	}
-	// }
-	//
-	// [TomiaClass(typeof(UnityModule), nameof(Material), typeof(Material))]
-	// public class MaterialBinding : Class
-	// {
-	// 	[TomiaExpect(typeof(ForeignObject<Material>))]
-	// 	public static bool Expect(Vm vm, Slot slot, out ForeignObject<Material> value)
-	// 	{
-	// 		return ExpectValue.ExpectForeign(vm, slot, out value);
-	// 	}
-	//
-	// 	[TomiaMethod(MethodType.FieldGetter)]
-	// 	private static void name(Vm vm, ForeignObject<Material> self)
-	// 	{
-	// 		vm.Slot0.SetString(self.Value.name);
-	// 	}
-	//
-	// 	[TomiaMethod(MethodType.FieldSetter)]
-	// 	private static void name(Vm vm, ForeignObject<Material> self, string name)
-	// 	{
-	// 		self.Value.name = name;
-	// 	}
-	//
-	// 	[TomiaMethod(MethodType.ToString)]
-	// 	private static void ToString(Vm vm, ForeignObject<Material> self)
-	// 	{
-	// 		vm.Slot0.SetString(self.Value.ToString());
-	// 	}
-	// 	
-	// 	[TomiaMethod(MethodType.Method)]
-	// 	private static void SetColor(Vm vm, ForeignObject<Material> self, int nameID, ForeignObject<Color> color)
-	// 	{
-	// 		self.Value.SetColor(nameID, color.Value);
-	// 	}
-	// 	
-	// 	[TomiaMethod(MethodType.Method)]
-	// 	private static void GetColor(Vm vm, ForeignObject<Material> self, int nameID)
-	// 	{
-	// 		if (UnityModule.ExpectId(vm, typeof(Color), out var type) == false) return;
-	// 		var color = self.Value.GetColor(nameID);
-	// 		UnityModule.SetNewForeign(vm, vm.Slot1, type, color);
-	// 	}
-	// }
-	//
-	// [TomiaClass(typeof(UnityModule), nameof(Shader), typeof(Shader))]
-	// public class ShaderBinding : Class
-	// {
-	// 	[TomiaMethod(MethodType.StaticMethod)]
-	// 	private static void PropertyToID(Vm vm, string name)
-	// 	{
-	// 		vm.Slot0.SetInt(Shader.PropertyToID(name));
-	// 	}
-	// }
 }

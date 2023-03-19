@@ -1,6 +1,6 @@
 ﻿using Tomium.Builder;
 
-namespace Binding
+namespace Tomium.Samples.UnityBinding
 {
 	public class UtilityModule : Module
 	{

@@ -15,7 +15,7 @@ namespace Binding
 	
 	public class WrenComponentData
 	{
-		public WrenGameObject GameObject;
+		public WrenComponentHandler ComponentHandler;
 		public Handle Handle;
 		public WrenComponentType Type;
 		public bool HasDoneInit;
@@ -31,7 +31,7 @@ namespace Binding
 		// public bool HasFixedUpdate;
 	}
 	
-	public class WrenGameObject : MonoBehaviour
+	public class WrenComponentHandler : MonoBehaviour
 	{
 		private static readonly Dictionary<string, WrenComponentType> ComponentTypes = new Dictionary<string, WrenComponentType>(32);
 		private List<WrenComponentData> _components = new List<WrenComponentData>();
@@ -71,7 +71,7 @@ namespace Binding
 			_components.Add(new WrenComponentData
 			{
 				Handle = instance,
-				GameObject = this,
+				ComponentHandler = this,
 				Type = type,
 			});
 		}
