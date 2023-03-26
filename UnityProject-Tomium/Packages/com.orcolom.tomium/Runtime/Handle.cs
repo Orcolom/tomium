@@ -37,7 +37,7 @@ namespace Tomium
 
 		internal static Handle New(Vm vm, string signature)
 		{
-			if (vm.ExpectedValid()) return new Handle();
+			if (vm.IsNotValid()) return new Handle();
 
 			IntPtr handlePtr = Interop.wrenMakeCallHandle(vm.Ptr, signature);
 			var handle = new Handle(vm.Ptr, handlePtr);

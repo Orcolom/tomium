@@ -13,12 +13,12 @@ namespace Tomium
 		{
 			get
 			{
-				if (ExpectedValid(this)) return default;
+				if (IsNotValid(this)) return default;
 				return Managed.ForeignObjects.TryGetValue(_ptr, out var value) ? (T) value : default;
 			}
 			set
 			{
-				if (ExpectedValid(this)) return;
+				if (IsNotValid(this)) return;
 				using (ProfilerUtils.AllocScope.Auto())
 				{
 					Managed.ForeignObjects[_ptr] = value;
@@ -34,7 +34,7 @@ namespace Tomium
 		internal static ForeignObject<T> FromPtr(IntPtr ptr)
 		{
 			var foreignObject = new ForeignObject<T>(ptr);
-			ExpectedValid(foreignObject);
+			IsNotValid(foreignObject);
 			return foreignObject;
 		}
 
@@ -43,7 +43,7 @@ namespace Tomium
 			return new ForeignObject<TType>(_ptr);
 		}
 
-		private static bool ExpectedValid(in ForeignObject<T> foreign)
+		private static bool IsNotValid(in ForeignObject<T> foreign)
 		{
 			if (foreign.IsValid) return false;
 

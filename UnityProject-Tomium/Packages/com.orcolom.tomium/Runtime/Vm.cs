@@ -144,9 +144,9 @@ namespace Tomium
 			return vm.Ptr != IntPtr.Zero;
 		}
 
-		public static bool ExpectedValid(this Vm vm) => ExpectedValid(vm.Ptr);
+		public static bool IsNotValid(this Vm vm) => IsNotValid(vm.Ptr);
 
-		public static bool ExpectedValid(IntPtr vmPtr)
+		public static bool IsNotValid(IntPtr vmPtr)
 		{
 			if (IsValid(vmPtr)) return false;
 
@@ -154,14 +154,14 @@ namespace Tomium
 			// return true;
 		}
 
-		internal static bool ExpectedSameVm(this Vm self, Slot other) => ExpectedSameVm(self.Ptr, other.VmPtr, "Slot is not from this vm");
-		internal static bool ExpectedSameVm(this Slot self, Slot other) => ExpectedSameVm(self.VmPtr, other.VmPtr, "Slots are not from the same vm");
+		internal static bool AreNotTheSameVm(this Vm self, Slot other) => AreNotTheSameVm(self.Ptr, other.VmPtr, "Slot is not from this vm");
+		internal static bool AreNotTheSameVm(this Slot self, Slot other) => AreNotTheSameVm(self.VmPtr, other.VmPtr, "Slots are not from the same vm");
 
-		internal static bool ExpectedSameVm(IntPtr ptr, IntPtr other, string error)
+		internal static bool AreNotTheSameVm(IntPtr ptr, IntPtr other, string error)
 		{
 			if (ptr == other) return false;
 
-			throw new ArgumentOutOfRangeException("ExpectedSameVm",error);
+			throw new ArgumentOutOfRangeException("AreNotTheSameVm",error);
 			// return true;
 		}
 
@@ -203,7 +203,7 @@ namespace Tomium
 			PrefInterpret.Begin();
 			using var l = new Lock(vm.Ptr);
 
-			if (ExpectedValid(vm)) return InterpretResult.CompileError;
+			if (IsNotValid(vm)) return InterpretResult.CompileError;
 			if (string.IsNullOrEmpty(module)) throw new ArgumentNullException();
 			var result = Interop.wrenInterpret(vm.Ptr, module, source);
 			PrefInterpret.End();
@@ -234,7 +234,7 @@ namespace Tomium
 			PrefCall.Begin();
 			using var l = new Lock(vm.Ptr);
 
-			if (ExpectedValid(vm)) return InterpretResult.CompileError;
+			if (IsNotValid(vm)) return InterpretResult.CompileError;
 			if (Handle.IfInvalid(method)) return InterpretResult.CompileError;
 			var result = Interop.wrenCall(vm.Ptr, method.Ptr);
 
@@ -248,7 +248,7 @@ namespace Tomium
 		{
 			using var l = new Lock(vm.Ptr);
 
-			if (ExpectedValid(vm)) return;
+			if (IsNotValid(vm)) return;
 			Interop.wrenCollectGarbage(vm.Ptr);
 		}
 
@@ -257,7 +257,7 @@ namespace Tomium
 		{
 			using var l = new Lock(vm.Ptr);
 
-			if (ExpectedValid(vm)) return;
+			if (IsNotValid(vm)) return;
 			Interop.wrenAbortFiber(vm.Ptr, msg.Index);
 		}
 
@@ -331,7 +331,7 @@ namespace Tomium
 		{
 			using var l = new Lock(vm.Ptr);
 
-			if (ExpectedValid(vm)) return 0;
+			if (IsNotValid(vm)) return 0;
 			return Interop.wrenGetSlotCount(vm.Ptr);
 		}
 
@@ -339,7 +339,7 @@ namespace Tomium
 		{
 			using var l = new Lock(vm.Ptr);
 
-			if (ExpectedValid(vm)) return;
+			if (IsNotValid(vm)) return;
 			Interop.wrenEnsureSlots(vm.Ptr, size);
 		}
 
@@ -349,49 +349,49 @@ namespace Tomium
 
 		public static void SetWriteListener(this Vm vm, WriteDelegate @delegate)
 		{
-			if (ExpectedValid(vm)) return;
+			if (IsNotValid(vm)) return;
 			Managed.ManagedClasses[vm.Ptr].WriteEvent = @delegate;
 		}
 
 		public static void SetErrorListener(this Vm vm, ErrorDelegate @delegate)
 		{
-			if (ExpectedValid(vm)) return;
+			if (IsNotValid(vm)) return;
 			Managed.ManagedClasses[vm.Ptr].ErrorEvent = @delegate;
 		}
 
 		public static void SetResolveModuleListener(this Vm vm, ResolveModuleDelegate @delegate)
 		{
-			if (ExpectedValid(vm)) return;
+			if (IsNotValid(vm)) return;
 			Managed.ManagedClasses[vm.Ptr].ResolveModuleEvent = @delegate;
 		}
 
 		public static void SetLoadModuleListener(this Vm vm, LoadModuleDelegate @delegate)
 		{
-			if (ExpectedValid(vm)) return;
+			if (IsNotValid(vm)) return;
 			Managed.ManagedClasses[vm.Ptr].LoadModuleEvent = @delegate;
 		}
 
 		public static void SetBindForeignMethodListener(this Vm vm, BindForeignMethodDelegate @delegate)
 		{
-			if (ExpectedValid(vm)) return;
+			if (IsNotValid(vm)) return;
 			Managed.ManagedClasses[vm.Ptr].BindForeignMethodEvent = @delegate;
 		}
 
 		public static void SetBindForeignClassListener(this Vm vm, BindForeignClassDelegate @delegate)
 		{
-			if (ExpectedValid(vm)) return;
+			if (IsNotValid(vm)) return;
 			Managed.ManagedClasses[vm.Ptr].BindForeignClassEvent = @delegate;
 		}
 
 		public static void SetUserData<T>(this Vm vm, T obj)
 		{
-			if (ExpectedValid(vm)) return;
+			if (IsNotValid(vm)) return;
 			Managed.ManagedClasses[vm.Ptr].UserData = obj;
 		}
 
 		public static T GetUserData<T>(this Vm vm)
 		{
-			if (ExpectedValid(vm)) return default;
+			if (IsNotValid(vm)) return default;
 			return (T) Managed.ManagedClasses[vm.Ptr].UserData;
 		}
 

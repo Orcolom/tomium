@@ -13,12 +13,12 @@ namespace Tomium
 		{
 			get
 			{
-				if (ExpectedValid(this)) return default;
+				if (IsNotValid(this)) return default;
 				return ForeignValue<T>.TryGetValue(_ptr, out var value) ? value : default;
 			}
 			set
 			{
-				if (ExpectedValid(this)) return;
+				if (IsNotValid(this)) return;
 				ForeignValue<T>.Set(_ptr, value);
 			}
 		}
@@ -33,11 +33,11 @@ namespace Tomium
 		internal static ForeignStruct<T> FromPtr(IntPtr ptr)
 		{
 			var foreignStruct = new ForeignStruct<T>(ptr);
-			ExpectedValid(foreignStruct);
+			IsNotValid(foreignStruct);
 			return foreignStruct;
 		}
 
-		private static bool ExpectedValid(in ForeignStruct<T> foreign)
+		private static bool IsNotValid(in ForeignStruct<T> foreign)
 		{
 			if (foreign.IsValid) return false;
 
