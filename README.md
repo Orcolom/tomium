@@ -2,21 +2,16 @@
 
 A [Wren](https://wren.io/) binding made from the ground up for Unity.
 
-> **Tomium**: A tooth-like structures that line the inside of a birds brill. That helps them handles their typical food sources better.
-
 ## Features
 
 - [x] Full Wren support.
 - [x] Syntax tree based module builder.
 - [x] C# syntax style,
-- [ ] Well documented where needed.
-- [ ] Tests where needed
-- [ ] Code coverage, because why not
-- [ ] [All scripting backends including JobSystem](#scripting-backend)
-- [x] [Close-to-0 garbage collection and allocation](#memory-allocation-and-garbage-collection)
+- [x] [All scripting backends including JobSystem](#scripting-backend)
+- [x] [Optimized garbage collection and allocation](#memory-allocation-and-garbage-collection)
 - [x] Optimized profiler markers.
 - [x] Safe handeling of native allocations.
-- [x] Pre-emptive error handling where Wren would cause a crash.
+- [x] Pre-emptive exception where Wren would cause a native crash.
 - [WIP] blueprints for full Unity bindings
 
 ## Example VM
@@ -89,12 +84,12 @@ We have a few define symbols to change the level of debugging
 
 |Platform    | |mono |il2cpp | |jobs*|burst |
 |------------|-|-----|-------|-|-----|------|
-|Windows x64 | |x    |x      | |?    |?     |
-|Linux       | |?    |?      | |?    |?     |
-|Mac         | |?    |?      | |?    |?     |
-|Android     | |     |x      | |?    |?     |
-|iOS         | |     |?      | |?    |?     |
-|WebGL       | |     |x      | |?    |?     |
+|Windows x64 | |✔️   |✔️    | |✔️  |❔     |
+|Linux       | |❔    |❔     | |❔   |❔    |
+|Mac         | |❔    |❔     | |❔   |❔    |
+|Android     | |❌   |✔️    | |❔   |❔     |
+|iOS         | |❌   |❔     | |❔   |❔     |
+|WebGL       | |❌   |✔️    | |❔   |❔     |
 
 *x = supported, ? = support unknown*
 
