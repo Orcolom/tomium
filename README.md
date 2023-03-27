@@ -1,20 +1,20 @@
-# Tomia
+# Tomium
 
 A [Wren](https://wren.io/) binding made from the ground up for Unity.
 
 ## Features
 
 - [x] Full Wren support.
-- [x] Syntax tree based module builder.
+- [x] Syntax tree-based module builder.
 - [x] C# syntax style,
-- [x] [All scripting backends including JobSystem](#scripting-backend)
+- [x] [All scripting backends including JobSystem](#scripting-backends-and-platforms)
 - [x] [Optimized garbage collection and allocation](#memory-allocation-and-garbage-collection)
 - [x] Optimized profiler markers.
-- [x] Safe handeling of native allocations.
+- [x] Safe handling of native allocations.
 - [x] Pre-emptive exception where Wren would cause a native crash.
-- [WIP] blueprints for full Unity bindings
+- [x] blueprints for full Unity bindings
 
-## Example VM
+### Example VM
 
 ```cs
   private void Start()
@@ -57,11 +57,14 @@ A [Wren](https://wren.io/) binding made from the ground up for Unity.
 }
 ```
 
-## Memory Allocation and Garbage Collection
+The project has multiple VM's in the samples `UnityProject-Tomium/Assets/Samples/Tomium/Latest/GettingStarted`
+Or by installing the samples using the package manager. Each implementation is different and builds on the previous ones.
 
-Because of the nature of this project and the need for call to native code, 0 allocation became impossible. We pre-allocate as much as possible and use classes only for objects that should exist for the whole application lifetime.
+### Memory Allocation and Garbage Collection
 
-Every time we have possible allocation that is unavoidable we've wrapped it in its own re-used Profiler Marker  
+Because of the nature of this project and the need for call-to-native code and object tracking, 0 allocations became impossible. We pre-allocate as much as possible and use classes only for objects that should exist for the whole application lifetime.
+
+Every time we have a possible allocation that is unavoidable we've wrapped it in its own re-used Profiler Marker  
 
 ```cs
 using (ProfilerUtils.AllocScope.Auto())
@@ -70,35 +73,63 @@ using (ProfilerUtils.AllocScope.Auto())
 }
 ```
 
-## Defines
+### Defines
 
-We have a few define symbols to change the level of debugging
+We have a few defined symbols to change the level of debugging
 
 - `TOMIUM_DEBUG`: Logs creation and destruction of native objects.
-- `TOMIUM_LOG_ABORTEXCEPTION`: Log exceptions with callstack when we have to abort from C# 
+- `TOMIUM_LOG_ABORTEXCEPTION`: Log exceptions with call stack when we have to abort from C#.
 
+## Modules
+
+### con.orcolom.tomium
+
+This is the core that talks to native and handles the heavy lifting.
+
+### con.orcolom.tomium.builder
+
+This package helps with module management and creation.
+
+## Install
+
+Unity can accept git URLs that follow this structure.
+
+```xml
+{
+  "<package_name>": "<git_url>?path=<path_to_folder>#<tag>",
+
+  
+  "com.orcolom.tomium": "https://github.com/Orcolom/tomium.git?path=UnityProject-Tomium/Packages/com.orcolom.tomium#1.0.0", 
+  "com.orcolom.tomium.builder": "https://github.com/Orcolom/tomium.git?path=UnityProject-Tomium/Packages/com.orcolom.tomium.builder#1.0.0", 
+}
+```
+
+You can also download the source and add the packages locally.
 
 ## Support
 
-### Scripting Backend and Platforms
+### Scripting Backends and Platforms
 
 |Platform    | |mono |il2cpp | |jobs*|burst |
 |------------|-|-----|-------|-|-----|------|
-|Windows x64 | |✔️   |✔️    | |✔️  |❔     |
-|Linux       | |❔    |❔     | |❔   |❔    |
-|Mac         | |❔    |❔     | |❔   |❔    |
-|Android     | |❌   |✔️    | |❔   |❔     |
-|iOS         | |❌   |❔     | |❔   |❔     |
-|WebGL       | |❌   |✔️    | |❔   |❔     |
+|Windows x64 | |✔️   |✔️    | |✔️   |🚧   |
+|Linux       | |❔   |❔    | |❔   |🚧   |
+|Mac         | |❔   |❔    | |❔   |🚧   |
+|Android     | |❌   |✔️    | |✔️   |🚧   |
+|iOS         | |❌   |❔    | |❔   |🚧   |
+|WebGL       | |❌   |✔️    | |✔️   |🚧   |
 
-*x = supported, ? = support unknown*
+✔️ = Supported
+❔ = Not verified. (you can only own so many devices)
+🚧 = To be implemented
+❌ = Not supported
 
-*Tomia was structurally conceptually to support this. But needs more implementation and testing.
+*Tomium was structurally and conceptually designed to support jobs and burst. But safety is harder to ensure and safely handle.
 
 ### Version Compatibility
 
-The compatibilities between Wren, Tomia and Unity
+The compatibilities between Wren, Tomium and Unity
 
-|Tomia   |Unity      |Wren    |
+|Tomium  |Unity      |Wren    |
 |--------|-----------|--------|
 |0.4.0   |2021.3+    |0.4.0   |
