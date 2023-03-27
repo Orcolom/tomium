@@ -1,10 +1,10 @@
 {
   "name": "com.orcolom.tomium.builder",
   "displayName": "Tomium Builder",
-  "version": "1.0.0",
+  "version": "0.4.0",
   "unity": "2021.3",
   "description": "Tomium's Tokenized Module Builder",
   "dependencies": {
-    "com.orcolom.tomium": "1.0.0"
+    "com.orcolom.tomium": "0.4.0"
   }
 }
