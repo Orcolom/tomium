@@ -10,6 +10,8 @@
     "includePlatforms": [
         "Android",
         "Editor",
+        "EmbeddedLinux",
+        "LinuxStandalone64",
         "WebGL",
         "WindowsStandalone64"
     ],

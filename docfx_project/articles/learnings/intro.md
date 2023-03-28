@@ -28,7 +28,7 @@ Features consisted of:
 - Native wren interoperability. [Read more][interop]
 - Safety checks to avoid unity crashing. [Read more][thread_safe]
 - Documentation
-- Syntax Tree based source builder. The idea here was to eventually be able to parse wren scripts to c#.
+- Syntax Tree-based source builder. The idea here was to eventually be able to parse wren scripts to c#.
 - Tests
 - A single sample.
 
@@ -43,17 +43,17 @@ Features consisted of:
 - il2cpp support [Read more][il2cpp]
 - Native wren interoperability. [Read more][interop]
 - Safety checks to avoid unity crashing. [Read more][thread_safe]
-- Syntax Tree based source builder. The idea here was to eventually be able to parse wren scripts to c#.
+- Syntax Tree-based source builder. The idea here was to eventually be able to parse wren scripts to c#.
 
 ## 4. Tomia (2023+)
 
 This is where I decided to move towards a public 1.0.0 version of the project. and have a working sample project on every possible build target.
 
-- Fully struct based and job compatible
+- Fully struct-based and job-compatible
 - il2cpp support [Read more][il2cpp]
 - Native wren interoperability. [Read more][interop]
 - (Thread) Safety checks to avoid unity crashing. [Read more][thread_safe]
-- Syntax Tree based source builder. The idea here was to eventually be able to parse wren scripts to c#.
+- Syntax Tree-based source builder. The idea here was to eventually be able to parse wren scripts to c#.
 - Many tests and samples.
 - A Sample project that can be built to all platforms as POC.
 

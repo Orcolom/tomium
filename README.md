@@ -113,7 +113,7 @@ You can also download the source and add the packages locally.
 |Platform    | |mono |il2cpp | |jobs*|burst |
 |------------|-|-----|-------|-|-----|------|
 |Windows x64 | |✔️   |✔️    | |✔️   |🚧   |
-|Linux       | |❔   |❔    | |❔   |🚧   |
+|Linux       | |❔   |✔️    | |✔️   |🚧   |
 |Mac         | |❔   |❔    | |❔   |🚧   |
 |Android     | |❌   |✔️    | |✔️   |🚧   |
 |iOS         | |❌   |❔    | |❔   |🚧   |
@@ -124,7 +124,7 @@ You can also download the source and add the packages locally.
 🚧 = To be implemented
 ❌ = Not supported
 
-*Tomium was structurally and conceptually designed to support jobs and burst. But safety is harder to ensure and safely handle.
+*Tomium was structurally and conceptually designed to support jobs. But safety is harder to ensure and handle.
 
 ### Version Compatibility
 
