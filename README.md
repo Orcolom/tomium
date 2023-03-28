@@ -113,7 +113,7 @@ You can also download the source and add the packages locally.
 |Platform    | |mono |il2cpp | |jobs*|burst |
 |------------|-|-----|-------|-|-----|------|
 |Windows x64 | |✔️   |✔️    | |✔️   |🚧   |
-|Linux       | |❔   |✔️    | |✔️   |🚧   |
+|Linux       | |❔   |❔    | |❔   |🚧   |
 |Mac         | |❔   |❔    | |❔   |🚧   |
 |Android     | |❌   |✔️    | |✔️   |🚧   |
 |iOS         | |❌   |❔    | |❔   |🚧   |
