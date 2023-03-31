@@ -5,9 +5,9 @@
   <head>
     <meta charset="utf-8">
       <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-      <title>Add your introductions here! </title>
+      <title>Tomium </title>
       <meta name="viewport" content="width=device-width">
-      <meta name="title" content="Add your introductions here! ">
+      <meta name="title" content="Tomium ">
     
       <link rel="shortcut icon" href="../favicon.ico">
       <link rel="stylesheet" href="../styles/docfx.vendor.css">
@@ -81,30 +81,6 @@
                     <li class="active">
                       <a href="intro.html" title="Introduction" class="active">Introduction</a>
                     </li>
-                    <li class="">
-                      <span class="expand-stub"></span>
-                      <a class="">Learnings</a>
-
-                        <ul class="nav level2">
-                          <li class="">
-                            <a href="learnings/intro.html" title="Intro" class="">Intro</a>
-                          </li>
-                          <li class="">
-                            <a href="learnings/interop.html" title="Interop" class="">Interop</a>
-                          </li>
-                          <li class="">
-                            <a href="learnings/reflections.html" title="Reflections" class="">Reflections</a>
-                          </li>
-                          <li class="">
-                            <a href="learnings/weaving.html" title="Weaving" class="">Weaving</a>
-                          </li>
-                          <li class="">
-                            <a href="learnings/multiplatform_building.html" title="Multiplatform Building" class="">Multiplatform Building</a>
-                          </li>
-                          <li class="">
-                            <a href="learnings/thread_safety.html" title="Thread Safety" class="">Thread Safety</a>
-                          </li>
-                        </ul>                    </li>
                   </ul>                </div>
               </div>
             </div>
@@ -113,8 +89,187 @@
         <div class="article row grid-right">
           <div class="col-md-10">
             <article class="content wrap" id="_content" data-uid="">
-<h1 id="add-your-introductions-here">Add your introductions here!</h1>
+<h1 id="tomium">Tomium</h1>
 
+<p>A <a href="https://wren.io/">Wren</a> binding made from the ground up for Unity.</p>
+<h2 id="features">Features</h2>
+<ul>
+<li>[x] Full Wren support.</li>
+<li>[x] Syntax tree-based module builder.</li>
+<li>[x] C# syntax style,</li>
+<li>[x] <a href="#scripting-backends-and-platforms">All scripting backends including JobSystem</a></li>
+<li>[x] <a href="#memory-allocation-and-garbage-collection">Optimized garbage collection and allocation</a></li>
+<li>[x] Optimized profiler markers.</li>
+<li>[x] Safe handling of native allocations.</li>
+<li>[x] Pre-emptive exception where Wren would cause a native crash.</li>
+<li>[x] blueprints for full Unity bindings</li>
+</ul>
+<h3 id="example-vm">Example VM</h3>
+<pre><code class="lang-cs">  private void Start()
+  {
+    // Create a new vm
+    var vm = Vm.New();
+
+    // Add listeners for logs and errors
+    vm.SetWriteListener((_, text) =&gt; Debug.Log(text));
+    vm.SetErrorListener((_, type, module, line, message) =&gt;
+    {
+      string str = type switch
+      {
+        ErrorType.CompileError =&gt; $&quot;[{module} line {line}] {message}&quot;,
+        ErrorType.RuntimeError =&gt; message,
+        ErrorType.StackTrace =&gt; $&quot;[{module} line {line}] in {message}&quot;,
+        _ =&gt; string.Empty,
+      };
+      Debug.LogError(str);
+    });
+    
+    // Interpret some code
+    var result = vm.Interpret(&quot;&lt;main&gt;&quot;, &quot;var CallMe = Fn.new{|arg|\nSystem.print(\&quot;Hello World %(arg)\&quot;)\n}&quot;
+    );
+    
+    // Ensure the amount of slots needed
+    // get the `CallMe` variable and store it in slot 0
+    // set a string value to slot 1
+    // make a call handle and run it on `CallMe`
+    vm.EnsureSlots(2);
+    vm.Slot0.GetVariable(&quot;&lt;main&gt;&quot;, &quot;CallMe&quot;);
+    vm.Slot1.SetString(&quot;\n-From Tamia&quot;);
+    using (var handle = vm.MakeCallHandle(&quot;call(_)&quot;))
+    {
+      vm.Call(handle);
+    }
+
+    vm.Dispose();
+  }
+}
+</code></pre>
+<p>The project has multiple VM's in the samples <code>UnityProject-Tomium/Assets/Samples/Tomium/Latest/GettingStarted</code>
+Or by installing the samples using the package manager. Each implementation is different and builds on the previous ones.</p>
+<h3 id="memory-allocation-and-garbage-collection">Memory Allocation and Garbage Collection</h3>
+<p>Because of the nature of this project and the need for call-to-native code and object tracking, 0 allocations became impossible. We pre-allocate as much as possible and use classes only for objects that should exist for the whole application lifetime.</p>
+<p>Every time we have a possible allocation that is unavoidable we've wrapped it in its own re-used Profiler Marker</p>
+<pre><code class="lang-cs">using (ProfilerUtils.AllocScope.Auto())
+{
+  // code that has possible allocation
+}
+</code></pre>
+<h3 id="defines">Defines</h3>
+<p>We have a few defined symbols to change the level of debugging</p>
+<ul>
+<li><code>TOMIUM_DEBUG</code>: Logs creation and destruction of native objects.</li>
+<li><code>TOMIUM_LOG_ABORTEXCEPTION</code>: Log exceptions with call stack when we have to abort from C#.</li>
+</ul>
+<h2 id="modules">Modules</h2>
+<h3 id="conorcolomtomium">con.orcolom.tomium</h3>
+<p>This is the core that talks to native and handles the heavy lifting.</p>
+<h3 id="conorcolomtomiumbuilder">con.orcolom.tomium.builder</h3>
+<p>This package helps with module management and creation.</p>
+<h2 id="install">Install</h2>
+<p>Unity can accept git URLs that follow this structure.</p>
+<pre><code class="lang-xml">{
+  &quot;&lt;package_name&gt;&quot;: &quot;&lt;git_url&gt;?path=&lt;path_to_folder&gt;#&lt;tag&gt;&quot;,
+
+  
+  &quot;com.orcolom.tomium&quot;: &quot;https://github.com/Orcolom/tomium.git?path=UnityProject-Tomium/Packages/com.orcolom.tomium#1.0.0&quot;, 
+  &quot;com.orcolom.tomium.builder&quot;: &quot;https://github.com/Orcolom/tomium.git?path=UnityProject-Tomium/Packages/com.orcolom.tomium.builder#1.0.0&quot;, 
+}
+</code></pre>
+<p>You can also download the source and add the packages locally.</p>
+<h2 id="support">Support</h2>
+<h3 id="scripting-backends-and-platforms">Scripting Backends and Platforms</h3>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th></th>
+<th>mono</th>
+<th>il2cpp</th>
+<th></th>
+<th>jobs*</th>
+<th>burst</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows x64</td>
+<td></td>
+<td>✔️</td>
+<td>✔️</td>
+<td></td>
+<td>✔️</td>
+<td>🚧</td>
+</tr>
+<tr>
+<td>Linux</td>
+<td></td>
+<td>❔</td>
+<td>❔</td>
+<td></td>
+<td>❔</td>
+<td>🚧</td>
+</tr>
+<tr>
+<td>Mac</td>
+<td></td>
+<td>❔</td>
+<td>❔</td>
+<td></td>
+<td>❔</td>
+<td>🚧</td>
+</tr>
+<tr>
+<td>Android</td>
+<td></td>
+<td>❌</td>
+<td>✔️</td>
+<td></td>
+<td>✔️</td>
+<td>🚧</td>
+</tr>
+<tr>
+<td>iOS</td>
+<td></td>
+<td>❌</td>
+<td>❔</td>
+<td></td>
+<td>❔</td>
+<td>🚧</td>
+</tr>
+<tr>
+<td>WebGL</td>
+<td></td>
+<td>❌</td>
+<td>✔️</td>
+<td></td>
+<td>✔️</td>
+<td>🚧</td>
+</tr>
+</tbody>
+</table>
+<p>✔️ = Supported
+❔ = Not verified. (you can only own so many devices)
+🚧 = To be implemented
+❌ = Not supported</p>
+<p>*Tomium was structurally and conceptually designed to support jobs. But safety is harder to ensure and handle.</p>
+<h3 id="version-compatibility">Version Compatibility</h3>
+<p>The compatibilities between Wren, Tomium and Unity</p>
+<table>
+<thead>
+<tr>
+<th>Tomium</th>
+<th>Unity</th>
+<th>Wren</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.4.0</td>
+<td>2021.3+</td>
+<td>0.4.0</td>
+</tr>
+</tbody>
+</table>
 </article>
           </div>
 
@@ -122,6 +277,9 @@
             <div class="sideaffix">
               <div class="contribution">
                 <ul class="nav">
+                  <li>
+                    <a href="https://github.com/Orcolom/tomium/blob/main/docfx_project/articles/intro.md/#L1" class="contribution-link">Improve this Doc</a>
+                  </li>
                 </ul>
               </div>
               <nav class="bs-docs-sidebar hidden-print hidden-xs hidden-sm affix" id="affix">
